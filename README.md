@@ -3,45 +3,82 @@
 [![CurseForge](http://cf.way2muchnoise.eu/full_dirt-slab_downloads.svg)](http://www.curseforge.com/minecraft/mc-mods/dirt-slab)
 [![CurseForge](http://cf.way2muchnoise.eu/versions/dirt-slab.svg)](http://www.curseforge.com/minecraft/mc-mods/dirt-slab)
 
-A [Minecraft](minecraft.net) mod built on [Fabric](fabricmc.net).
+A [Minecraft](https://minecraft.net) mod built on [Fabric](https://fabricmc.net) that adds dirt-type slab blocks with full vanilla parity.
 
-
-## Added Slab Blocks
+## Slab Blocks
 
 - Dirt
-- Coarse dirt
+- Coarse Dirt
 - Farmland
-- Grass path
+- Grass Path
 - Grass
+- Mud
 - Mycelium
 - Podzol
+- Rooted Dirt
 
+All slabs have proper recipes and appear in the Building Blocks creative tab.
 
-## Other features
+## World Generation
 
-- Grass, Podzol, and Mycelium block recipes
-- right-click w/ shovel: dirt slab/block to path slab/block
-- Sneak + right-click w/ shovel: vanilla full block or double slab block to single slab
-- Sneak + Right-click w/ shovel: single slab top to bottom and bottom to top toggle
-- Right-click w/ hoe: coarse dirt slab to dirt slab
-- Right-click w/ hoe: dirt/path slab to farmland slab
-- Right-click w/ hoe: farmland slab/block to dirt slab/block
-- Grass slabs are fertilizable with bonemeal
-- Grass and mycelium spreads and fertilizes across both blocks and slabs
-- Sheep will eat grass off of grass slabs
-- A growing giant pine will also turn adjacent dirt/grass slabs into podzol slabs
-- Top and double farmland slabs can grow crops and melons
-- Melons can grow onto all top and double grass type slab blocks
-- Dead bushes, sugarcane, bamboo, mushrooms, flowers, and saplings can be placed on the appropriate top and double slab versions of the vanilla base blocks
-- Snow on top of or adjacent to a grass or mycelium slab will make it snowy
-- Particles
+Terrain slabs generate naturally at terrain edges, creating smoother transitions between elevations. Works with:
+- All dirt-type slabs
+- Stone variants (stone, deepslate, tuff, andesite, diorite, granite)
+- Sandstone variants
 
+Plants on bottom slabs automatically convert to offset-rendered slab variants.
 
-## Other Mod Interactions
+## Plant Support
 
-[Mixed slab](https://www.curseforge.com/minecraft/mc-mods/mixed-slab) | Last tested with V1.0.0.0
+Plants render correctly on bottom slabs with proper vertical offset. Supported plants:
 
-- Grass slabs: Overlay isn't cutout (results in black dirt)
-- Path/farmland: Uses full block model (results in seeing through the world via the top slice)
-- A mixed slab containing a dirt-slab block doesn't use the correct sound when breaking the block
-- The resulting blocks are simple display only (No other dirt-slab features apply to the mixed slab containing a dirt-slab block)
+**Crops:** Wheat, Carrots, Potatoes, Beetroots, Torchflower, Pitcher Plant
+
+**Flowers:** Dandelion, Poppy, Blue Orchid, Allium, Azure Bluet, Tulips (all colors), Oxeye Daisy, Cornflower, Lily of the Valley, Wither Rose, Torchflower, Eyeblossoms
+
+**Tall Flowers:** Sunflower, Lilac, Rose Bush, Peony
+
+**Plants:** Short Grass, Fern, Dead Bush, Dry Grass, Bush, Tall Grass, Large Fern
+
+**Other:** Mushrooms, Pink Petals, Wildflowers, Leaf Litter, Sugar Cane, Bamboo, Cactus Flower, Firefly Bush, Sweet Berry Bush, Azalea, Moss Carpet, Pale Moss Carpet
+
+**Dripleaf & Vines:** Small Dripleaf, Big Dripleaf, Cave Vines, Pale Hanging Moss, Spore Blossom, Hanging Roots
+
+**Saplings:** All vanilla saplings (Oak, Spruce, Birch, Jungle, Acacia, Dark Oak, Cherry, Mangrove, Pale Oak)
+
+## Snow Support
+
+Snow layers work properly on bottom slabs:
+- Accumulates from weather in snowy biomes
+- Snow golems leave trails on slabs
+- Manual placement with snow items
+- Grass and mycelium slabs show snowy texture when snow is on top
+
+## Tool Interactions
+
+**Shovel:**
+- Right-click dirt slab → Path slab
+- Sneak + right-click full block or double slab → Single slab
+- Sneak + right-click single slab → Toggle top/bottom placement
+
+**Hoe:**
+- Right-click coarse dirt slab → Dirt slab
+- Right-click dirt/path slab → Farmland slab
+- Right-click farmland → Dirt slab
+
+## Vanilla Parity
+
+- Grass, podzol, and mycelium spread across blocks and slabs
+- Sheep eat grass from grass slabs
+- Bonemeal fertilizes grass slabs
+- Giant pines convert adjacent dirt/grass slabs to podzol
+- Farmland slabs support crop growth
+- Melons/pumpkins grow onto appropriate slab types
+- Villager farmers interact with farmland slabs
+- All appropriate particles and sounds
+
+## Requirements
+
+- Minecraft 1.21.11
+- Fabric Loader 0.18.1+
+- Fabric API 0.140.0+
