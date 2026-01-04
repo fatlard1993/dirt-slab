@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"top_offset=false": { "model": "minecraft:block/hanging_roots" },
+		"top_offset=true": { "model": "dirt-slab-justfatlard:block/hanging_roots_offset" }
+	}
+}

@@ -1,0 +1,6 @@
+{
+	"parent": "dirt-slab-justfatlard:block/crop_offset",
+	"textures": {
+		"crop": "block/potatoes_stage3"
+	}
+}

@@ -1,0 +1,8 @@
+{
+	"variants": {
+		"half=lower,bottom_offset=false": { "model": "block/sunflower_bottom" },
+		"half=lower,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/sunflower_bottom_offset" },
+		"half=upper,bottom_offset=false": { "model": "block/sunflower_top" },
+		"half=upper,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/sunflower_top_offset" }
+	}
+}

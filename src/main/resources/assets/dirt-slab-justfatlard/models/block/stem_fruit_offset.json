@@ -1,0 +1,17 @@
+{
+	"ambientocclusion": false,
+	"textures": {
+		"particle": "#stem"
+	},
+	"elements": [
+		{
+			"from": [ 6, -8, 6 ],
+			"to": [ 10, 10, 16 ],
+			"shade": false,
+			"faces": {
+				"west": { "uv": [ 0, 0, 10, 16 ], "texture": "#stem", "tintindex": 0 },
+				"east": { "uv": [ 0, 0, 10, 16 ], "texture": "#stem", "tintindex": 0 }
+			}
+		}
+	]
+}

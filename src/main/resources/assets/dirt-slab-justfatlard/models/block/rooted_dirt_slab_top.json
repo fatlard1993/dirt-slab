@@ -1,0 +1,9 @@
+{
+	"parent": "block/slab_top",
+	"textures": {
+		"particle": "block/rooted_dirt",
+		"bottom": "block/rooted_dirt",
+		"top": "block/rooted_dirt",
+		"side": "block/rooted_dirt"
+	}
+}

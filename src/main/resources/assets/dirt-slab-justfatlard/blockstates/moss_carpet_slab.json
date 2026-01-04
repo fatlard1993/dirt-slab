@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/moss_carpet" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/moss_carpet_offset" }
+	}
+}

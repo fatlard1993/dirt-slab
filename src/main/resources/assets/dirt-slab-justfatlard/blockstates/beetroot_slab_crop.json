@@ -1,0 +1,12 @@
+{
+	"variants": {
+		"age=0,bottom_offset=false": { "model": "block/beetroots_stage0" },
+		"age=1,bottom_offset=false": { "model": "block/beetroots_stage1" },
+		"age=2,bottom_offset=false": { "model": "block/beetroots_stage2" },
+		"age=3,bottom_offset=false": { "model": "block/beetroots_stage3" },
+		"age=0,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/beetroots_stage0_offset" },
+		"age=1,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/beetroots_stage1_offset" },
+		"age=2,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/beetroots_stage2_offset" },
+		"age=3,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/beetroots_stage3_offset" }
+	}
+}

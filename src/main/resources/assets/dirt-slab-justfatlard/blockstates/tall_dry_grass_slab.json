@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/tall_dry_grass" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/tall_dry_grass_offset" }
+	}
+}

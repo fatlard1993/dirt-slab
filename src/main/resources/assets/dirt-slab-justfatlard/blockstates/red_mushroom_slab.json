@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/red_mushroom" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/red_mushroom_offset" }
+	}
+}

@@ -1,7 +1,5 @@
 package justfatlard.dirt_slab.mixins;
 
-import java.util.Iterator;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,13 +10,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SugarCaneBlock;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.tag.FluidTags;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldView;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
-import justfatlard.dirt_slab.Main;
 
 @Mixin(SugarCaneBlock.class)
 public class SugarCaneMixin {
@@ -28,16 +25,32 @@ public class SugarCaneMixin {
 		BlockState groundState = world.getBlockState(groundPos);
 		Block groundBlock = groundState.getBlock();
 
-		if((groundBlock == DirtSlabBlocks.GRASS_SLAB || groundBlock == DirtSlabBlocks.DIRT_SLAB || groundBlock == DirtSlabBlocks.COARSE_DIRT_SLAB || groundBlock == DirtSlabBlocks.PODZOL_SLAB) && Main.hasTopSlab(groundState)){
-			Iterator<Direction> horizontalIterator = Direction.Type.HORIZONTAL.iterator();
+		// Allow placement on slab sugar cane (for stacking)
+		if (groundBlock == DirtSlabBlocks.SUGAR_CANE_SLAB) {
+			info.setReturnValue(true);
+			return;
+		}
 
-			while(horizontalIterator.hasNext()){
-				Direction direction = (Direction)horizontalIterator.next();
+		if (isDirtSlab(groundBlock)) {
+			for (Direction direction : Direction.Type.HORIZONTAL) {
 				BlockState blockState = world.getBlockState(groundPos.offset(direction));
 				FluidState fluidState = world.getFluidState(groundPos.offset(direction));
 
-				if(fluidState.matches(FluidTags.WATER) || blockState.getBlock() == Blocks.FROSTED_ICE) info.setReturnValue(true);
+				if (fluidState.isIn(FluidTags.WATER) || blockState.getBlock() == Blocks.FROSTED_ICE) {
+					info.setReturnValue(true);
+					return;
+				}
 			}
 		}
+	}
+
+	// Note: SugarCaneBlock doesn't override getPlacementState, so placement handling
+	// is done in SeedItemMixin which injects into Block.getPlacementState
+
+	private boolean isDirtSlab(Block block) {
+		return block == DirtSlabBlocks.GRASS_SLAB ||
+			   block == DirtSlabBlocks.DIRT_SLAB ||
+			   block == DirtSlabBlocks.COARSE_DIRT_SLAB ||
+			   block == DirtSlabBlocks.PODZOL_SLAB;
 	}
 }

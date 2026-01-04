@@ -1,0 +1,8 @@
+{
+	"variants": {
+		"bottom_offset=false,flowering=false": { "model": "minecraft:block/azalea" },
+		"bottom_offset=true,flowering=false": { "model": "dirt-slab-justfatlard:block/azalea_offset" },
+		"bottom_offset=false,flowering=true": { "model": "minecraft:block/flowering_azalea" },
+		"bottom_offset=true,flowering=true": { "model": "dirt-slab-justfatlard:block/flowering_azalea_offset" }
+	}
+}

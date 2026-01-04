@@ -1,0 +1,6 @@
+{
+	"parent": "dirt-slab-justfatlard:block/stem_fruit",
+	"textures": {
+		"stem": "minecraft:block/attached_melon_stem"
+	}
+}

@@ -16,8 +16,9 @@ import net.minecraft.block.SlabBlock;
 import net.minecraft.entity.ai.goal.EatGrassGoal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GameRules;
+import net.minecraft.world.rule.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.server.world.ServerWorld;
 
 @Mixin(EatGrassGoal.class)
 public class EatGrassGoalMixin {
@@ -43,8 +44,8 @@ public class EatGrassGoalMixin {
 		Block block = state.getBlock();
 
 		if(block == DirtSlabBlocks.GRASS_SLAB){
-			if(this.world.getGameRules().getBoolean(GameRules.MOB_GRIEFING)){
-				this.world.playLevelEvent(2001, posDown, Block.getRawIdFromState(Blocks.GRASS_BLOCK.getDefaultState()));
+			if(this.world instanceof ServerWorld serverWorld && serverWorld.getGameRules().getValue(GameRules.DO_MOB_GRIEFING)){
+				this.world.syncWorldEvent(2001, posDown, Block.getRawIdFromState(Blocks.GRASS_BLOCK.getDefaultState()));
 
 				this.world.setBlockState(posDown, DirtSlabBlocks.DIRT_SLAB.getDefaultState().with(SlabBlock.TYPE, state.get(SlabBlock.TYPE)).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED)), 2);
 			}

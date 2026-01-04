@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"top_offset=false": { "model": "minecraft:block/spore_blossom" },
+		"top_offset=true": { "model": "dirt-slab-justfatlard:block/spore_blossom_offset" }
+	}
+}

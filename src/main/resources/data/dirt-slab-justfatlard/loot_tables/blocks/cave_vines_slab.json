@@ -1,0 +1,23 @@
+{
+	"type": "minecraft:block",
+	"pools": [
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"name": "minecraft:glow_berries",
+					"conditions": [
+						{
+							"condition": "minecraft:block_state_property",
+							"block": "dirt-slab-justfatlard:cave_vines_slab",
+							"properties": {
+								"berries": "true"
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

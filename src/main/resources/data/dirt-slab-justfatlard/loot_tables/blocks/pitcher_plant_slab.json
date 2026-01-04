@@ -1,0 +1,28 @@
+{
+	"type": "minecraft:block",
+	"pools": [
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"name": "minecraft:pitcher_plant",
+					"conditions": [
+						{
+							"condition": "minecraft:block_state_property",
+							"block": "dirt-slab-justfatlard:pitcher_plant_slab",
+							"properties": {
+								"half": "lower"
+							}
+						}
+					]
+				}
+			],
+			"conditions": [
+				{
+					"condition": "minecraft:survives_explosion"
+				}
+			]
+		}
+	]
+}

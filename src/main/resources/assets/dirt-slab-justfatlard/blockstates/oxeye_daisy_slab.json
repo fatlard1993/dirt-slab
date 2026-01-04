@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/oxeye_daisy" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/oxeye_daisy_offset" }
+	}
+}

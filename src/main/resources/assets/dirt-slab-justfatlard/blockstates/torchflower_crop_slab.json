@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"age=0,bottom_offset=false": { "model": "minecraft:block/torchflower_crop_stage0" },
+		"age=1,bottom_offset=false": { "model": "minecraft:block/torchflower_crop_stage1" },
+		"age=2,bottom_offset=false": { "model": "minecraft:block/torchflower_crop_stage2" },
+		"age=0,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/torchflower_crop_stage0_offset" },
+		"age=1,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/torchflower_crop_stage1_offset" },
+		"age=2,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/torchflower_crop_stage2_offset" }
+	}
+}

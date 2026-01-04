@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/red_tulip" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/red_tulip_offset" }
+	}
+}

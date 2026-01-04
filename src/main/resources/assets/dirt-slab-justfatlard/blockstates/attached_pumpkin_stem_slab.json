@@ -1,0 +1,12 @@
+{
+	"variants": {
+		"bottom_offset=false,facing=north": { "model": "dirt-slab-justfatlard:block/pumpkin_stem_fruit" },
+		"bottom_offset=false,facing=south": { "model": "dirt-slab-justfatlard:block/pumpkin_stem_fruit", "y": 180 },
+		"bottom_offset=false,facing=east": { "model": "dirt-slab-justfatlard:block/pumpkin_stem_fruit", "y": 90 },
+		"bottom_offset=false,facing=west": { "model": "dirt-slab-justfatlard:block/pumpkin_stem_fruit", "y": 270 },
+		"bottom_offset=true,facing=north": { "model": "dirt-slab-justfatlard:block/pumpkin_stem_fruit_offset" },
+		"bottom_offset=true,facing=south": { "model": "dirt-slab-justfatlard:block/pumpkin_stem_fruit_offset", "y": 180 },
+		"bottom_offset=true,facing=east": { "model": "dirt-slab-justfatlard:block/pumpkin_stem_fruit_offset", "y": 90 },
+		"bottom_offset=true,facing=west": { "model": "dirt-slab-justfatlard:block/pumpkin_stem_fruit_offset", "y": 270 }
+	}
+}

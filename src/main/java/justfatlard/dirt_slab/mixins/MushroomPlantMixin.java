@@ -21,6 +21,15 @@ public class MushroomPlantMixin {
 		BlockState groundState = view.getBlockState(pos.down());
 		Block groundBlock = groundState.getBlock();
 
-		if((groundBlock == DirtSlabBlocks.MYCELIUM_SLAB || groundBlock == DirtSlabBlocks.PODZOL_SLAB) && Main.hasTopSlab(groundState)) info.setReturnValue(true);
+		// Mushrooms can always be placed on mycelium and podzol slabs
+		if(groundBlock == DirtSlabBlocks.MYCELIUM_SLAB || groundBlock == DirtSlabBlocks.PODZOL_SLAB) {
+			info.setReturnValue(true);
+			return;
+		}
+
+		// Mushrooms can be placed on other dirt-type slabs in low light (< 13)
+		if(Main.isAnySlab(groundBlock) && view.getBaseLightLevel(pos, 0) < 13) {
+			info.setReturnValue(true);
+		}
 	}
 }

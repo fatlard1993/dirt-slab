@@ -1,0 +1,12 @@
+{
+	"variants": {
+		"facing=north,bottom_offset=false": { "model": "minecraft:block/big_dripleaf_stem" },
+		"facing=north,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/big_dripleaf_stem_offset" },
+		"facing=south,bottom_offset=false": { "model": "minecraft:block/big_dripleaf_stem", "y": 180 },
+		"facing=south,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/big_dripleaf_stem_offset", "y": 180 },
+		"facing=east,bottom_offset=false": { "model": "minecraft:block/big_dripleaf_stem", "y": 90 },
+		"facing=east,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/big_dripleaf_stem_offset", "y": 90 },
+		"facing=west,bottom_offset=false": { "model": "minecraft:block/big_dripleaf_stem", "y": 270 },
+		"facing=west,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/big_dripleaf_stem_offset", "y": 270 }
+	}
+}

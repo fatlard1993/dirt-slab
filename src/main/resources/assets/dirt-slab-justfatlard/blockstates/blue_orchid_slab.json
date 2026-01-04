@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/blue_orchid" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/blue_orchid_offset" }
+	}
+}

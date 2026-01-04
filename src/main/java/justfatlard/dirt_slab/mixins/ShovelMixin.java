@@ -1,7 +1,5 @@
 package justfatlard.dirt_slab.mixins;
 
-import java.util.function.Consumer;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,6 +10,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.enums.SlabType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
@@ -19,16 +19,14 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.ShovelItem;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
@@ -46,7 +44,7 @@ public class ShovelMixin {
 		if(context.getSide() != Direction.DOWN && SlicedTopSlab.canExistAt(state, world, pos)){
 			PlayerEntity player = context.getPlayer();
 			Block block = state.getBlock();
-			Boolean isPlayerSneaking = player.isSneaking();
+			Boolean isPlayerSneaking = player != null && player.isSneaking();
 			Boolean success = false;
 			BlockState newState = Blocks.GREEN_WOOL.getDefaultState();
 			SlabType slabType = block instanceof SlabBlock ? (SlabType)state.get(SlabBlock.TYPE) : SlabType.DOUBLE;
@@ -96,14 +94,11 @@ public class ShovelMixin {
 			}
 
 			else if(isPlayerSneaking && ((block instanceof SlabBlock && slabType == SlabType.DOUBLE) || block instanceof Block)){ // doubles to singles
-				ListTag enchantments = context.getStack().getEnchantments();
-				Boolean isSilkTouch = false;
-
-				for(int x = 0; x < enchantments.size(); ++x) {
-					CompoundTag compoundTag = enchantments.getCompound(x);
-
-					if(compoundTag.getString("id") == String.valueOf(Registry.ENCHANTMENT.getId(Enchantments.SILK_TOUCH))) isSilkTouch = true;
-				}
+				ItemEnchantmentsComponent enchantments = context.getStack().getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+				boolean isSilkTouch = world.getRegistryManager().getOptional(RegistryKeys.ENCHANTMENT)
+					.flatMap(registry -> registry.getOptional(Enchantments.SILK_TOUCH))
+					.map(silkTouch -> enchantments.getLevel(silkTouch) > 0)
+					.orElse(false);
 
 				if(block == Blocks.DIRT || block == DirtSlabBlocks.DIRT_SLAB){
 					newState = DirtSlabBlocks.DIRT_SLAB.getDefaultState();
@@ -131,7 +126,7 @@ public class ShovelMixin {
 					success = true;
 				}
 
-				else if(block == Blocks.GRASS_PATH || block == DirtSlabBlocks.GRASS_PATH_SLAB){
+				else if(block == Blocks.DIRT_PATH || block == DirtSlabBlocks.GRASS_PATH_SLAB){
 					newState = DirtSlabBlocks.GRASS_PATH_SLAB.getDefaultState();
 
 					success = true;
@@ -150,7 +145,7 @@ public class ShovelMixin {
 				}
 
 				if(success && !(block == Blocks.COARSE_DIRT || block == DirtSlabBlocks.COARSE_DIRT_SLAB)){
-					if(context.getStack().hasEnchantments() && isSilkTouch) world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY() + 1, pos.getZ(), new ItemStack(newState.getBlock().asItem())));
+					if(isSilkTouch) world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY() + 1, pos.getZ(), new ItemStack(newState.getBlock().asItem())));
 
 					else world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY() + 1, pos.getZ(), new ItemStack(DirtSlabBlocks.DIRT_SLAB.asItem())));
 				}
@@ -158,7 +153,7 @@ public class ShovelMixin {
 
 			else if(!isPlayerSneaking){
 				if(block == Blocks.DIRT){
-					newState = Blocks.GRASS_PATH.getDefaultState();
+					newState = Blocks.DIRT_PATH.getDefaultState();
 
 					success = true;
 				}
@@ -171,12 +166,12 @@ public class ShovelMixin {
 			}
 
 			if(success){
-				if(!world.isClient){
+				if(!world.isClient()){
 					world.setBlockState(pos, newState);
 
 					((ServerWorld) world).spawnParticles(ParticleTypes.MYCELIUM, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 3, 0.25, 0.02, 0.25, 0.15);
 
-					if(player != null) context.getStack().damage(1, (LivingEntity)player, (Consumer<LivingEntity>)((playerEntity_1x) -> { (playerEntity_1x).sendToolBreakStatus(context.getHand()); }));
+					if(player != null) context.getStack().damage(1, player, context.getHand());
 				}
 
 				else world.playSound(player, pos, SoundEvents.ITEM_SHOVEL_FLATTEN, SoundCategory.BLOCKS, 1.0F, 1.0F);

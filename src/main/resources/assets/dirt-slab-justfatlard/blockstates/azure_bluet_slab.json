@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/azure_bluet" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/azure_bluet_offset" }
+	}
+}

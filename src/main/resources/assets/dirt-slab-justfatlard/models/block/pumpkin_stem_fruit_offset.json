@@ -1,0 +1,6 @@
+{
+	"parent": "dirt-slab-justfatlard:block/stem_fruit_offset",
+	"textures": {
+		"stem": "minecraft:block/attached_pumpkin_stem"
+	}
+}

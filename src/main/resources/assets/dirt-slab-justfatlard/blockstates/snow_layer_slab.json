@@ -1,0 +1,20 @@
+{
+	"variants": {
+		"bottom_offset=false,layers=1": { "model": "minecraft:block/snow_height2" },
+		"bottom_offset=false,layers=2": { "model": "minecraft:block/snow_height4" },
+		"bottom_offset=false,layers=3": { "model": "minecraft:block/snow_height6" },
+		"bottom_offset=false,layers=4": { "model": "minecraft:block/snow_height8" },
+		"bottom_offset=false,layers=5": { "model": "minecraft:block/snow_height10" },
+		"bottom_offset=false,layers=6": { "model": "minecraft:block/snow_height12" },
+		"bottom_offset=false,layers=7": { "model": "minecraft:block/snow_height14" },
+		"bottom_offset=false,layers=8": { "model": "minecraft:block/snow_block" },
+		"bottom_offset=true,layers=1": { "model": "dirt-slab-justfatlard:block/snow_height2_offset" },
+		"bottom_offset=true,layers=2": { "model": "dirt-slab-justfatlard:block/snow_height4_offset" },
+		"bottom_offset=true,layers=3": { "model": "dirt-slab-justfatlard:block/snow_height6_offset" },
+		"bottom_offset=true,layers=4": { "model": "dirt-slab-justfatlard:block/snow_height8_offset" },
+		"bottom_offset=true,layers=5": { "model": "dirt-slab-justfatlard:block/snow_height10_offset" },
+		"bottom_offset=true,layers=6": { "model": "dirt-slab-justfatlard:block/snow_height12_offset" },
+		"bottom_offset=true,layers=7": { "model": "dirt-slab-justfatlard:block/snow_height14_offset" },
+		"bottom_offset=true,layers=8": { "model": "dirt-slab-justfatlard:block/snow_height16_offset" }
+	}
+}

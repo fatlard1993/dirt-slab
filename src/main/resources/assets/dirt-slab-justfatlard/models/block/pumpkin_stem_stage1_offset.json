@@ -1,0 +1,6 @@
+{
+	"parent": "dirt-slab-justfatlard:block/stem_growth1_offset",
+	"textures": {
+		"stem": "minecraft:block/pumpkin_stem"
+	}
+}

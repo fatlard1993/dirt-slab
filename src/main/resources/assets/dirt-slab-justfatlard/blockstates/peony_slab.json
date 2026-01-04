@@ -1,0 +1,8 @@
+{
+	"variants": {
+		"half=lower,bottom_offset=false": { "model": "block/peony_bottom" },
+		"half=lower,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/peony_bottom_offset" },
+		"half=upper,bottom_offset=false": { "model": "block/peony_top" },
+		"half=upper,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/peony_top_offset" }
+	}
+}

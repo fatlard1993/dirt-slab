@@ -1,8 +1,5 @@
 package justfatlard.dirt_slab;
 
-import java.util.Iterator;
-import java.util.Random;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.StateManager;
@@ -10,10 +7,10 @@ import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.tag.FluidTags;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.GameRules;
+import net.minecraft.world.rule.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.block.AttachedStemBlock;
@@ -25,6 +22,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.random.Random;
 
 public class FarmlandSlab extends SlicedTopSlab {
 	public static final EnumProperty<SlabType> TYPE;
@@ -37,12 +35,13 @@ public class FarmlandSlab extends SlicedTopSlab {
 		this.setDefaultState((BlockState)((BlockState)((BlockState)this.stateManager.getDefaultState().with(TYPE, SlabType.BOTTOM)).with(WATERLOGGED, false)).with(MOISTURE, 0));
 	}
 
-	// public BlockState getPlacementState(ItemPlacementContext ctx){
-	// 	return !this.getDefaultState().canPlaceAt(ctx.getWorld(), ctx.getBlockPos()) ? Main.DIRT_SLAB.getDefaultState() : super.getPlacementState(ctx);
-	// }
+	@Override
+	protected boolean hasRandomTicks(BlockState state) {
+		return true;
+	}
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random){
+	protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random){
 		if(!state.canPlaceAt(world, pos)) Main.setToDirt(world, pos);
 
 		else {
@@ -66,12 +65,13 @@ public class FarmlandSlab extends SlicedTopSlab {
 		}
 	}
 
-	public void onLandedUpon(World world, BlockPos pos, Entity entity, float distance){
-		if(!world.isClient && world.random.nextFloat() < distance - 0.5F && entity instanceof LivingEntity && (entity instanceof PlayerEntity || world.getGameRules().getBoolean(GameRules.MOB_GRIEFING)) && entity.getWidth() * entity.getWidth() * entity.getHeight() > 0.512F){
+	@Override
+	public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, double distance){
+		if(!world.isClient() && world.random.nextFloat() < distance - 0.5F && entity instanceof LivingEntity && (entity instanceof PlayerEntity || (world instanceof ServerWorld serverWorld && serverWorld.getGameRules().getValue(GameRules.DO_MOB_GRIEFING))) && entity.getWidth() * entity.getWidth() * entity.getHeight() > 0.512F){
 			Main.setToDirt(world, pos);
 		}
 
-		super.onLandedUpon(world, pos, entity, distance);
+		super.onLandedUpon(world, state, pos, entity, distance);
 	}
 
 	private static boolean hasCrop(BlockView world, BlockPos pos){
@@ -83,18 +83,14 @@ public class FarmlandSlab extends SlicedTopSlab {
 	private static boolean isWaterNearby(WorldView world, BlockPos pos){
 		if(world.getBlockState(pos).get(WATERLOGGED)) return true;
 
-		Iterator var2 = BlockPos.iterate(pos.add(-4, 0, -4), pos.add(4, 1, 4)).iterator();
+		for(BlockPos blockPos : BlockPos.iterate(pos.add(-4, 0, -4), pos.add(4, 1, 4))){
+			if(world.getFluidState(blockPos).isIn(FluidTags.WATER)) return true;
+		}
 
-		BlockPos blockPos;
-		do {
-			if(!var2.hasNext()) return false;
-
-			blockPos = (BlockPos)var2.next();
-		} while(!world.getFluidState(blockPos).matches(FluidTags.WATER));
-
-		return true;
+		return false;
 	}
 
+	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder){ builder.add(TYPE, WATERLOGGED, MOISTURE); }
 
 	static {

@@ -1,0 +1,20 @@
+{
+	"variants": {
+		"age=0,bottom_offset=false": { "model": "block/melon_stem_stage0" },
+		"age=1,bottom_offset=false": { "model": "block/melon_stem_stage1" },
+		"age=2,bottom_offset=false": { "model": "block/melon_stem_stage2" },
+		"age=3,bottom_offset=false": { "model": "block/melon_stem_stage3" },
+		"age=4,bottom_offset=false": { "model": "block/melon_stem_stage4" },
+		"age=5,bottom_offset=false": { "model": "block/melon_stem_stage5" },
+		"age=6,bottom_offset=false": { "model": "block/melon_stem_stage6" },
+		"age=7,bottom_offset=false": { "model": "block/melon_stem_stage7" },
+		"age=0,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/stem_stage0_offset" },
+		"age=1,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/stem_stage1_offset" },
+		"age=2,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/stem_stage2_offset" },
+		"age=3,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/stem_stage3_offset" },
+		"age=4,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/stem_stage4_offset" },
+		"age=5,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/stem_stage5_offset" },
+		"age=6,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/stem_stage6_offset" },
+		"age=7,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/stem_stage7_offset" }
+	}
+}

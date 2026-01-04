@@ -1,0 +1,8 @@
+{
+	"variants": {
+		"half=lower,bottom_offset=false": { "model": "block/lilac_bottom" },
+		"half=lower,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/lilac_bottom_offset" },
+		"half=upper,bottom_offset=false": { "model": "block/lilac_top" },
+		"half=upper,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/lilac_top_offset" }
+	}
+}

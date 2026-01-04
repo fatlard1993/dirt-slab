@@ -1,0 +1,28 @@
+{
+	"variants": {
+		"age=0,bottom_offset=false,leaves=none,stage=0": { "model": "minecraft:block/bamboo1_age0" },
+		"age=0,bottom_offset=false,leaves=none,stage=1": { "model": "minecraft:block/bamboo1_age0" },
+		"age=0,bottom_offset=false,leaves=small,stage=0": { "model": "minecraft:block/bamboo2_age0" },
+		"age=0,bottom_offset=false,leaves=small,stage=1": { "model": "minecraft:block/bamboo2_age0" },
+		"age=0,bottom_offset=false,leaves=large,stage=0": { "model": "minecraft:block/bamboo3_age0" },
+		"age=0,bottom_offset=false,leaves=large,stage=1": { "model": "minecraft:block/bamboo3_age0" },
+		"age=1,bottom_offset=false,leaves=none,stage=0": { "model": "minecraft:block/bamboo1_age1" },
+		"age=1,bottom_offset=false,leaves=none,stage=1": { "model": "minecraft:block/bamboo1_age1" },
+		"age=1,bottom_offset=false,leaves=small,stage=0": { "model": "minecraft:block/bamboo2_age1" },
+		"age=1,bottom_offset=false,leaves=small,stage=1": { "model": "minecraft:block/bamboo2_age1" },
+		"age=1,bottom_offset=false,leaves=large,stage=0": { "model": "minecraft:block/bamboo3_age1" },
+		"age=1,bottom_offset=false,leaves=large,stage=1": { "model": "minecraft:block/bamboo3_age1" },
+		"age=0,bottom_offset=true,leaves=none,stage=0": { "model": "dirt-slab-justfatlard:block/bamboo1_age0_offset" },
+		"age=0,bottom_offset=true,leaves=none,stage=1": { "model": "dirt-slab-justfatlard:block/bamboo1_age0_offset" },
+		"age=0,bottom_offset=true,leaves=small,stage=0": { "model": "dirt-slab-justfatlard:block/bamboo2_age0_offset" },
+		"age=0,bottom_offset=true,leaves=small,stage=1": { "model": "dirt-slab-justfatlard:block/bamboo2_age0_offset" },
+		"age=0,bottom_offset=true,leaves=large,stage=0": { "model": "dirt-slab-justfatlard:block/bamboo3_age0_offset" },
+		"age=0,bottom_offset=true,leaves=large,stage=1": { "model": "dirt-slab-justfatlard:block/bamboo3_age0_offset" },
+		"age=1,bottom_offset=true,leaves=none,stage=0": { "model": "dirt-slab-justfatlard:block/bamboo1_age1_offset" },
+		"age=1,bottom_offset=true,leaves=none,stage=1": { "model": "dirt-slab-justfatlard:block/bamboo1_age1_offset" },
+		"age=1,bottom_offset=true,leaves=small,stage=0": { "model": "dirt-slab-justfatlard:block/bamboo2_age1_offset" },
+		"age=1,bottom_offset=true,leaves=small,stage=1": { "model": "dirt-slab-justfatlard:block/bamboo2_age1_offset" },
+		"age=1,bottom_offset=true,leaves=large,stage=0": { "model": "dirt-slab-justfatlard:block/bamboo3_age1_offset" },
+		"age=1,bottom_offset=true,leaves=large,stage=1": { "model": "dirt-slab-justfatlard:block/bamboo3_age1_offset" }
+	}
+}

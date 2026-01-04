@@ -17,6 +17,9 @@ import justfatlard.dirt_slab.DirtSlabBlocks;
 public class PlantMixin {
 	@Inject(at = @At("TAIL"), method = "canPlantOnTop", cancellable = true)
 	public void canPlantOnTop(BlockState state, BlockView view, BlockPos pos, CallbackInfoReturnable<Boolean> info){
-		if((Main.isDirtType(state.getBlock()) || state.getBlock() == DirtSlabBlocks.GRASS_SLAB) && Main.hasTopSlab(state)) info.setReturnValue(true);
+		// Allow plants on all grass-type slabs (dirt, grass, coarse dirt, podzol, mycelium, mud, rooted dirt)
+		if(Main.isGrassType(state.getBlock()) || state.getBlock() == DirtSlabBlocks.MUD_SLAB || state.getBlock() == DirtSlabBlocks.ROOTED_DIRT_SLAB) {
+			info.setReturnValue(true);
+		}
 	}
 }

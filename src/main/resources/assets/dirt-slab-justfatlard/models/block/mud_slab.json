@@ -1,0 +1,9 @@
+{
+	"parent": "block/slab",
+	"textures": {
+		"particle": "block/mud",
+		"bottom": "block/mud",
+		"top": "block/mud",
+		"side": "block/mud"
+	}
+}

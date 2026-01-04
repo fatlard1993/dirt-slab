@@ -1,0 +1,6 @@
+{
+	"parent": "dirt-slab-justfatlard:block/cross_offset",
+	"textures": {
+		"cross": "minecraft:block/small_dripleaf_stem_top"
+	}
+}

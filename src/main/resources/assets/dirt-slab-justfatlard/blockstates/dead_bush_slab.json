@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/dead_bush" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/dead_bush_offset" }
+	}
+}

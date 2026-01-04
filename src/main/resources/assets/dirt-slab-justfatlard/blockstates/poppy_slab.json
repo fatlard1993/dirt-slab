@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/poppy" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/poppy_offset" }
+	}
+}

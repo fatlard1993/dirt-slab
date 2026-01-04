@@ -1,0 +1,6 @@
+{
+	"parent": "dirt-slab-justfatlard:block/tinted_cross_offset",
+	"textures": {
+		"cross": "minecraft:block/fern"
+	}
+}

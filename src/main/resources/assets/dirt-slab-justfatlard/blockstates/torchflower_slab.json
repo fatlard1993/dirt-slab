@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/torchflower" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/torchflower_offset" }
+	}
+}

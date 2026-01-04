@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/closed_eyeblossom" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/closed_eyeblossom_offset" }
+	}
+}

@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/dandelion" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/dandelion_offset" }
+	}
+}

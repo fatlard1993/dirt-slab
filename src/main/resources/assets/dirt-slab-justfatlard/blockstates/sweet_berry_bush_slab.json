@@ -1,0 +1,12 @@
+{
+	"variants": {
+		"age=0,bottom_offset=false": { "model": "minecraft:block/sweet_berry_bush_stage0" },
+		"age=0,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/sweet_berry_bush_stage0_offset" },
+		"age=1,bottom_offset=false": { "model": "minecraft:block/sweet_berry_bush_stage1" },
+		"age=1,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/sweet_berry_bush_stage1_offset" },
+		"age=2,bottom_offset=false": { "model": "minecraft:block/sweet_berry_bush_stage2" },
+		"age=2,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/sweet_berry_bush_stage2_offset" },
+		"age=3,bottom_offset=false": { "model": "minecraft:block/sweet_berry_bush_stage3" },
+		"age=3,bottom_offset=true": { "model": "dirt-slab-justfatlard:block/sweet_berry_bush_stage3_offset" }
+	}
+}

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["###"],
+  "key": { "#": { "item": "minecraft:mud" } },
+  "result": {
+    "item": "dirt-slab-justfatlard:mud_slab",
+    "count": 6
+  }
+}

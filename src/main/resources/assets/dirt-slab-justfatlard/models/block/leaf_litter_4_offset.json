@@ -1,0 +1,6 @@
+{
+	"parent": "dirt-slab-justfatlard:block/template_leaf_litter_4_offset",
+	"textures": {
+		"texture": "minecraft:block/leaf_litter"
+	}
+}

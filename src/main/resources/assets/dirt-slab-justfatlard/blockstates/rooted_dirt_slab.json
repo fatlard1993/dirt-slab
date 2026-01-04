@@ -1,0 +1,7 @@
+{
+	"variants": {
+		"type=bottom": { "model": "dirt-slab-justfatlard:block/rooted_dirt_slab" },
+		"type=top": { "model": "dirt-slab-justfatlard:block/rooted_dirt_slab_top" },
+		"type=double": { "model": "block/rooted_dirt" }
+	}
+}

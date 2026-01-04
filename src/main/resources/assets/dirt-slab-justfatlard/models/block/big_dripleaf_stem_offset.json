@@ -1,0 +1,27 @@
+{
+	"ambientocclusion": false,
+	"textures": {
+		"particle": "minecraft:block/big_dripleaf_stem",
+		"stem": "minecraft:block/big_dripleaf_stem"
+	},
+	"elements": [
+		{
+			"from": [5, -8, 8],
+			"to": [11, 8, 8],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [5, 0, 11, 16], "texture": "#stem"},
+				"south": {"uv": [5, 0, 11, 16], "texture": "#stem"}
+			}
+		},
+		{
+			"from": [8, -8, 5],
+			"to": [8, 8, 11],
+			"shade": false,
+			"faces": {
+				"west": {"uv": [5, 0, 11, 16], "texture": "#stem"},
+				"east": {"uv": [5, 0, 11, 16], "texture": "#stem"}
+			}
+		}
+	]
+}

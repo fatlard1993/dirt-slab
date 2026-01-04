@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"top_offset=false": { "model": "minecraft:block/pale_hanging_moss" },
+		"top_offset=true": { "model": "dirt-slab-justfatlard:block/pale_hanging_moss_offset" }
+	}
+}

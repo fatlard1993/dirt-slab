@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"bottom_offset=false": { "model": "minecraft:block/allium" },
+		"bottom_offset=true": { "model": "dirt-slab-justfatlard:block/allium_offset" }
+	}
+}

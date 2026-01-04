@@ -1,0 +1,8 @@
+{
+	"variants": {
+		"berries=false,top_offset=false": { "model": "minecraft:block/cave_vines_plant" },
+		"berries=false,top_offset=true": { "model": "dirt-slab-justfatlard:block/cave_vines_plant_offset" },
+		"berries=true,top_offset=false": { "model": "minecraft:block/cave_vines_plant_lit" },
+		"berries=true,top_offset=true": { "model": "dirt-slab-justfatlard:block/cave_vines_plant_lit_offset" }
+	}
+}
