@@ -1,0 +1,69 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "rolls": 1.0,
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "condition": "minecraft:match_tool",
+                  "predicate": {
+                    "predicates": {
+                      "minecraft:enchantments": [
+                        {
+                          "enchantments": "minecraft:silk_touch",
+                          "levels": { "min": 1 }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "conditions": [
+                    {
+                      "condition": "minecraft:block_state_property",
+                      "block": "dirt-slab-justfatlard:mycelium_slab",
+                      "properties": { "type": "double" }
+                    }
+                  ],
+                  "count": 2
+                },
+                { "function": "minecraft:explosion_decay" }
+              ],
+              "name": "dirt-slab-justfatlard:mycelium_slab"
+            },
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                { "condition": "minecraft:survives_explosion" }
+              ],
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "conditions": [
+                    {
+                      "condition": "minecraft:block_state_property",
+                      "block": "dirt-slab-justfatlard:mycelium_slab",
+                      "properties": { "type": "double" }
+                    }
+                  ],
+                  "count": 2
+                }
+              ],
+              "name": "dirt-slab-justfatlard:dirt_slab"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

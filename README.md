@@ -5,6 +5,12 @@
 
 A [Minecraft](https://minecraft.net) mod built on [Fabric](https://fabricmc.net) that adds dirt-type slab blocks with full vanilla parity.
 
+## Screenshots
+
+![Dirt Slab](img.png)
+![Dirt Slab Grass](img2.png)
+![Dirt Slab Farmland](img3.png)
+
 ## Slab Blocks
 
 - Dirt
