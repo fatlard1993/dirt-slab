@@ -55,6 +55,7 @@ public class CropBlockMixin {
 
 	@Inject(method = "randomTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
 	private void onCropGrow(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo callbackInfo){
-		Main.happyParticles(world, pos, state.get(CropBlock.AGE));
+		CropBlock crop = (CropBlock) state.getBlock();
+		Main.happyParticles(world, pos, crop.getAge(state));
 	}
 }
