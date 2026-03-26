@@ -1,19 +1,152 @@
 {
-	"type": "minecraft:block",
-	"pools": [
-		{
-			"rolls": 1,
-			"entries": [
-				{
-					"type": "minecraft:item",
-					"name": "minecraft:pitcher_pod"
-				}
-			],
-			"conditions": [
-				{
-					"condition": "minecraft:survives_explosion"
-				}
-			]
-		}
-	]
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "dirt-slab-justfatlard:pitcher_crop_slab",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "age": "4"
+                  }
+                },
+                {
+                  "block": "dirt-slab-justfatlard:pitcher_crop_slab",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "half": "lower"
+                  }
+                }
+              ],
+              "functions": [
+                {
+                  "count": 1.0,
+                  "function": "minecraft:set_count"
+                }
+              ],
+              "name": "minecraft:pitcher_plant"
+            },
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "dirt-slab-justfatlard:pitcher_crop_slab",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "age": "3"
+                  }
+                },
+                {
+                  "block": "dirt-slab-justfatlard:pitcher_crop_slab",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "half": "lower"
+                  }
+                }
+              ],
+              "functions": [
+                {
+                  "count": 1.0,
+                  "function": "minecraft:set_count"
+                }
+              ],
+              "name": "minecraft:pitcher_pod"
+            },
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "dirt-slab-justfatlard:pitcher_crop_slab",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "age": "2"
+                  }
+                },
+                {
+                  "block": "dirt-slab-justfatlard:pitcher_crop_slab",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "half": "lower"
+                  }
+                }
+              ],
+              "functions": [
+                {
+                  "count": 1.0,
+                  "function": "minecraft:set_count"
+                }
+              ],
+              "name": "minecraft:pitcher_pod"
+            },
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "dirt-slab-justfatlard:pitcher_crop_slab",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "age": "1"
+                  }
+                },
+                {
+                  "block": "dirt-slab-justfatlard:pitcher_crop_slab",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "half": "lower"
+                  }
+                }
+              ],
+              "functions": [
+                {
+                  "count": 1.0,
+                  "function": "minecraft:set_count"
+                }
+              ],
+              "name": "minecraft:pitcher_pod"
+            },
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "dirt-slab-justfatlard:pitcher_crop_slab",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "age": "0"
+                  }
+                },
+                {
+                  "block": "dirt-slab-justfatlard:pitcher_crop_slab",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "half": "lower"
+                  }
+                }
+              ],
+              "functions": [
+                {
+                  "count": 1.0,
+                  "function": "minecraft:set_count"
+                }
+              ],
+              "name": "minecraft:pitcher_pod"
+            }
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "function": "minecraft:explosion_decay"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "dirt-slab-justfatlard:blocks/pitcher_crop_slab"
 }

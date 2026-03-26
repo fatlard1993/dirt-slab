@@ -21,7 +21,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabEffects;
+import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlicedTopSlab;
 
 @Mixin(HoeItem.class)
@@ -35,19 +36,19 @@ public class HoeMixin {
 		if(context.getSide() != Direction.DOWN && SlicedTopSlab.canExistAt(state, world, pos)){
 			PlayerEntity player = context.getPlayer();
 			Block block = state.getBlock();
-			Boolean success = false;
-			BlockState newState = Blocks.GREEN_WOOL.getDefaultState();
+			boolean success = false;
+			BlockState newState = null;
 
-			if(block == DirtSlabBlocks.COARSE_DIRT_SLAB || block == DirtSlabBlocks.FARMLAND_SLAB){
-				newState = DirtSlabBlocks.DIRT_SLAB.getDefaultState().with(SlabBlock.TYPE, state.get(SlabBlock.TYPE)).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED));
+			if(block == DirtSlabBlocks.COARSE_DIRT_SLAB){
+				newState = SlabRegistry.copySlabProperties(state, DirtSlabBlocks.DIRT_SLAB);
 
 				success = true;
 
-				if(world.isClient()) world.playSound(player, pos, SoundEvents.ITEM_SHOVEL_FLATTEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
+				if(world.isClient()) world.playSound(player, pos, SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
 			}
 
 			else if(block == DirtSlabBlocks.DIRT_SLAB || block == DirtSlabBlocks.GRASS_SLAB || block == DirtSlabBlocks.GRASS_PATH_SLAB){
-				newState = DirtSlabBlocks.FARMLAND_SLAB.getDefaultState().with(SlabBlock.TYPE, state.get(SlabBlock.TYPE)).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED));
+				newState = SlabRegistry.copySlabProperties(state, DirtSlabBlocks.FARMLAND_SLAB);
 
 				success = true;
 
@@ -61,7 +62,7 @@ public class HoeMixin {
 					if(player != null) context.getStack().damage(1, player, context.getHand());
 				}
 
-				Main.dirtParticles(world, pos, 1);
+				SlabEffects.dirtParticles(world, pos, 1);
 
 				info.setReturnValue(ActionResult.SUCCESS);
 			}

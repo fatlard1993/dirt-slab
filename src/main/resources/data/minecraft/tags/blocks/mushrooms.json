@@ -1,7 +1,7 @@
 {
-  "replace": false,
+	"replace": false,
 	"values": [
-		"minecraft:red_mushroom",
-		"minecraft:brown_mushroom"
+		"dirt-slab-justfatlard:red_mushroom_slab",
+		"dirt-slab-justfatlard:brown_mushroom_slab"
 	]
 }

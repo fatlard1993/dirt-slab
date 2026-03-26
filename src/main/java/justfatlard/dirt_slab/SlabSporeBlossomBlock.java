@@ -11,6 +11,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
@@ -51,13 +52,20 @@ public class SlabSporeBlossomBlock extends Block {
 	}
 
 	@Override
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
+		BlockPos pos = ctx.getBlockPos();
+		boolean topOffset = shouldOffset(ctx.getWorld(), pos);
+		return this.getDefaultState().with(TOP_OFFSET, topOffset);
+	}
+
+	@Override
 	protected boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
 		BlockPos ceilingPos = pos.up();
 		BlockState ceilingState = world.getBlockState(ceilingPos);
-		return canHangFrom(ceilingState);
+		return canHangFrom(ceilingState, world, ceilingPos);
 	}
 
-	private boolean canHangFrom(BlockState ceiling) {
+	private boolean canHangFrom(BlockState ceiling, BlockView world, BlockPos pos) {
 		Block block = ceiling.getBlock();
 		// Can hang from any top slab or double slab
 		if (block instanceof SlabBlock) {
@@ -65,7 +73,7 @@ public class SlabSporeBlossomBlock extends Block {
 			return type == SlabType.TOP || type == SlabType.DOUBLE;
 		}
 		// Can also hang from full blocks (vanilla behavior)
-		return ceiling.isSideSolidFullSquare(null, null, Direction.DOWN);
+		return ceiling.isSideSolidFullSquare(world, pos, Direction.DOWN);
 	}
 
 	@Override

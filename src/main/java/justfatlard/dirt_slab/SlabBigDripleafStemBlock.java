@@ -22,8 +22,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldView;
 
-public class SlabBigDripleafStemBlock extends Block implements Waterloggable {
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
+public class SlabBigDripleafStemBlock extends Block implements Waterloggable, OffsetableSlab {
 	public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
 	public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
 
@@ -78,7 +77,7 @@ public class SlabBigDripleafStemBlock extends Block implements Waterloggable {
 		// Can be placed if there's a valid support below and dripleaf/stem above
 		boolean validBelow = belowState.isOf(Blocks.BIG_DRIPLEAF_STEM) ||
 			   belowState.isOf(DirtSlabBlocks.BIG_DRIPLEAF_STEM_SLAB) ||
-			   Main.isGrassType(belowState.getBlock()) ||
+			   SlabRegistry.isGrassType(belowState.getBlock()) ||
 			   belowState.isOf(Blocks.CLAY) ||
 			   belowState.isOf(Blocks.MOSS_BLOCK) ||
 			   belowState.isSideSolidFullSquare(world, belowPos, Direction.UP);
@@ -96,9 +95,10 @@ public class SlabBigDripleafStemBlock extends Block implements Waterloggable {
 		return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
 	}
 
+	@Override
 	public boolean shouldOffset(WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
-		if (Main.isAnySlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
+		if (SlabRegistry.isTerrainSlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
 			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 		// If on slab stem, inherit the offset

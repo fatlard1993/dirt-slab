@@ -10,7 +10,6 @@ import net.minecraft.block.SlabBlock;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
@@ -19,10 +18,9 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldView;
 
-public class SlabAttachedStemBlock extends PlantBlock {
+public class SlabAttachedStemBlock extends PlantBlock implements OffsetableSlab {
 	public static final MapCodec<SlabAttachedStemBlock> CODEC = createCodec(SlabAttachedStemBlock::new);
 	public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 
 	// Normal shape (same as vanilla attached stem)
 	private static final VoxelShape SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
@@ -76,6 +74,7 @@ public class SlabAttachedStemBlock extends PlantBlock {
 		return canPlantOnTop(floorState, world, below);
 	}
 
+	@Override
 	public boolean shouldOffset(WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
 		if (below.getBlock() == DirtSlabBlocks.FARMLAND_SLAB) {

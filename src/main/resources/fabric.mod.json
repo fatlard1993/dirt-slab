@@ -3,7 +3,7 @@
 	"id": "dirt-slab-justfatlard",
 	"version": "${version}",
 	"name": "Dirt Slab",
-	"description": "A mostly functional half dirt block",
+	"description": "Half-height dirt, grass, farmland, and more — with full vanilla parity for crops, plants, spreading, and worldgen",
 	"authors": ["justfatlard"],
 	"contact": {
 		"sources": "https://github.com/fatlard1993/dirt-slab"
@@ -12,13 +12,13 @@
 	"icon": "assets/dirt-slab-justfatlard/icon.png",
 	"environment": "*",
 	"entrypoints": {
-		"main": ["justfatlard.dirt_slab.Main"],
-		"client": ["justfatlard.dirt_slab.Main"]
+		"main": ["justfatlard.dirt_slab.DirtSlab"],
+		"client": ["justfatlard.dirt_slab.DirtSlabClient"]
 	},
 	"mixins": ["dirt-slab-justfatlard.mixins.json"],
 	"depends": {
 		"fabricloader": ">=0.18.1",
-		"fabric-api": "*",
+		"fabric-api": ">=0.140.0",
 		"minecraft": "~1.21.11",
 		"java": ">=21"
 	},

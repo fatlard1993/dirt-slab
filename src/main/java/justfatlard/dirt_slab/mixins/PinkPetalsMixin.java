@@ -16,7 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlabPinkPetalsBlock;
 import justfatlard.dirt_slab.SlabWildflowersBlock;
 
@@ -36,7 +36,7 @@ public class PinkPetalsMixin {
 		BlockState groundState = ctx.getWorld().getBlockState(groundPos);
 
 		// Check if placing on a dirt-type slab
-		if (!Main.isAnySlab(groundState.getBlock())) {
+		if (!SlabRegistry.isTerrainSlab(groundState.getBlock())) {
 			return;
 		}
 

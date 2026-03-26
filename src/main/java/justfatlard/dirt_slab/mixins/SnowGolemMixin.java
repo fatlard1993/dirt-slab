@@ -16,7 +16,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.rule.GameRules;
 
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlabSnowLayerBlock;
 
 @Mixin(SnowGolemEntity.class)
@@ -53,7 +53,7 @@ public class SnowGolemMixin {
 					// Case 1: Entity is standing on a bottom slab (floor(Y) = slab's Y position)
 					// The entity's Y is ~64.5 when standing on a bottom slab at Y=64
 					// So we check if the block at pos is a bottom slab and place snow above it
-					if (Main.isAnySlab(stateAtPos.getBlock()) && stateAtPos.contains(SlabBlock.TYPE)) {
+					if (SlabRegistry.isTerrainSlab(stateAtPos.getBlock()) && stateAtPos.contains(SlabBlock.TYPE)) {
 						SlabType type = stateAtPos.get(SlabBlock.TYPE);
 						if (type == SlabType.BOTTOM) {
 							BlockPos abovePos = pos.up();
@@ -71,7 +71,7 @@ public class SnowGolemMixin {
 					BlockPos belowPos = pos.down();
 					BlockState belowState = world.getBlockState(belowPos);
 
-					if (stateAtPos.isAir() && Main.isAnySlab(belowState.getBlock())) {
+					if (stateAtPos.isAir() && SlabRegistry.isTerrainSlab(belowState.getBlock())) {
 						if (belowState.contains(SlabBlock.TYPE)) {
 							SlabType type = belowState.get(SlabBlock.TYPE);
 							if (type == SlabType.BOTTOM) {

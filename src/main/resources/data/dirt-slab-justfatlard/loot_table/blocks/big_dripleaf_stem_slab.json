@@ -1,4 +1,21 @@
 {
-	"type": "minecraft:block",
-	"pools": []
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:big_dripleaf"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "dirt-slab-justfatlard:blocks/big_dripleaf_stem_slab"
 }

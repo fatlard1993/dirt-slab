@@ -7,8 +7,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Fertilizable;
 import net.minecraft.block.ShapeContext;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKeys;
@@ -29,9 +27,8 @@ import net.minecraft.world.tick.ScheduledTickView;
 
 import java.util.Optional;
 
-public class SlabAzaleaBlock extends Block implements Fertilizable {
+public class SlabAzaleaBlock extends Block implements Fertilizable, OffsetableSlab {
 	public static final MapCodec<SlabAzaleaBlock> CODEC = createCodec(SlabAzaleaBlock::new);
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 	public static final BooleanProperty FLOWERING = BooleanProperty.of("flowering");
 
 	private static final VoxelShape SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
@@ -68,7 +65,7 @@ public class SlabAzaleaBlock extends Block implements Fertilizable {
 	@Override
 	protected boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
-		return Main.isGrassType(below.getBlock()) || Main.isAnySlab(below.getBlock()) ||
+		return SlabRegistry.isGrassType(below.getBlock()) || SlabRegistry.isTerrainSlab(below.getBlock()) ||
 			   below.isOf(Blocks.GRASS_BLOCK) || below.isOf(Blocks.DIRT) || below.isOf(Blocks.COARSE_DIRT) ||
 			   below.isOf(Blocks.PODZOL) || below.isOf(Blocks.FARMLAND) || below.isOf(Blocks.CLAY) ||
 			   below.isOf(Blocks.MOSS_BLOCK);
@@ -103,7 +100,7 @@ public class SlabAzaleaBlock extends Block implements Fertilizable {
 			// Replace the block below with dirt if it's a slab (tree needs solid ground)
 			BlockPos belowPos = pos.down();
 			BlockState below = world.getBlockState(belowPos);
-			if (Main.isAnySlab(below.getBlock())) {
+			if (SlabRegistry.isTerrainSlab(below.getBlock())) {
 				world.setBlockState(belowPos, Blocks.DIRT.getDefaultState());
 			}
 			// Remove this block so tree can generate
@@ -111,18 +108,10 @@ public class SlabAzaleaBlock extends Block implements Fertilizable {
 			if (!feature.get().value().generate(world, world.getChunkManager().getChunkGenerator(), random, pos)) {
 				// If tree generation failed, put the azalea back
 				world.setBlockState(pos, state);
-				if (Main.isAnySlab(below.getBlock())) {
+				if (SlabRegistry.isTerrainSlab(below.getBlock())) {
 					world.setBlockState(belowPos, below);
 				}
 			}
 		}
-	}
-
-	public boolean shouldOffset(WorldView world, BlockPos pos) {
-		BlockState below = world.getBlockState(pos.down());
-		if (Main.isAnySlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
-			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
-		}
-		return false;
 	}
 }

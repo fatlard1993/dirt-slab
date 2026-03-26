@@ -18,6 +18,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 
+/**
+ * Slab with reduced height (7px per half instead of 8px), matching vanilla farmland and dirt path
+ * which are 15/16ths of a block tall. Also handles degradation to dirt when smothered by a solid block above.
+ */
 public class SlicedTopSlab extends SlabBlock {
 	protected static final VoxelShape TOP_SHAPE;
 	protected static final VoxelShape BOTTOM_SHAPE;
@@ -47,9 +51,14 @@ public class SlicedTopSlab extends SlabBlock {
 	}
 
 	public static boolean canExistAt(BlockState state, WorldView world, BlockPos pos){
+		if(state.getBlock() instanceof SlabBlock && state.get(TYPE) == SlabType.BOTTOM) return true;
+
 		BlockState upState = world.getBlockState(pos.up());
 
-		return ((state.getBlock() instanceof SlabBlock && state.get(TYPE) == SlabType.BOTTOM) || (upState.getBlock() instanceof SlabBlock && upState.get(TYPE) == SlabType.TOP) || !upState.isSolid() || upState.getBlock() instanceof FenceGateBlock || upState.getBlock() instanceof PistonExtensionBlock);
+		return (upState.getBlock() instanceof SlabBlock && upState.get(TYPE) == SlabType.TOP)
+			|| !upState.isSolid()
+			|| upState.getBlock() instanceof FenceGateBlock
+			|| upState.getBlock() instanceof PistonExtensionBlock;
 	}
 
 	@Override
@@ -66,7 +75,7 @@ public class SlicedTopSlab extends SlabBlock {
 
 	@Override
 	protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random){
-		Main.setToDirt(world, pos);
+		SlabEffects.setToDirt(world, pos);
 	}
 
 	static {

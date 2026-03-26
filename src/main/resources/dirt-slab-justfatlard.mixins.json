@@ -1,29 +1,29 @@
 {
-  "required": true,
+	"required": true,
 	"package": "justfatlard.dirt_slab.mixins",
-  "minVersion": "0.8",
+	"minVersion": "0.8",
 	"compatibilityLevel": "JAVA_21",
-  "injectors": { "defaultRequire": 1 },
-  "mixins": [
-    "BambooMixin",
+	"injectors": { "defaultRequire": 1 },
+	"mixins": [
+		"BambooMixin",
 		"BambooSaplingMixin",
 		"ChunkRegionMixin",
 		"CropBlockMixin",
 		"DeadBushMixin",
 		"EatGrassGoalMixin",
-    "FarmlandBlockMixin",
+		"FarmlandBlockMixin",
 		"FarmerVillagerTaskMixin",
 		"FlowerPlacementMixin",
-    "GrassBlockMixin",
+		"GrassBlockMixin",
 		"HangingRootsMixin",
-    "HoeMixin",
+		"HoeMixin",
 		"LeafLitterMixin",
 		"MossBlockMixin",
-    "MushroomPlantMixin",
+		"MushroomPlantMixin",
 		"PinkPetalsMixin",
 		"PlantMixin",
 		"SecondaryPointsOfInterestSensorMixin",
-		"SeedItemMixin",
+		"PlantPlacementMixin",
 		"ServerWorldMixin",
 		"ShortPlantMixin",
 		"ShovelMixin",
@@ -35,8 +35,8 @@
 		"SporeBlossomMixin",
 		"SugarCaneMixin",
 		"TallPlantMixin"
-  ],
-  "client": [
-    "client.BlockRenderManagerMixin"
-  ]
+	],
+	"client": [
+		"client.BlockRenderManagerMixin"
+	]
 }

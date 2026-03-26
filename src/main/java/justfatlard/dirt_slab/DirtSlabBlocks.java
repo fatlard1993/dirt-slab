@@ -15,11 +15,10 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.TreeConfiguredFeatures;
 
 public class DirtSlabBlocks {
-	public static final String MOD_ID = "dirt-slab-justfatlard";
+	private static final String MOD_ID = DirtSlab.MOD_ID;
 
 	public static final Block COARSE_DIRT_SLAB = new SlabBlock(AbstractBlock.Settings.copy(Blocks.COARSE_DIRT).registryKey(blockKey("coarse_dirt_slab")));
 	public static final Block DIRT_SLAB = new SlabBlock(AbstractBlock.Settings.copy(Blocks.DIRT).registryKey(blockKey("dirt_slab")));
@@ -31,7 +30,7 @@ public class DirtSlabBlocks {
 	public static final Block PODZOL_SLAB = new SlabBlock(AbstractBlock.Settings.copy(Blocks.PODZOL).registryKey(blockKey("podzol_slab")));
 	public static final Block ROOTED_DIRT_SLAB = new RootedDirtSlab(AbstractBlock.Settings.copy(Blocks.ROOTED_DIRT).registryKey(blockKey("rooted_dirt_slab")));
 
-	// Slab crop blocks (for proper rendering on bottom slabs)
+	// Crops
 	public static final Block WHEAT_SLAB_CROP = new SlabCropBlock(AbstractBlock.Settings.copy(Blocks.WHEAT).registryKey(blockKey("wheat_slab_crop")), Items.WHEAT_SEEDS);
 	public static final Block CARROT_SLAB_CROP = new SlabCropBlock(AbstractBlock.Settings.copy(Blocks.CARROTS).registryKey(blockKey("carrot_slab_crop")), Items.CARROT);
 	public static final Block POTATO_SLAB_CROP = new SlabCropBlock(AbstractBlock.Settings.copy(Blocks.POTATOES).registryKey(blockKey("potato_slab_crop")), Items.POTATO);
@@ -40,15 +39,15 @@ public class DirtSlabBlocks {
 	public static final Block PITCHER_CROP_SLAB = new SlabPitcherCropBlock(AbstractBlock.Settings.copy(Blocks.PITCHER_CROP).registryKey(blockKey("pitcher_crop_slab")));
 	public static final Block PITCHER_PLANT_SLAB = new SlabPitcherPlantBlock(AbstractBlock.Settings.copy(Blocks.PITCHER_PLANT).registryKey(blockKey("pitcher_plant_slab")));
 
-	// Slab stem blocks (for melon/pumpkin on bottom slabs)
+	// Stems
 	public static final Block MELON_STEM_SLAB = new SlabStemBlock(true, Items.MELON_SEEDS, AbstractBlock.Settings.copy(Blocks.MELON_STEM).registryKey(blockKey("melon_stem_slab")));
 	public static final Block PUMPKIN_STEM_SLAB = new SlabStemBlock(false, Items.PUMPKIN_SEEDS, AbstractBlock.Settings.copy(Blocks.PUMPKIN_STEM).registryKey(blockKey("pumpkin_stem_slab")));
 
-	// Slab attached stem blocks (for connected stems on bottom slabs)
+	// Attached stems
 	public static final Block ATTACHED_MELON_STEM_SLAB = new SlabAttachedStemBlock(true, Items.MELON_SEEDS, AbstractBlock.Settings.copy(Blocks.ATTACHED_MELON_STEM).registryKey(blockKey("attached_melon_stem_slab")));
 	public static final Block ATTACHED_PUMPKIN_STEM_SLAB = new SlabAttachedStemBlock(false, Items.PUMPKIN_SEEDS, AbstractBlock.Settings.copy(Blocks.ATTACHED_PUMPKIN_STEM).registryKey(blockKey("attached_pumpkin_stem_slab")));
 
-	// Slab flower blocks (for proper rendering on bottom slabs)
+	// Flowers
 	public static final Block DANDELION_SLAB = new SlabFlowerBlock(StatusEffects.SATURATION, 0.35F, AbstractBlock.Settings.copy(Blocks.DANDELION).registryKey(blockKey("dandelion_slab")));
 	public static final Block POPPY_SLAB = new SlabFlowerBlock(StatusEffects.NIGHT_VISION, 5.0F, AbstractBlock.Settings.copy(Blocks.POPPY).registryKey(blockKey("poppy_slab")));
 	public static final Block BLUE_ORCHID_SLAB = new SlabFlowerBlock(StatusEffects.SATURATION, 0.35F, AbstractBlock.Settings.copy(Blocks.BLUE_ORCHID).registryKey(blockKey("blue_orchid_slab")));
@@ -66,83 +65,83 @@ public class DirtSlabBlocks {
 	public static final Block OPEN_EYEBLOSSOM_SLAB = new SlabFlowerBlock(StatusEffects.NAUSEA, 9.0F, AbstractBlock.Settings.copy(Blocks.OPEN_EYEBLOSSOM).registryKey(blockKey("open_eyeblossom_slab")));
 	public static final Block CLOSED_EYEBLOSSOM_SLAB = new SlabFlowerBlock(StatusEffects.BLINDNESS, 11.0F, AbstractBlock.Settings.copy(Blocks.CLOSED_EYEBLOSSOM).registryKey(blockKey("closed_eyeblossom_slab")));
 
-	// Slab tall flower blocks (for proper rendering of 2-block flowers on bottom slabs)
+	// Tall flowers
 	public static final Block SUNFLOWER_SLAB = new SlabTallFlowerBlock(AbstractBlock.Settings.copy(Blocks.SUNFLOWER).registryKey(blockKey("sunflower_slab")));
 	public static final Block LILAC_SLAB = new SlabTallFlowerBlock(AbstractBlock.Settings.copy(Blocks.LILAC).registryKey(blockKey("lilac_slab")));
 	public static final Block ROSE_BUSH_SLAB = new SlabTallFlowerBlock(AbstractBlock.Settings.copy(Blocks.ROSE_BUSH).registryKey(blockKey("rose_bush_slab")));
 	public static final Block PEONY_SLAB = new SlabTallFlowerBlock(AbstractBlock.Settings.copy(Blocks.PEONY).registryKey(blockKey("peony_slab")));
 
-	// Slab mushroom blocks (for proper rendering on bottom slabs)
+	// Mushrooms
 	public static final Block RED_MUSHROOM_SLAB = new SlabMushroomBlock(AbstractBlock.Settings.copy(Blocks.RED_MUSHROOM).registryKey(blockKey("red_mushroom_slab")));
 	public static final Block BROWN_MUSHROOM_SLAB = new SlabMushroomBlock(AbstractBlock.Settings.copy(Blocks.BROWN_MUSHROOM).registryKey(blockKey("brown_mushroom_slab")));
 
-	// Slab pink petals (for proper rendering on bottom slabs)
+	// Pink petals
 	public static final Block PINK_PETALS_SLAB = new SlabPinkPetalsBlock(AbstractBlock.Settings.copy(Blocks.PINK_PETALS).registryKey(blockKey("pink_petals_slab")));
 
-	// Slab wildflowers (for proper rendering on bottom slabs)
+	// Wildflowers
 	public static final Block WILDFLOWERS_SLAB = new SlabWildflowersBlock(AbstractBlock.Settings.copy(Blocks.WILDFLOWERS).registryKey(blockKey("wildflowers_slab")));
 
-	// Slab short plants (for proper rendering on bottom slabs)
+	// Short plants
 	public static final Block SHORT_GRASS_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.SHORT_GRASS).registryKey(blockKey("short_grass_slab")));
 	public static final Block FERN_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.FERN).registryKey(blockKey("fern_slab")));
 	public static final Block DEAD_BUSH_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.DEAD_BUSH).registryKey(blockKey("dead_bush_slab")));
 	public static final Block SHORT_DRY_GRASS_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.SHORT_DRY_GRASS).registryKey(blockKey("short_dry_grass_slab")));
 	public static final Block BUSH_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.BUSH).registryKey(blockKey("bush_slab")));
 
-	// Slab tall plants (for proper rendering on bottom slabs)
+	// Tall plants
 	public static final Block TALL_GRASS_SLAB = new SlabTallPlantBlock(AbstractBlock.Settings.copy(Blocks.TALL_GRASS).registryKey(blockKey("tall_grass_slab")));
 	public static final Block LARGE_FERN_SLAB = new SlabTallPlantBlock(AbstractBlock.Settings.copy(Blocks.LARGE_FERN).registryKey(blockKey("large_fern_slab")));
 	// Tall dry grass is a single-block plant (not a double plant like tall grass)
 	public static final Block TALL_DRY_GRASS_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.TALL_DRY_GRASS).registryKey(blockKey("tall_dry_grass_slab")));
 
-	// Slab leaf litter (for proper rendering on bottom slabs)
+	// Leaf litter
 	public static final Block LEAF_LITTER_SLAB = new SlabLeafLitterBlock(AbstractBlock.Settings.copy(Blocks.LEAF_LITTER).registryKey(blockKey("leaf_litter_slab")));
 
-	// Slab hanging roots (for proper rendering from top slabs)
+	// Hanging roots
 	public static final Block HANGING_ROOTS_SLAB = new SlabHangingRootsBlock(AbstractBlock.Settings.copy(Blocks.HANGING_ROOTS).registryKey(blockKey("hanging_roots_slab")));
 
-	// Slab sugar cane (for proper rendering on bottom slabs)
+	// Sugar cane
 	public static final Block SUGAR_CANE_SLAB = new SlabSugarCaneBlock(AbstractBlock.Settings.copy(Blocks.SUGAR_CANE).ticksRandomly().registryKey(blockKey("sugar_cane_slab")));
 
-	// Slab bamboo (for proper rendering on bottom slabs)
+	// Bamboo
 	public static final Block BAMBOO_SHOOT_SLAB = new SlabBambooShootBlock(AbstractBlock.Settings.copy(Blocks.BAMBOO_SAPLING).ticksRandomly().registryKey(blockKey("bamboo_shoot_slab")));
 	public static final Block BAMBOO_SLAB = new SlabBambooBlock(AbstractBlock.Settings.copy(Blocks.BAMBOO).ticksRandomly().registryKey(blockKey("bamboo_slab")));
 
-	// Slab spore blossom (for proper rendering from top slabs)
+	// Spore blossom
 	public static final Block SPORE_BLOSSOM_SLAB = new SlabSporeBlossomBlock(AbstractBlock.Settings.copy(Blocks.SPORE_BLOSSOM).registryKey(blockKey("spore_blossom_slab")));
 
-	// Slab cactus flower (for proper rendering on bottom slabs)
+	// Cactus flower
 	public static final Block CACTUS_FLOWER_SLAB = new SlabCactusFlowerBlock(AbstractBlock.Settings.copy(Blocks.CACTUS_FLOWER).registryKey(blockKey("cactus_flower_slab")));
 
-	// Slab firefly bush (for proper rendering on bottom slabs)
+	// Firefly bush
 	public static final Block FIREFLY_BUSH_SLAB = new SlabFireflyBushBlock(AbstractBlock.Settings.copy(Blocks.FIREFLY_BUSH).registryKey(blockKey("firefly_bush_slab")));
 
-	// Slab moss carpet (for proper rendering on bottom slabs)
+	// Moss carpet
 	public static final Block MOSS_CARPET_SLAB = new SlabMossCarpetBlock(AbstractBlock.Settings.copy(Blocks.MOSS_CARPET).registryKey(blockKey("moss_carpet_slab")));
 	public static final Block PALE_MOSS_CARPET_SLAB = new SlabMossCarpetBlock(AbstractBlock.Settings.copy(Blocks.PALE_MOSS_CARPET).registryKey(blockKey("pale_moss_carpet_slab")));
 
-	// Slab sweet berry bush (for proper rendering on bottom slabs)
+	// Sweet berry bush
 	public static final Block SWEET_BERRY_BUSH_SLAB = new SlabSweetBerryBushBlock(AbstractBlock.Settings.copy(Blocks.SWEET_BERRY_BUSH).ticksRandomly().registryKey(blockKey("sweet_berry_bush_slab")));
 
-	// Slab azalea (for proper rendering on bottom slabs)
+	// Azalea
 	public static final Block AZALEA_SLAB = new SlabAzaleaBlock(AbstractBlock.Settings.copy(Blocks.AZALEA).registryKey(blockKey("azalea_slab")));
 
-	// Slab dripleaf (for proper rendering on bottom slabs)
+	// Dripleaf
 	public static final Block SMALL_DRIPLEAF_SLAB = new SlabSmallDripleafBlock(AbstractBlock.Settings.copy(Blocks.SMALL_DRIPLEAF).registryKey(blockKey("small_dripleaf_slab")));
 	public static final Block BIG_DRIPLEAF_SLAB = new SlabBigDripleafBlock(AbstractBlock.Settings.copy(Blocks.BIG_DRIPLEAF).registryKey(blockKey("big_dripleaf_slab")));
 	public static final Block BIG_DRIPLEAF_STEM_SLAB = new SlabBigDripleafStemBlock(AbstractBlock.Settings.copy(Blocks.BIG_DRIPLEAF_STEM).registryKey(blockKey("big_dripleaf_stem_slab")));
 
-	// Slab cave vines (for proper rendering from top slabs)
+	// Cave vines
 	public static final Block CAVE_VINES_SLAB = new SlabCaveVinesBlock(AbstractBlock.Settings.copy(Blocks.CAVE_VINES).ticksRandomly().registryKey(blockKey("cave_vines_slab")));
 	public static final Block CAVE_VINES_PLANT_SLAB = new SlabCaveVinesPlantBlock(AbstractBlock.Settings.copy(Blocks.CAVE_VINES_PLANT).registryKey(blockKey("cave_vines_plant_slab")));
 
-	// Slab pale hanging moss (for proper rendering from top slabs)
+	// Pale hanging moss
 	public static final Block PALE_HANGING_MOSS_SLAB = new SlabPaleHangingMossBlock(AbstractBlock.Settings.copy(Blocks.PALE_HANGING_MOSS).registryKey(blockKey("pale_hanging_moss_slab")));
 
-	// Slab snow layer (for proper rendering on bottom slabs)
+	// Snow layer
 	public static final Block SNOW_LAYER_SLAB = new SlabSnowLayerBlock(AbstractBlock.Settings.copy(Blocks.SNOW).ticksRandomly().registryKey(blockKey("snow_layer_slab")));
 
-	// Slab saplings (for proper rendering on bottom slabs)
+	// Saplings
 	public static final Block OAK_SAPLING_SLAB = new SlabSaplingBlock(
 		AbstractBlock.Settings.copy(Blocks.OAK_SAPLING).ticksRandomly().registryKey(blockKey("oak_sapling_slab")),
 		TreeConfiguredFeatures.OAK, TreeConfiguredFeatures.OAK_BEES_005, Items.OAK_SAPLING);
@@ -199,7 +198,7 @@ public class DirtSlabBlocks {
 		registerSlab("podzol_slab", PODZOL_SLAB);
 		registerSlab("rooted_dirt_slab", ROOTED_DIRT_SLAB);
 
-		// Register crop blocks (no items - seeds are the items)
+		// Plant/decoration blocks have no items — they drop their vanilla equivalents
 		registerBlock("wheat_slab_crop", WHEAT_SLAB_CROP);
 		registerBlock("carrot_slab_crop", CARROT_SLAB_CROP);
 		registerBlock("potato_slab_crop", POTATO_SLAB_CROP);
@@ -207,16 +206,10 @@ public class DirtSlabBlocks {
 		registerBlock("torchflower_crop_slab", TORCHFLOWER_CROP_SLAB);
 		registerBlock("pitcher_crop_slab", PITCHER_CROP_SLAB);
 		registerBlock("pitcher_plant_slab", PITCHER_PLANT_SLAB);
-
-		// Register stem blocks (no items - seeds are the items)
 		registerBlock("melon_stem_slab", MELON_STEM_SLAB);
 		registerBlock("pumpkin_stem_slab", PUMPKIN_STEM_SLAB);
-
-		// Register attached stem blocks (no items - these are converted from stems)
 		registerBlock("attached_melon_stem_slab", ATTACHED_MELON_STEM_SLAB);
 		registerBlock("attached_pumpkin_stem_slab", ATTACHED_PUMPKIN_STEM_SLAB);
-
-		// Register flower blocks (no items - flowers are picked up as vanilla items)
 		registerBlock("dandelion_slab", DANDELION_SLAB);
 		registerBlock("poppy_slab", POPPY_SLAB);
 		registerBlock("blue_orchid_slab", BLUE_ORCHID_SLAB);
@@ -233,83 +226,41 @@ public class DirtSlabBlocks {
 		registerBlock("torchflower_slab", TORCHFLOWER_SLAB);
 		registerBlock("open_eyeblossom_slab", OPEN_EYEBLOSSOM_SLAB);
 		registerBlock("closed_eyeblossom_slab", CLOSED_EYEBLOSSOM_SLAB);
-
-		// Register tall flower blocks (no items - flowers are picked up as vanilla items)
 		registerBlock("sunflower_slab", SUNFLOWER_SLAB);
 		registerBlock("lilac_slab", LILAC_SLAB);
 		registerBlock("rose_bush_slab", ROSE_BUSH_SLAB);
 		registerBlock("peony_slab", PEONY_SLAB);
-
-		// Register mushroom blocks (no items - mushrooms are picked up as vanilla items)
 		registerBlock("red_mushroom_slab", RED_MUSHROOM_SLAB);
 		registerBlock("brown_mushroom_slab", BROWN_MUSHROOM_SLAB);
-
-		// Register pink petals (no items - petals are picked up as vanilla items)
 		registerBlock("pink_petals_slab", PINK_PETALS_SLAB);
-
-		// Register wildflowers (no items - flowers are picked up as vanilla items)
 		registerBlock("wildflowers_slab", WILDFLOWERS_SLAB);
-
-		// Register short plants (no items - plants are picked up as vanilla items)
 		registerBlock("short_grass_slab", SHORT_GRASS_SLAB);
 		registerBlock("fern_slab", FERN_SLAB);
 		registerBlock("dead_bush_slab", DEAD_BUSH_SLAB);
 		registerBlock("short_dry_grass_slab", SHORT_DRY_GRASS_SLAB);
 		registerBlock("bush_slab", BUSH_SLAB);
-
-		// Register tall plants (no items - plants are picked up as vanilla items)
 		registerBlock("tall_grass_slab", TALL_GRASS_SLAB);
 		registerBlock("large_fern_slab", LARGE_FERN_SLAB);
 		registerBlock("tall_dry_grass_slab", TALL_DRY_GRASS_SLAB);
-
-		// Register leaf litter (no items - litter is picked up as vanilla items)
 		registerBlock("leaf_litter_slab", LEAF_LITTER_SLAB);
-
-		// Register hanging roots (no items - roots are picked up as vanilla items)
 		registerBlock("hanging_roots_slab", HANGING_ROOTS_SLAB);
-
-		// Register sugar cane slab (no items - sugar cane is picked up as vanilla item)
 		registerBlock("sugar_cane_slab", SUGAR_CANE_SLAB);
-
-		// Register bamboo slab blocks (no items - bamboo is picked up as vanilla item)
 		registerBlock("bamboo_shoot_slab", BAMBOO_SHOOT_SLAB);
 		registerBlock("bamboo_slab", BAMBOO_SLAB);
-
-		// Register spore blossom slab (no items - spore blossom is picked up as vanilla item)
 		registerBlock("spore_blossom_slab", SPORE_BLOSSOM_SLAB);
-
-		// Register cactus flower slab (no items - cactus flower is picked up as vanilla item)
 		registerBlock("cactus_flower_slab", CACTUS_FLOWER_SLAB);
-
-		// Register firefly bush slab (no items - firefly bush is picked up as vanilla item)
 		registerBlock("firefly_bush_slab", FIREFLY_BUSH_SLAB);
-
-		// Register moss carpet slab (no items - moss carpet is picked up as vanilla item)
 		registerBlock("moss_carpet_slab", MOSS_CARPET_SLAB);
 		registerBlock("pale_moss_carpet_slab", PALE_MOSS_CARPET_SLAB);
-
-		// Register sweet berry bush slab (no items - berries are picked up as vanilla item)
 		registerBlock("sweet_berry_bush_slab", SWEET_BERRY_BUSH_SLAB);
-
-		// Register azalea slab (no items - azalea is picked up as vanilla item)
 		registerBlock("azalea_slab", AZALEA_SLAB);
-
-		// Register dripleaf slabs (no items - dripleaf is picked up as vanilla items)
 		registerBlock("small_dripleaf_slab", SMALL_DRIPLEAF_SLAB);
 		registerBlock("big_dripleaf_slab", BIG_DRIPLEAF_SLAB);
 		registerBlock("big_dripleaf_stem_slab", BIG_DRIPLEAF_STEM_SLAB);
-
-		// Register cave vines slabs (no items - glow berries are picked up as vanilla item)
 		registerBlock("cave_vines_slab", CAVE_VINES_SLAB);
 		registerBlock("cave_vines_plant_slab", CAVE_VINES_PLANT_SLAB);
-
-		// Register pale hanging moss slab (no items - pale hanging moss is picked up as vanilla item)
 		registerBlock("pale_hanging_moss_slab", PALE_HANGING_MOSS_SLAB);
-
-		// Register snow layer slab (no items - snow is picked up as vanilla item)
 		registerBlock("snow_layer_slab", SNOW_LAYER_SLAB);
-
-		// Register sapling slabs (no items - saplings are picked up as vanilla items)
 		registerBlock("oak_sapling_slab", OAK_SAPLING_SLAB);
 		registerBlock("spruce_sapling_slab", SPRUCE_SAPLING_SLAB);
 		registerBlock("birch_sapling_slab", BIRCH_SAPLING_SLAB);

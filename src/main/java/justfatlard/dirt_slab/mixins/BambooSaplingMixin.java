@@ -10,14 +10,14 @@ import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldView;
 
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabRegistry;
 
 @Mixin(BambooShootBlock.class)
 public class BambooSaplingMixin {
 	@Inject(at = @At("HEAD"), method = "canPlaceAt", cancellable = true)
 	public void canPlaceAt(BlockState state, WorldView world, BlockPos pos, CallbackInfoReturnable<Boolean> info){
 		BlockState groundState = world.getBlockState(pos.down());
-		if (Main.isGrassType(groundState.getBlock()) && Main.isAnySlab(groundState.getBlock()) && world.getBlockState(pos).isAir()) {
+		if (SlabRegistry.isGrassType(groundState.getBlock()) && SlabRegistry.isTerrainSlab(groundState.getBlock()) && world.getBlockState(pos).isAir()) {
 			info.setReturnValue(true);
 		}
 	}

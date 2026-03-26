@@ -15,7 +15,7 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.util.math.BlockPos;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlabTallPlantBlock;
 
 @Mixin(Block.class)
@@ -34,7 +34,7 @@ public class TallPlantMixin {
 		BlockState belowState = ctx.getWorld().getBlockState(belowPos);
 
 		// Check if placing on a grass-type slab
-		if (Main.isAnySlab(belowState.getBlock())) {
+		if (SlabRegistry.isTerrainSlab(belowState.getBlock())) {
 			boolean isBottomSlab = belowState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
 
 			Block targetBlock = null;

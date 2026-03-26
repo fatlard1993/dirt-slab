@@ -7,9 +7,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Fertilizable;
 import net.minecraft.block.ShapeContext;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.SweetBerryBushBlock;
-import net.minecraft.block.enums.SlabType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCollisionHandler;
 import net.minecraft.entity.EntityType;
@@ -21,7 +18,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
@@ -36,9 +32,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 
-public class SlabSweetBerryBushBlock extends Block implements Fertilizable {
+public class SlabSweetBerryBushBlock extends Block implements Fertilizable, OffsetableSlab {
 	public static final MapCodec<SlabSweetBerryBushBlock> CODEC = createCodec(SlabSweetBerryBushBlock::new);
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 	public static final IntProperty AGE = Properties.AGE_3;
 
 	private static final VoxelShape SMALL_SHAPE = Block.createCuboidShape(3.0, 0.0, 3.0, 13.0, 8.0, 13.0);
@@ -119,7 +114,7 @@ public class SlabSweetBerryBushBlock extends Block implements Fertilizable {
 	@Override
 	protected boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
-		return Main.isGrassType(below.getBlock()) || Main.isAnySlab(below.getBlock()) ||
+		return SlabRegistry.isGrassType(below.getBlock()) || SlabRegistry.isTerrainSlab(below.getBlock()) ||
 			   below.isOf(Blocks.GRASS_BLOCK) || below.isOf(Blocks.DIRT) || below.isOf(Blocks.COARSE_DIRT) ||
 			   below.isOf(Blocks.PODZOL) || below.isOf(Blocks.FARMLAND);
 	}
@@ -146,13 +141,5 @@ public class SlabSweetBerryBushBlock extends Block implements Fertilizable {
 	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
 		int newAge = Math.min(3, state.get(AGE) + 1);
 		world.setBlockState(pos, state.with(AGE, newAge), Block.NOTIFY_LISTENERS);
-	}
-
-	public boolean shouldOffset(WorldView world, BlockPos pos) {
-		BlockState below = world.getBlockState(pos.down());
-		if (Main.isAnySlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
-			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
-		}
-		return false;
 	}
 }

@@ -1,0 +1,37 @@
+{
+	"type": "minecraft:block",
+	"pools": [
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:alternatives",
+					"children": [
+						{
+							"type": "minecraft:item",
+							"name": "minecraft:flowering_azalea",
+							"conditions": [
+								{
+									"condition": "minecraft:block_state_property",
+									"block": "dirt-slab-justfatlard:azalea_slab",
+									"properties": {
+										"flowering": "true"
+									}
+								}
+							]
+						},
+						{
+							"type": "minecraft:item",
+							"name": "minecraft:azalea"
+						}
+					]
+				}
+			],
+			"conditions": [
+				{
+					"condition": "minecraft:survives_explosion"
+				}
+			]
+		}
+	]
+}

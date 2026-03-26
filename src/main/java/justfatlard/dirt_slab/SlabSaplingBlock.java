@@ -7,8 +7,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Fertilizable;
 import net.minecraft.block.ShapeContext;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.Item;
@@ -17,7 +15,6 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -32,9 +29,8 @@ import net.minecraft.world.tick.ScheduledTickView;
 
 import java.util.Optional;
 
-public class SlabSaplingBlock extends Block implements Fertilizable {
+public class SlabSaplingBlock extends Block implements Fertilizable, OffsetableSlab {
 	public static final MapCodec<SlabSaplingBlock> CODEC = createCodec(SlabSaplingBlock::new);
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 	public static final IntProperty STAGE = IntProperty.of("stage", 0, 1);
 
 	private static final VoxelShape SHAPE = Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 12.0, 14.0);
@@ -83,7 +79,7 @@ public class SlabSaplingBlock extends Block implements Fertilizable {
 	@Override
 	protected boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
-		return Main.isGrassType(below.getBlock()) || Main.isAnySlab(below.getBlock()) ||
+		return SlabRegistry.isGrassType(below.getBlock()) || SlabRegistry.isTerrainSlab(below.getBlock()) ||
 			   below.isOf(Blocks.GRASS_BLOCK) || below.isOf(Blocks.DIRT) || below.isOf(Blocks.COARSE_DIRT) ||
 			   below.isOf(Blocks.PODZOL) || below.isOf(Blocks.FARMLAND) || below.isOf(Blocks.MUD) ||
 			   below.isOf(Blocks.MUDDY_MANGROVE_ROOTS) || below.isOf(Blocks.MOSS_BLOCK);
@@ -146,13 +142,13 @@ public class SlabSaplingBlock extends Block implements Fertilizable {
 		if (feature.isPresent()) {
 			BlockPos belowPos = pos.down();
 			BlockState below = world.getBlockState(belowPos);
-			if (Main.isAnySlab(below.getBlock())) {
+			if (SlabRegistry.isTerrainSlab(below.getBlock())) {
 				world.setBlockState(belowPos, Blocks.DIRT.getDefaultState());
 			}
 			world.setBlockState(pos, Blocks.AIR.getDefaultState());
 			if (!feature.get().value().generate(world, world.getChunkManager().getChunkGenerator(), random, pos)) {
 				world.setBlockState(pos, state);
-				if (Main.isAnySlab(below.getBlock())) {
+				if (SlabRegistry.isTerrainSlab(below.getBlock())) {
 					world.setBlockState(belowPos, below);
 				}
 			}
@@ -181,13 +177,18 @@ public class SlabSaplingBlock extends Block implements Fertilizable {
 		if (feature.isPresent()) {
 			BlockPos cornerPos = pos.add(dx, 0, dz);
 
-			// Replace slabs with dirt and clear saplings
+			// Save original states for restoration on failure
+			BlockState[][] savedSaplings = new BlockState[2][2];
+			BlockState[][] savedBelows = new BlockState[2][2];
+
 			for (int x = 0; x <= 1; ++x) {
 				for (int z = 0; z <= 1; ++z) {
 					BlockPos saplingPos = cornerPos.add(x, 0, z);
 					BlockPos belowPos = saplingPos.down();
-					BlockState below = world.getBlockState(belowPos);
-					if (Main.isAnySlab(below.getBlock())) {
+					savedSaplings[x][z] = world.getBlockState(saplingPos);
+					savedBelows[x][z] = world.getBlockState(belowPos);
+
+					if (SlabRegistry.isTerrainSlab(savedBelows[x][z].getBlock())) {
 						world.setBlockState(belowPos, Blocks.DIRT.getDefaultState());
 					}
 					world.setBlockState(saplingPos, Blocks.AIR.getDefaultState());
@@ -195,16 +196,16 @@ public class SlabSaplingBlock extends Block implements Fertilizable {
 			}
 
 			if (!feature.get().value().generate(world, world.getChunkManager().getChunkGenerator(), random, cornerPos.add(1, 0, 1))) {
-				// Tree generation failed - this is acceptable, don't restore saplings for mega trees
+				// Restore saplings and ground blocks on failure
+				for (int x = 0; x <= 1; ++x) {
+					for (int z = 0; z <= 1; ++z) {
+						BlockPos saplingPos = cornerPos.add(x, 0, z);
+						BlockPos belowPos = saplingPos.down();
+						world.setBlockState(belowPos, savedBelows[x][z]);
+						world.setBlockState(saplingPos, savedSaplings[x][z]);
+					}
+				}
 			}
 		}
-	}
-
-	public boolean shouldOffset(WorldView world, BlockPos pos) {
-		BlockState below = world.getBlockState(pos.down());
-		if (Main.isAnySlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
-			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
-		}
-		return false;
 	}
 }

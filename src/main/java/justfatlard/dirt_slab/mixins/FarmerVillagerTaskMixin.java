@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.asm.mixin.Shadow;
 
-import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.FarmlandSlab;
+import justfatlard.dirt_slab.SlabRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.brain.task.FarmerVillagerTask;
@@ -90,20 +90,7 @@ public class FarmerVillagerTaskMixin {
 	}
 
 	private static BlockState getSlabCropState(BlockItem blockItem) {
-		Block block = blockItem.getBlock();
-		// Map vanilla crops to their slab variants
-		if (block == net.minecraft.block.Blocks.WHEAT) {
-			return DirtSlabBlocks.WHEAT_SLAB_CROP.getDefaultState();
-		}
-		if (block == net.minecraft.block.Blocks.CARROTS) {
-			return DirtSlabBlocks.CARROT_SLAB_CROP.getDefaultState();
-		}
-		if (block == net.minecraft.block.Blocks.POTATOES) {
-			return DirtSlabBlocks.POTATO_SLAB_CROP.getDefaultState();
-		}
-		if (block == net.minecraft.block.Blocks.BEETROOTS) {
-			return DirtSlabBlocks.BEETROOT_SLAB_CROP.getDefaultState();
-		}
-		return null;
+		Block cropSlab = SlabRegistry.getCropSlab(blockItem.getBlock());
+		return cropSlab != null ? cropSlab.getDefaultState() : null;
 	}
 }

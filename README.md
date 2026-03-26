@@ -23,7 +23,7 @@ A [Minecraft](https://minecraft.net) mod built on [Fabric](https://fabricmc.net)
 - Podzol
 - Rooted Dirt
 
-All slabs have proper recipes and appear in the Building Blocks creative tab.
+All slabs appear in the Building Blocks creative tab. Slabs are obtained via shovel (sneak + right-click to halve a full block).
 
 ## World Generation
 
@@ -69,8 +69,7 @@ Snow layers work properly on bottom slabs:
 
 **Hoe:**
 - Right-click coarse dirt slab → Dirt slab
-- Right-click dirt/path slab → Farmland slab
-- Right-click farmland → Dirt slab
+- Right-click dirt/grass/path slab → Farmland slab
 
 ## Vanilla Parity
 
@@ -88,3 +87,4 @@ Snow layers work properly on bottom slabs:
 - Minecraft 1.21.11
 - Fabric Loader 0.18.1+
 - Fabric API 0.140.0+
+- **Must be installed on both client and server** — custom block states require the client mod for rendering

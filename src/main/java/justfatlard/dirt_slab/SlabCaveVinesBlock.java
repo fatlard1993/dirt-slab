@@ -12,6 +12,7 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
@@ -65,21 +66,11 @@ public class SlabCaveVinesBlock extends PlantBlock implements Fertilizable, Cave
 		return false;
 	}
 
-	private boolean canHangFrom(BlockState ceiling) {
-		Block block = ceiling.getBlock();
-		// Can hang from moss slabs or full moss blocks
-		if (block == DirtSlabBlocks.MOSS_CARPET_SLAB ||
-			block == Blocks.MOSS_BLOCK ||
-			block == Blocks.MOSS_CARPET ||
-			ceiling.isSideSolidFullSquare((BlockView) null, BlockPos.ORIGIN, Direction.DOWN)) {
-			return true;
-		}
-		// Check for slabs
-		if (ceiling.contains(SlabBlock.TYPE)) {
-			SlabType type = ceiling.get(SlabBlock.TYPE);
-			return type == SlabType.TOP || type == SlabType.DOUBLE;
-		}
-		return ceiling.isSideSolidFullSquare((BlockView) null, BlockPos.ORIGIN, Direction.DOWN);
+	@Override
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
+		BlockPos pos = ctx.getBlockPos();
+		boolean topOffset = shouldOffset(ctx.getWorld(), pos);
+		return this.getDefaultState().with(TOP_OFFSET, topOffset);
 	}
 
 	@Override

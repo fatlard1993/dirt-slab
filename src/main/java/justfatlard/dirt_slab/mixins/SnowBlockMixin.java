@@ -12,7 +12,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldView;
 
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabRegistry;
 
 @Mixin(SnowBlock.class)
 public class SnowBlockMixin {
@@ -25,7 +25,7 @@ public class SnowBlockMixin {
 		BlockState below = world.getBlockState(pos.down());
 
 		// Check if the block below is one of our slabs
-		if (Main.isAnySlab(below.getBlock())) {
+		if (SlabRegistry.isTerrainSlab(below.getBlock())) {
 			if (below.contains(SlabBlock.TYPE)) {
 				SlabType type = below.get(SlabBlock.TYPE);
 				// Allow snow on TOP or DOUBLE slabs (they have a full top surface)

@@ -1,0 +1,15 @@
+{
+	"replace": false,
+	"values": [
+		"dirt-slab-justfatlard:dirt_slab",
+		"dirt-slab-justfatlard:coarse_dirt_slab",
+		"dirt-slab-justfatlard:grass_slab",
+		"dirt-slab-justfatlard:grass_path_slab",
+		"dirt-slab-justfatlard:farmland_slab",
+		"dirt-slab-justfatlard:mud_slab",
+		"dirt-slab-justfatlard:mycelium_slab",
+		"dirt-slab-justfatlard:podzol_slab",
+		"dirt-slab-justfatlard:rooted_dirt_slab",
+		"dirt-slab-justfatlard:snow_layer_slab"
+	]
+}

@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldView;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlabBambooBlock;
 import justfatlard.dirt_slab.SlabBambooShootBlock;
 
@@ -33,7 +33,7 @@ public class BambooMixin {
 		}
 
 		// Allow placement on dirt slabs
-		if (Main.isGrassType(groundBlock) && Main.isAnySlab(groundBlock) && world.getBlockState(pos).isAir()) {
+		if (SlabRegistry.isGrassType(groundBlock) && SlabRegistry.isTerrainSlab(groundBlock) && world.getBlockState(pos).isAir()) {
 			info.setReturnValue(true);
 		}
 	}
@@ -67,7 +67,7 @@ public class BambooMixin {
 		}
 
 		// If placing on dirt slab, use bamboo shoot slab
-		if (Main.isGrassType(groundBlock) && Main.isAnySlab(groundBlock) && ctx.getWorld().getBlockState(pos).isAir()) {
+		if (SlabRegistry.isGrassType(groundBlock) && SlabRegistry.isTerrainSlab(groundBlock) && ctx.getWorld().getBlockState(pos).isAir()) {
 			boolean bottomOffset = false;
 			if (groundBlock instanceof SlabBlock) {
 				bottomOffset = groundState.get(SlabBlock.TYPE) == SlabType.BOTTOM;

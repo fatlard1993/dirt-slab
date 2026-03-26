@@ -6,9 +6,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
+import justfatlard.dirt_slab.SlabRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -27,30 +27,33 @@ public class EatGrassGoalMixin {
 	@Shadow
 	private MobEntity mob;
 
-	@Inject(at = @At(value = "INVOKE", target = "java/util/function/Predicate.test(Ljava/lang/Object;)Z"), method = "canStart", cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
-	public void canStart(CallbackInfoReturnable<Boolean> info, BlockPos pos){
+	private BlockPos getGrassSlabPos() {
+		BlockPos mobPos = this.mob.getBlockPos();
 		boolean betweenBlocks = (Math.round(mob.getY()) - mob.getY()) > 0;
-		BlockPos posDown = betweenBlocks ? pos : pos.down();
-		Block block = world.getBlockState(posDown).getBlock();
-
-		if(block == DirtSlabBlocks.GRASS_SLAB) info.setReturnValue(true);
+		BlockPos checkPos = betweenBlocks ? mobPos : mobPos.down();
+		if(world.getBlockState(checkPos).getBlock() == DirtSlabBlocks.GRASS_SLAB) return checkPos;
+		return null;
 	}
 
-	@Inject(at = @At(value = "INVOKE", target = "java/util/function/Predicate.test(Ljava/lang/Object;)Z"), method = "tick", cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
-	public void tick(CallbackInfo info, BlockPos pos){
-		boolean betweenBlocks = (Math.round(mob.getY()) - mob.getY()) > 0;
-		BlockPos posDown = betweenBlocks ? pos : pos.down();
+	@Inject(at = @At(value = "INVOKE", target = "java/util/function/Predicate.test(Ljava/lang/Object;)Z"), method = "canStart", cancellable = true)
+	public void canStart(CallbackInfoReturnable<Boolean> info){
+		if(getGrassSlabPos() != null) info.setReturnValue(true);
+	}
+
+	@Inject(at = @At(value = "INVOKE", target = "java/util/function/Predicate.test(Ljava/lang/Object;)Z"), method = "tick", cancellable = true)
+	public void tick(CallbackInfo info){
+		BlockPos posDown = getGrassSlabPos();
+		if(posDown == null) return;
+
 		BlockState state = world.getBlockState(posDown);
-		Block block = state.getBlock();
 
-		if(block == DirtSlabBlocks.GRASS_SLAB){
-			if(this.world instanceof ServerWorld serverWorld && serverWorld.getGameRules().getValue(GameRules.DO_MOB_GRIEFING)){
-				this.world.syncWorldEvent(2001, posDown, Block.getRawIdFromState(Blocks.GRASS_BLOCK.getDefaultState()));
+		if(this.world instanceof ServerWorld serverWorld && serverWorld.getGameRules().getValue(GameRules.DO_MOB_GRIEFING)){
+			this.world.syncWorldEvent(2001, posDown, Block.getRawIdFromState(Blocks.GRASS_BLOCK.getDefaultState()));
 
-				this.world.setBlockState(posDown, DirtSlabBlocks.DIRT_SLAB.getDefaultState().with(SlabBlock.TYPE, state.get(SlabBlock.TYPE)).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED)), 2);
-			}
-
-			this.mob.onEatingGrass();
+			this.world.setBlockState(posDown, SlabRegistry.copySlabProperties(state, DirtSlabBlocks.DIRT_SLAB), 2);
 		}
+
+		this.mob.onEatingGrass();
+		info.cancel();
 	}
 }

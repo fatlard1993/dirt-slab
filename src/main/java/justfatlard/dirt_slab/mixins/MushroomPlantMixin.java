@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldView;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabRegistry;
 
 @Mixin(MushroomPlantBlock.class)
 public class MushroomPlantMixin {
@@ -28,7 +28,7 @@ public class MushroomPlantMixin {
 		}
 
 		// Mushrooms can be placed on other dirt-type slabs in low light (< 13)
-		if(Main.isAnySlab(groundBlock) && view.getBaseLightLevel(pos, 0) < 13) {
+		if(SlabRegistry.isTerrainSlab(groundBlock) && view.getBaseLightLevel(pos, 0) < 13) {
 			info.setReturnValue(true);
 		}
 	}

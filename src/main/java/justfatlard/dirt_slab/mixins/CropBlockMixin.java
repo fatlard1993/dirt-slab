@@ -17,7 +17,7 @@ import net.minecraft.world.BlockView;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.FarmlandSlab;
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabEffects;
 
 @Mixin(CropBlock.class)
 public class CropBlockMixin {
@@ -55,6 +55,7 @@ public class CropBlockMixin {
 
 	@Inject(method = "randomTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
 	private void onCropGrow(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo callbackInfo){
-		Main.happyParticles(world, pos, state.get(CropBlock.AGE));
+		int age = state.contains(CropBlock.AGE) ? state.get(CropBlock.AGE) : 1;
+		SlabEffects.happyParticles(world, pos, age);
 	}
 }

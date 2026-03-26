@@ -16,7 +16,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlabSnowLayerBlock;
 
 @Mixin(BlockItem.class)
@@ -40,7 +40,7 @@ public class SnowItemMixin {
 		BlockState belowState = world.getBlockState(belowPos);
 
 		// Check if we're placing on a bottom slab
-		if (Main.isAnySlab(belowState.getBlock()) && belowState.contains(SlabBlock.TYPE)) {
+		if (SlabRegistry.isTerrainSlab(belowState.getBlock()) && belowState.contains(SlabBlock.TYPE)) {
 			SlabType type = belowState.get(SlabBlock.TYPE);
 
 			if (type == SlabType.BOTTOM) {
@@ -51,7 +51,7 @@ public class SnowItemMixin {
 					int currentLayers = currentState.get(SlabSnowLayerBlock.LAYERS);
 					if (currentLayers < 8) {
 						world.setBlockState(placePos, currentState.with(SlabSnowLayerBlock.LAYERS, currentLayers + 1), Block.NOTIFY_ALL);
-						if (!context.getPlayer().getAbilities().creativeMode) {
+						if (context.getPlayer() == null || !context.getPlayer().getAbilities().creativeMode) {
 							context.getStack().decrement(1);
 						}
 						cir.setReturnValue(ActionResult.SUCCESS);
@@ -66,7 +66,7 @@ public class SnowItemMixin {
 				if (currentState.isAir()) {
 					BlockState snowState = SlabSnowLayerBlock.createForSlab(belowState);
 					world.setBlockState(placePos, snowState, Block.NOTIFY_ALL);
-					if (!context.getPlayer().getAbilities().creativeMode) {
+					if (context.getPlayer() == null || !context.getPlayer().getAbilities().creativeMode) {
 						context.getStack().decrement(1);
 					}
 					cir.setReturnValue(ActionResult.SUCCESS);

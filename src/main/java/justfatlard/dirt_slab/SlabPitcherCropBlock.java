@@ -12,7 +12,6 @@ import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
@@ -23,8 +22,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
-public class SlabPitcherCropBlock extends CropBlock {
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
+public class SlabPitcherCropBlock extends CropBlock implements OffsetableSlab {
 	public static final IntProperty AGE = IntProperty.of("age", 0, 4);
 	public static final EnumProperty<DoubleBlockHalf> HALF = Properties.DOUBLE_BLOCK_HALF;
 
@@ -126,6 +124,21 @@ public class SlabPitcherCropBlock extends CropBlock {
 		boolean offset = state.get(BOTTOM_OFFSET);
 		int oldAge = this.getAge(state);
 
+		if (newAge >= this.getMaxAge()) {
+			// Transform into pitcher plant when fully grown
+			BlockPos upperPos = pos.up();
+			if (!isTwoBlockTall(oldAge) && !world.getBlockState(upperPos).isReplaceable()) {
+				return; // Can't grow - no space for upper half
+			}
+			world.setBlockState(pos, DirtSlabBlocks.PITCHER_PLANT_SLAB.getDefaultState()
+				.with(SlabPitcherPlantBlock.HALF, DoubleBlockHalf.LOWER)
+				.with(BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
+			world.setBlockState(upperPos, DirtSlabBlocks.PITCHER_PLANT_SLAB.getDefaultState()
+				.with(SlabPitcherPlantBlock.HALF, DoubleBlockHalf.UPPER)
+				.with(BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
+			return;
+		}
+
 		// Check if we need to add or update the upper half
 		if (isTwoBlockTall(newAge)) {
 			BlockPos upperPos = pos.up();
@@ -194,6 +207,7 @@ public class SlabPitcherCropBlock extends CropBlock {
 		return canPlantOnTop(floorState, world, below);
 	}
 
+	@Override
 	public boolean shouldOffset(WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
 		if (below.getBlock() == DirtSlabBlocks.FARMLAND_SLAB) {

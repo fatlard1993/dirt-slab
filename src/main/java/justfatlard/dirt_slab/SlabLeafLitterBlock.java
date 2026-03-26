@@ -6,15 +6,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.PlantBlock;
 import net.minecraft.block.ShapeContext;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
@@ -27,13 +24,12 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
-public class SlabLeafLitterBlock extends PlantBlock {
+public class SlabLeafLitterBlock extends PlantBlock implements OffsetableSlab {
 	public static final MapCodec<SlabLeafLitterBlock> CODEC = createCodec(SlabLeafLitterBlock::new);
 	public static final int MIN_AMOUNT = 1;
 	public static final int MAX_AMOUNT = 4;
 	public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
 	public static final IntProperty SEGMENT_AMOUNT = Properties.SEGMENT_AMOUNT;
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 
 	// Normal shape (leaf litter is very flat)
 	private static final VoxelShape SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 1.0, 16.0);
@@ -68,10 +64,7 @@ public class SlabLeafLitterBlock extends PlantBlock {
 
 	@Override
 	protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-		return Main.isGrassType(floor.getBlock()) ||
-			   floor.getBlock() == DirtSlabBlocks.MUD_SLAB ||
-			   floor.getBlock() == DirtSlabBlocks.ROOTED_DIRT_SLAB ||
-			   floor.getBlock() == DirtSlabBlocks.PODZOL_SLAB;
+		return SlabRegistry.isPlantable(floor.getBlock());
 	}
 
 	@Override
@@ -79,14 +72,6 @@ public class SlabLeafLitterBlock extends PlantBlock {
 		BlockPos groundPos = pos.down();
 		BlockState groundState = world.getBlockState(groundPos);
 		return canPlantOnTop(groundState, world, groundPos);
-	}
-
-	public boolean shouldOffset(WorldView world, BlockPos pos) {
-		BlockState below = world.getBlockState(pos.down());
-		if (Main.isAnySlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
-			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
-		}
-		return false;
 	}
 
 	@Override

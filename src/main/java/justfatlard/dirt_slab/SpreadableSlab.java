@@ -4,37 +4,39 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.SnowBlock;
+import net.minecraft.block.SlabBlock;
+import net.minecraft.block.enums.SlabType;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SnowBlock;
-import net.minecraft.block.enums.SlabType;
 import net.minecraft.world.chunk.light.ChunkLightProvider;
-import net.minecraft.block.SlabBlock;
 import net.minecraft.world.tick.ScheduledTickView;
 
+/**
+ * Slab that spreads to adjacent dirt slabs (grass, mycelium).
+ * Mirrors vanilla SpreadableBlock behavior for half-height slabs.
+ */
+
 public class SpreadableSlab extends SlabBlock {
-	public final Block baseBlock;
-	public static final EnumProperty<SlabType> TYPE;
-	public static final BooleanProperty WATERLOGGED;
-	public static final BooleanProperty SNOWY;
+	final Block baseBlock;
+	public static final BooleanProperty SNOWY = Properties.SNOWY;
 
 	public SpreadableSlab(Settings settings, Block baseBlock){
 		super(settings);
 
 		this.baseBlock = baseBlock;
 
-		this.setDefaultState((BlockState)((BlockState)((BlockState)this.stateManager.getDefaultState().with(TYPE, SlabType.BOTTOM)).with(WATERLOGGED, false)).with(SNOWY, false));
+		this.setDefaultState(this.stateManager.getDefaultState().with(TYPE, SlabType.BOTTOM).with(WATERLOGGED, false).with(SNOWY, false));
 	}
 
 	@Override
@@ -44,30 +46,64 @@ public class SpreadableSlab extends SlabBlock {
 	}
 
 	@Override
-	protected void scheduledTick(BlockState spreader, ServerWorld world, BlockPos pos, Random random){
-		if(!canSurvive(spreader, world, pos)) Main.setToDirt(world, pos);
+	protected void randomTick(BlockState spreader, ServerWorld world, BlockPos pos, Random random){
+		if(!canCoverSurvive(spreader, world, pos)) SlabEffects.setToDirt(world, pos);
 
-		else Main.spreadableTick(spreader, world, pos, random);
+		else spreadableTick(spreader, world, pos, random);
 	}
 
-	public static boolean canSurvive(BlockState state, WorldView world, BlockPos pos){
-		BlockPos posUp = pos.up();
-		BlockState topBlock = world.getBlockState(posUp);
+	public static void spreadableTick(BlockState spreader, ServerWorld world, BlockPos pos, Random random){
+		if(world.getLightLevel(pos.up()) < 9) return;
 
-		if(topBlock.getBlock() == Blocks.SNOW && (Integer)topBlock.get(SnowBlock.LAYERS) == 1) return true;
-		if(topBlock.isOf(DirtSlabBlocks.SNOW_LAYER_SLAB) && topBlock.get(SlabSnowLayerBlock.LAYERS) == 1) return true;
+		for(int x = 0; x < 4; ++x){
+			BlockPos randBlockPos = pos.add(random.nextInt(3) - 1, random.nextInt(5) - 3, random.nextInt(3) - 1);
+			BlockState spreadee = world.getBlockState(randBlockPos);
 
-		else if(state.getBlock() instanceof SpreadableSlab && !topBlock.isSolid() && state.get(TYPE) == SlabType.TOP) return true;
+			if(!canSpread(spreader, world, randBlockPos)) continue;
 
-		else {
-			int i = ChunkLightProvider.getRealisticOpacity(state, topBlock, Direction.UP, topBlock.getOpacity());
+			// Spread to vanilla dirt
+			Block vanillaResult = SlabRegistry.getVanillaSpreadResult(spreader.getBlock());
+			if(vanillaResult != null && spreadee.getBlock() == Blocks.DIRT){
+				world.setBlockState(randBlockPos, vanillaResult.getDefaultState());
+				continue;
+			}
 
-			return i < 15; // Max light level in Minecraft
+			// Spread to dirt slab
+			Block slabResult = SlabRegistry.getSpreadResult(spreader.getBlock());
+			if(slabResult != null && spreadee.getBlock() == DirtSlabBlocks.DIRT_SLAB){
+				world.setBlockState(randBlockPos, SlabRegistry.copySlabProperties(spreadee, slabResult));
+			}
 		}
 	}
 
+	@Override
+	protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random){
+		if(!canCoverSurvive(state, world, pos)) SlabEffects.setToDirt(world, pos);
+	}
+
+	/** Check if the spreadable covering (grass/mycelium) can survive — not the slab itself, but the surface layer. */
+	public static boolean canCoverSurvive(BlockState state, WorldView world, BlockPos pos){
+		BlockPos posUp = pos.up();
+		BlockState topBlock = world.getBlockState(posUp);
+
+		// Single snow layer always allows survival
+		if(topBlock.getBlock() == Blocks.SNOW && topBlock.get(SnowBlock.LAYERS) == 1) return true;
+		if(topBlock.isOf(DirtSlabBlocks.SNOW_LAYER_SLAB) && topBlock.get(SlabSnowLayerBlock.LAYERS) == 1) return true;
+
+		// Top slabs survive under non-solid blocks (no full block above to smother them)
+		if(state.getBlock() instanceof SpreadableSlab && !topBlock.isSolid() && state.get(TYPE) == SlabType.TOP) return true;
+
+		// Otherwise check light opacity
+		int i = ChunkLightProvider.getRealisticOpacity(state, topBlock, Direction.UP, topBlock.getOpacity());
+		return i < 15;
+	}
+
 	public static boolean canSpread(BlockState state, WorldView world, BlockPos pos){
-		return canSurvive(state, world, pos) && !world.getFluidState(pos.up()).isIn(FluidTags.WATER) && !(state.getBlock() instanceof SpreadableSlab && state.get(WATERLOGGED) && state.get(TYPE) == SlabType.BOTTOM);
+		if(!canCoverSurvive(state, world, pos)) return false;
+		if(world.getFluidState(pos.up()).isIn(FluidTags.WATER)) return false;
+		BlockState target = world.getBlockState(pos);
+		if(target.getBlock() instanceof SpreadableSlab && target.get(WATERLOGGED) && target.get(TYPE) == SlabType.BOTTOM) return false;
+		return true;
 	}
 
 	@Override
@@ -76,9 +112,8 @@ public class SpreadableSlab extends SlabBlock {
 
 		state = super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
 
-		// Only update snowy when the block above changes (Direction.UP)
 		if(direction == Direction.UP){
-			return (BlockState)state.with(SNOWY, isSnow(neighborState));
+			return state.with(SNOWY, isSnow(neighborState));
 		}
 		return state;
 	}
@@ -92,15 +127,9 @@ public class SpreadableSlab extends SlabBlock {
 	public BlockState getPlacementState(ItemPlacementContext ctx){
 		BlockState topState = ctx.getWorld().getBlockState(ctx.getBlockPos().up());
 
-		return (BlockState)(!this.getDefaultState().canPlaceAt(ctx.getWorld(), ctx.getBlockPos()) ? pushEntitiesUpBeforeBlockChange(this.getDefaultState(), DirtSlabBlocks.DIRT_SLAB.getDefaultState(), ctx.getWorld(), ctx.getBlockPos()) : super.getPlacementState(ctx)).with(SNOWY, isSnow(topState));
+		return (!this.getDefaultState().canPlaceAt(ctx.getWorld(), ctx.getBlockPos()) ? pushEntitiesUpBeforeBlockChange(this.getDefaultState(), DirtSlabBlocks.DIRT_SLAB.getDefaultState(), ctx.getWorld(), ctx.getBlockPos()) : super.getPlacementState(ctx)).with(SNOWY, isSnow(topState));
 	}
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder){ builder.add(TYPE, WATERLOGGED, SNOWY); }
-
-	static {
-		TYPE = Properties.SLAB_TYPE;
-		WATERLOGGED = Properties.WATERLOGGED;
-		SNOWY = Properties.SNOWY;
-	}
 }

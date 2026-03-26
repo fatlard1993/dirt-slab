@@ -17,6 +17,7 @@ import net.minecraft.util.math.random.Random;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.SlabMossCarpetBlock;
+import justfatlard.dirt_slab.SlabRegistry;
 
 @Mixin(MossBlock.class)
 public class MossBlockMixin {
@@ -61,10 +62,6 @@ public class MossBlockMixin {
 	}
 
 	private boolean isGrassTypeSlab(Block block) {
-		return block == DirtSlabBlocks.GRASS_SLAB ||
-			   block == DirtSlabBlocks.DIRT_SLAB ||
-			   block == DirtSlabBlocks.PODZOL_SLAB ||
-			   block == DirtSlabBlocks.MYCELIUM_SLAB ||
-			   block == DirtSlabBlocks.COARSE_DIRT_SLAB;
+		return SlabRegistry.isGrassType(block);
 	}
 }

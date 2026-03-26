@@ -16,6 +16,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldView;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
+import justfatlard.dirt_slab.SlabRegistry;
 
 @Mixin(SugarCaneBlock.class)
 public class SugarCaneMixin {
@@ -31,7 +32,7 @@ public class SugarCaneMixin {
 			return;
 		}
 
-		if (isDirtSlab(groundBlock)) {
+		if (SlabRegistry.isSugarCanePlantable(groundBlock)) {
 			for (Direction direction : Direction.Type.HORIZONTAL) {
 				BlockState blockState = world.getBlockState(groundPos.offset(direction));
 				FluidState fluidState = world.getFluidState(groundPos.offset(direction));
@@ -42,15 +43,5 @@ public class SugarCaneMixin {
 				}
 			}
 		}
-	}
-
-	// Note: SugarCaneBlock doesn't override getPlacementState, so placement handling
-	// is done in SeedItemMixin which injects into Block.getPlacementState
-
-	private boolean isDirtSlab(Block block) {
-		return block == DirtSlabBlocks.GRASS_SLAB ||
-			   block == DirtSlabBlocks.DIRT_SLAB ||
-			   block == DirtSlabBlocks.COARSE_DIRT_SLAB ||
-			   block == DirtSlabBlocks.PODZOL_SLAB;
 	}
 }

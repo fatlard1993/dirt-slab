@@ -11,7 +11,6 @@ import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
@@ -20,8 +19,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
-public class SlabTorchflowerCropBlock extends CropBlock {
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
+public class SlabTorchflowerCropBlock extends CropBlock implements OffsetableSlab {
 	public static final IntProperty AGE = IntProperty.of("age", 0, 2);
 
 	private static final VoxelShape[] AGE_TO_SHAPE = new VoxelShape[]{
@@ -81,7 +79,7 @@ public class SlabTorchflowerCropBlock extends CropBlock {
 					if (age + 1 >= this.getMaxAge()) {
 						// Transform into torchflower when fully grown
 						world.setBlockState(pos, DirtSlabBlocks.TORCHFLOWER_SLAB.getDefaultState()
-							.with(SlabFlowerBlock.BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
+							.with(BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
 					} else {
 						world.setBlockState(pos, this.withAgeAndOffset(age + 1, offset), Block.NOTIFY_LISTENERS);
 					}
@@ -98,7 +96,7 @@ public class SlabTorchflowerCropBlock extends CropBlock {
 		if (newAge >= this.getMaxAge()) {
 			// Transform into torchflower when fully grown
 			world.setBlockState(pos, DirtSlabBlocks.TORCHFLOWER_SLAB.getDefaultState()
-				.with(SlabFlowerBlock.BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
+				.with(BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
 		} else {
 			world.setBlockState(pos, this.withAgeAndOffset(newAge, offset), Block.NOTIFY_LISTENERS);
 		}
@@ -135,6 +133,7 @@ public class SlabTorchflowerCropBlock extends CropBlock {
 		return canPlantOnTop(floorState, world, below);
 	}
 
+	@Override
 	public boolean shouldOffset(WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
 		if (below.getBlock() == DirtSlabBlocks.FARMLAND_SLAB) {

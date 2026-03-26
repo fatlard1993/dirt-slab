@@ -31,8 +31,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 
-public class SlabBigDripleafBlock extends Block implements Waterloggable {
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
+public class SlabBigDripleafBlock extends Block implements Waterloggable, OffsetableSlab {
 	public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
 	public static final EnumProperty<Tilt> TILT = Properties.TILT;
 	public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
@@ -95,7 +94,7 @@ public class SlabBigDripleafBlock extends Block implements Waterloggable {
 		BlockState belowState = world.getBlockState(belowPos);
 		return belowState.isOf(Blocks.BIG_DRIPLEAF_STEM) ||
 			   belowState.isOf(DirtSlabBlocks.BIG_DRIPLEAF_STEM_SLAB) ||
-			   Main.isGrassType(belowState.getBlock()) ||
+			   SlabRegistry.isGrassType(belowState.getBlock()) ||
 			   belowState.isOf(Blocks.CLAY) ||
 			   belowState.isOf(Blocks.MOSS_BLOCK) ||
 			   belowState.isSideSolidFullSquare(world, belowPos, Direction.UP);
@@ -136,7 +135,7 @@ public class SlabBigDripleafBlock extends Block implements Waterloggable {
 
 	private void setTilt(BlockState state, World world, BlockPos pos, Tilt tilt) {
 		world.setBlockState(pos, state.with(TILT, tilt), Block.NOTIFY_LISTENERS);
-		if (tilt.isStable()) {
+		if (!tilt.isStable()) {
 			world.scheduleBlockTick(pos, this, tilt == Tilt.UNSTABLE ? UNSTABLE_TILT_TICKS :
 				(tilt == Tilt.PARTIAL ? PARTIAL_TILT_TICKS : TILT_RESET_TICKS));
 		}
@@ -150,13 +149,14 @@ public class SlabBigDripleafBlock extends Block implements Waterloggable {
 		return !entity.bypassesLandingEffects();
 	}
 
+	@Override
 	public boolean shouldOffset(WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
-		if (Main.isAnySlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
+		if (SlabRegistry.isTerrainSlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
 			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 		if (below.getBlock() == DirtSlabBlocks.BIG_DRIPLEAF_STEM_SLAB) {
-			return below.get(SlabBigDripleafStemBlock.BOTTOM_OFFSET);
+			return below.get(BOTTOM_OFFSET);
 		}
 		return false;
 	}

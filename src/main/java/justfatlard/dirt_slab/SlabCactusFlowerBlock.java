@@ -9,7 +9,6 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
@@ -18,9 +17,8 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 
-public class SlabCactusFlowerBlock extends Block {
+public class SlabCactusFlowerBlock extends Block implements OffsetableSlab {
 	public static final MapCodec<SlabCactusFlowerBlock> CODEC = createCodec(SlabCactusFlowerBlock::new);
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 
 	// Cross shape for cactus flower
 	private static final VoxelShape SHAPE = Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 13.0, 14.0);
@@ -53,14 +51,7 @@ public class SlabCactusFlowerBlock extends Block {
 	@Override
 	protected boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
-		// Can be placed on sand slabs or cactus
-		return isSandSlab(below.getBlock()) || below.getBlock() == Blocks.CACTUS;
-	}
-
-	private boolean isSandSlab(Block block) {
-		// Check for sand-type slabs (if they exist in the mod)
-		// For now, allow on any slab
-		return block instanceof SlabBlock;
+		return SlabRegistry.isTerrainSlab(below.getBlock()) || below.getBlock() == Blocks.CACTUS;
 	}
 
 	@Override
@@ -71,6 +62,7 @@ public class SlabCactusFlowerBlock extends Block {
 		return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
 	}
 
+	@Override
 	public boolean shouldOffset(WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
 		if (below.getBlock() instanceof SlabBlock) {

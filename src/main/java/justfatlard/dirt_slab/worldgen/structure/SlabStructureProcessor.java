@@ -2,11 +2,10 @@ package justfatlard.dirt_slab.worldgen.structure;
 
 import com.mojang.serialization.MapCodec;
 
-import justfatlard.dirt_slab.DirtSlabBlocks;
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.DirtSlab;
+import justfatlard.dirt_slab.SlabRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.registry.Registries;
@@ -63,15 +62,7 @@ public class SlabStructureProcessor extends StructureProcessor {
 	}
 
 	private BlockState getSlabState(Block block) {
-		// Convert dirt-related blocks to their slab variants
-		if (block == Blocks.GRASS_BLOCK) return DirtSlabBlocks.GRASS_SLAB.getDefaultState();
-		if (block == Blocks.DIRT) return DirtSlabBlocks.DIRT_SLAB.getDefaultState();
-		if (block == Blocks.COARSE_DIRT) return DirtSlabBlocks.COARSE_DIRT_SLAB.getDefaultState();
-		if (block == Blocks.DIRT_PATH) return DirtSlabBlocks.GRASS_PATH_SLAB.getDefaultState();
-		if (block == Blocks.FARMLAND) return DirtSlabBlocks.FARMLAND_SLAB.getDefaultState();
-		if (block == Blocks.PODZOL) return DirtSlabBlocks.PODZOL_SLAB.getDefaultState();
-
-		return null;
+		return SlabRegistry.getTerrainSlabState(block);
 	}
 
 	@Override
@@ -82,7 +73,7 @@ public class SlabStructureProcessor extends StructureProcessor {
 	public static void register() {
 		TYPE = Registry.register(
 			Registries.STRUCTURE_PROCESSOR,
-			Identifier.of(Main.MOD_ID, "slab_processor"),
+			Identifier.of(DirtSlab.MOD_ID, "slab_processor"),
 			() -> CODEC
 		);
 	}

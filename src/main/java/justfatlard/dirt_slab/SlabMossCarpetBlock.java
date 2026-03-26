@@ -10,15 +10,13 @@ import net.minecraft.block.SlabBlock;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldView;
 
-public class SlabMossCarpetBlock extends CarpetBlock {
+public class SlabMossCarpetBlock extends CarpetBlock implements OffsetableSlab {
 	public static final MapCodec<SlabMossCarpetBlock> CODEC = createCodec(SlabMossCarpetBlock::new);
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 
 	// Normal shape (carpet is 1 pixel tall)
 	private static final VoxelShape SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 1.0, 16.0);
@@ -57,7 +55,7 @@ public class SlabMossCarpetBlock extends CarpetBlock {
 	}
 
 	public static boolean shouldOffset(BlockState below) {
-		if (Main.isAnySlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
+		if (SlabRegistry.isTerrainSlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
 			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 		return false;
@@ -68,6 +66,6 @@ public class SlabMossCarpetBlock extends CarpetBlock {
 		BlockPos belowPos = pos.down();
 		BlockState belowState = world.getBlockState(belowPos);
 		// Can place on grass-type slabs or vanilla placement
-		return Main.isAnySlab(belowState.getBlock()) || super.canPlaceAt(state, world, pos);
+		return SlabRegistry.isTerrainSlab(belowState.getBlock()) || super.canPlaceAt(state, world, pos);
 	}
 }

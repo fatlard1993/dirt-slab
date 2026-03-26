@@ -6,10 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
@@ -18,9 +15,8 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 
-public class SlabFireflyBushBlock extends Block {
+public class SlabFireflyBushBlock extends Block implements OffsetableSlab {
 	public static final MapCodec<SlabFireflyBushBlock> CODEC = createCodec(SlabFireflyBushBlock::new);
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 
 	// Cross shape for firefly bush
 	private static final VoxelShape SHAPE = Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 13.0, 14.0);
@@ -54,7 +50,7 @@ public class SlabFireflyBushBlock extends Block {
 	protected boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
 		// Can be placed on grass-type slabs
-		return Main.isGrassType(below.getBlock()) || Main.isAnySlab(below.getBlock());
+		return SlabRegistry.isGrassType(below.getBlock()) || SlabRegistry.isTerrainSlab(below.getBlock());
 	}
 
 	@Override
@@ -63,13 +59,5 @@ public class SlabFireflyBushBlock extends Block {
 			return Blocks.AIR.getDefaultState();
 		}
 		return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
-	}
-
-	public boolean shouldOffset(WorldView world, BlockPos pos) {
-		BlockState below = world.getBlockState(pos.down());
-		if (Main.isAnySlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
-			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
-		}
-		return false;
 	}
 }

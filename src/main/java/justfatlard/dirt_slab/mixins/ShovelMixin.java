@@ -14,7 +14,6 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
@@ -30,7 +29,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlicedTopSlab;
 
 @Mixin(ShovelItem.class)
@@ -44,123 +43,50 @@ public class ShovelMixin {
 		if(context.getSide() != Direction.DOWN && SlicedTopSlab.canExistAt(state, world, pos)){
 			PlayerEntity player = context.getPlayer();
 			Block block = state.getBlock();
-			Boolean isPlayerSneaking = player != null && player.isSneaking();
-			Boolean success = false;
-			BlockState newState = Blocks.GREEN_WOOL.getDefaultState();
+			boolean isPlayerSneaking = player != null && player.isSneaking();
+			boolean success = false;
+			BlockState newState = null;
 			SlabType slabType = block instanceof SlabBlock ? (SlabType)state.get(SlabBlock.TYPE) : SlabType.DOUBLE;
 
-			if(isPlayerSneaking && block instanceof SlabBlock && slabType != SlabType.DOUBLE){ // single swaps
-				if(block == DirtSlabBlocks.DIRT_SLAB){
-					newState = block.getDefaultState().with(SlabBlock.TYPE, slabType == SlabType.BOTTOM ? SlabType.TOP : SlabType.BOTTOM).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED));
+			// Behavior 1: Sneak + single slab → flip orientation (top ↔ bottom)
+			if(isPlayerSneaking && SlabRegistry.isTerrainSlab(block) && block instanceof SlabBlock && slabType != SlabType.DOUBLE){
+				newState = block.getDefaultState().with(SlabBlock.TYPE, slabType == SlabType.BOTTOM ? SlabType.TOP : SlabType.BOTTOM).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED));
+				success = true;
+			}
 
+			// Behavior 2: Sneak + full block or double slab → halve into single slab, drop remainder
+			else if(isPlayerSneaking && ((block instanceof SlabBlock && slabType == SlabType.DOUBLE) || SlabRegistry.getShovelHalveResult(block) != null)){
+				Block halveResult = SlabRegistry.getShovelHalveResult(block);
+				if(halveResult != null){
+					newState = halveResult.getDefaultState();
 					success = true;
-				}
 
-				else if(block == DirtSlabBlocks.GRASS_SLAB){
-					newState = block.getDefaultState().with(SlabBlock.TYPE, slabType == SlabType.BOTTOM ? SlabType.TOP : SlabType.BOTTOM).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED));
+					ItemEnchantmentsComponent enchantments = context.getStack().getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+					boolean isSilkTouch = world.getRegistryManager().getOptional(RegistryKeys.ENCHANTMENT)
+						.flatMap(registry -> registry.getOptional(Enchantments.SILK_TOUCH))
+						.map(silkTouch -> enchantments.getLevel(silkTouch) > 0)
+						.orElse(false);
 
-					success = true;
-				}
-
-				else if(block == DirtSlabBlocks.COARSE_DIRT_SLAB && slabType == SlabType.BOTTOM || slabType == SlabType.TOP){
-					newState = block.getDefaultState().with(SlabBlock.TYPE, slabType == SlabType.BOTTOM ? SlabType.TOP : SlabType.BOTTOM).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED));
-
-					success = true;
-				}
-
-				else if(block == DirtSlabBlocks.FARMLAND_SLAB && slabType == SlabType.BOTTOM || slabType == SlabType.TOP){
-					newState = block.getDefaultState().with(SlabBlock.TYPE, slabType == SlabType.BOTTOM ? SlabType.TOP : SlabType.BOTTOM).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED));
-
-					success = true;
-				}
-
-				else if(block == DirtSlabBlocks.GRASS_PATH_SLAB && slabType == SlabType.BOTTOM || slabType == SlabType.TOP){
-					newState = block.getDefaultState().with(SlabBlock.TYPE, slabType == SlabType.BOTTOM ? SlabType.TOP : SlabType.BOTTOM).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED));
-
-					success = true;
-				}
-
-				else if(block == DirtSlabBlocks.MYCELIUM_SLAB && slabType == SlabType.BOTTOM || slabType == SlabType.TOP){
-					newState = block.getDefaultState().with(SlabBlock.TYPE, slabType == SlabType.BOTTOM ? SlabType.TOP : SlabType.BOTTOM).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED));
-
-					success = true;
-				}
-
-				else if(block == DirtSlabBlocks.PODZOL_SLAB && slabType == SlabType.BOTTOM || slabType == SlabType.TOP){
-					newState = block.getDefaultState().with(SlabBlock.TYPE, slabType == SlabType.BOTTOM ? SlabType.TOP : SlabType.BOTTOM).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED));
-
-					success = true;
+					if(!world.isClient()){
+						// Coarse dirt always drops itself; silk touch drops the slab type; otherwise drops dirt slab
+						if(block == Blocks.COARSE_DIRT || block == DirtSlabBlocks.COARSE_DIRT_SLAB || isSilkTouch){
+							world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, new ItemStack(newState.getBlock().asItem())));
+						}
+						else {
+							world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, new ItemStack(DirtSlabBlocks.DIRT_SLAB.asItem())));
+						}
+					}
 				}
 			}
 
-			else if(isPlayerSneaking && ((block instanceof SlabBlock && slabType == SlabType.DOUBLE) || block instanceof Block)){ // doubles to singles
-				ItemEnchantmentsComponent enchantments = context.getStack().getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
-				boolean isSilkTouch = world.getRegistryManager().getOptional(RegistryKeys.ENCHANTMENT)
-					.flatMap(registry -> registry.getOptional(Enchantments.SILK_TOUCH))
-					.map(silkTouch -> enchantments.getLevel(silkTouch) > 0)
-					.orElse(false);
-
-				if(block == Blocks.DIRT || block == DirtSlabBlocks.DIRT_SLAB){
-					newState = DirtSlabBlocks.DIRT_SLAB.getDefaultState();
-
-					success = true;
-				}
-
-				else if(block == Blocks.GRASS_BLOCK || block == DirtSlabBlocks.GRASS_SLAB){
-					newState = DirtSlabBlocks.GRASS_SLAB.getDefaultState();
-
-					success = true;
-				}
-
-				else if(block == Blocks.COARSE_DIRT || block == DirtSlabBlocks.COARSE_DIRT_SLAB){
-					newState = DirtSlabBlocks.COARSE_DIRT_SLAB.getDefaultState();
-
-					success = true;
-
-					world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY() + 1, pos.getZ(), new ItemStack(newState.getBlock().asItem())));
-				}
-
-				else if(block == Blocks.FARMLAND || block == DirtSlabBlocks.FARMLAND_SLAB){
-					newState = DirtSlabBlocks.FARMLAND_SLAB.getDefaultState();
-
-					success = true;
-				}
-
-				else if(block == Blocks.DIRT_PATH || block == DirtSlabBlocks.GRASS_PATH_SLAB){
-					newState = DirtSlabBlocks.GRASS_PATH_SLAB.getDefaultState();
-
-					success = true;
-				}
-
-				else if(block == Blocks.MYCELIUM || block == DirtSlabBlocks.MYCELIUM_SLAB){
-					newState = DirtSlabBlocks.MYCELIUM_SLAB.getDefaultState();
-
-					success = true;
-				}
-
-				else if(block == Blocks.PODZOL || block == DirtSlabBlocks.PODZOL_SLAB){
-					newState = DirtSlabBlocks.PODZOL_SLAB.getDefaultState();
-
-					success = true;
-				}
-
-				if(success && !(block == Blocks.COARSE_DIRT || block == DirtSlabBlocks.COARSE_DIRT_SLAB)){
-					if(isSilkTouch) world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY() + 1, pos.getZ(), new ItemStack(newState.getBlock().asItem())));
-
-					else world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY() + 1, pos.getZ(), new ItemStack(DirtSlabBlocks.DIRT_SLAB.asItem())));
-				}
-			}
-
+			// Behavior 3: No sneak → flatten to path
 			else if(!isPlayerSneaking){
 				if(block == Blocks.DIRT){
 					newState = Blocks.DIRT_PATH.getDefaultState();
-
 					success = true;
 				}
-
 				else if((block == DirtSlabBlocks.GRASS_SLAB || block == DirtSlabBlocks.DIRT_SLAB)){
-					newState = DirtSlabBlocks.GRASS_PATH_SLAB.getDefaultState().with(SlabBlock.TYPE, state.get(SlabBlock.TYPE)).with(SlabBlock.WATERLOGGED, state.get(SlabBlock.WATERLOGGED));
-
+					newState = SlabRegistry.copySlabProperties(state, DirtSlabBlocks.GRASS_PATH_SLAB);
 					success = true;
 				}
 			}

@@ -9,6 +9,7 @@ import net.minecraft.block.PlantBlock;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.enums.SlabType;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
@@ -66,6 +67,13 @@ public class SlabHangingRootsBlock extends PlantBlock {
 			return type == SlabType.TOP || type == SlabType.DOUBLE;
 		}
 		return block == Blocks.ROOTED_DIRT;
+	}
+
+	@Override
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
+		BlockPos pos = ctx.getBlockPos();
+		boolean topOffset = shouldOffset(ctx.getWorld(), pos);
+		return this.getDefaultState().with(TOP_OFFSET, topOffset);
 	}
 
 	@Override

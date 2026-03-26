@@ -14,10 +14,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.rule.GameRules;
-
 import justfatlard.dirt_slab.DirtSlabBlocks;
-import justfatlard.dirt_slab.Main;
+import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlabSnowLayerBlock;
 
 @Mixin(ServerWorld.class)
@@ -51,25 +49,9 @@ public class ServerWorldMixin {
 		BlockState stateAtTop = world.getBlockState(topPos);
 
 		// Case 1: heightmap returned the position of a bottom slab directly
-		// (this happens because bottom slabs have collision shape that blocks motion)
-		if (Main.isAnySlab(stateAtTop.getBlock()) && stateAtTop.contains(SlabBlock.TYPE)) {
-			SlabType type = stateAtTop.get(SlabBlock.TYPE);
-			if (type == SlabType.BOTTOM) {
-				BlockPos abovePos = topPos.up();
-				Biome biome = world.getBiome(abovePos).value();
-				if (biome.getPrecipitation(abovePos, world.getSeaLevel()) == Biome.Precipitation.SNOW) {
-					BlockState stateAbove = world.getBlockState(abovePos);
-					if (stateAbove.isAir()) {
-						BlockState snowState = SlabSnowLayerBlock.createForSlab(stateAtTop);
-						world.setBlockState(abovePos, snowState, Block.NOTIFY_ALL);
-					} else if (stateAbove.isOf(DirtSlabBlocks.SNOW_LAYER_SLAB)) {
-						int currentLayers = stateAbove.get(SlabSnowLayerBlock.LAYERS);
-						if (currentLayers < 8) {
-							world.setBlockState(abovePos, stateAbove.with(SlabSnowLayerBlock.LAYERS, currentLayers + 1), Block.NOTIFY_ALL);
-						}
-					}
-				}
-			}
+		if (SlabRegistry.isTerrainSlab(stateAtTop.getBlock()) && stateAtTop.contains(SlabBlock.TYPE)
+			&& stateAtTop.get(SlabBlock.TYPE) == SlabType.BOTTOM) {
+			tryPlaceSnowOnSlab(world, stateAtTop, topPos.up());
 			return;
 		}
 
@@ -77,25 +59,24 @@ public class ServerWorldMixin {
 		BlockPos belowPos = topPos.down();
 		BlockState belowState = world.getBlockState(belowPos);
 
-		if (Main.isAnySlab(belowState.getBlock()) && belowState.contains(SlabBlock.TYPE)) {
-			SlabType type = belowState.get(SlabBlock.TYPE);
+		if (SlabRegistry.isTerrainSlab(belowState.getBlock()) && belowState.contains(SlabBlock.TYPE)
+			&& belowState.get(SlabBlock.TYPE) == SlabType.BOTTOM) {
+			tryPlaceSnowOnSlab(world, belowState, topPos);
+		}
+	}
 
-			if (type == SlabType.BOTTOM) {
-				Biome biome = world.getBiome(topPos).value();
-				if (biome.getPrecipitation(topPos, world.getSeaLevel()) == Biome.Precipitation.SNOW) {
-					// If the position is air, place our slab snow
-					if (stateAtTop.isAir()) {
-						BlockState snowState = SlabSnowLayerBlock.createForSlab(belowState);
-						world.setBlockState(topPos, snowState, Block.NOTIFY_ALL);
-					}
-					// If there's already our slab snow, try to add layers (up to 8)
-					else if (stateAtTop.isOf(DirtSlabBlocks.SNOW_LAYER_SLAB)) {
-						int currentLayers = stateAtTop.get(SlabSnowLayerBlock.LAYERS);
-						if (currentLayers < 8) {
-							world.setBlockState(topPos, stateAtTop.with(SlabSnowLayerBlock.LAYERS, currentLayers + 1), Block.NOTIFY_ALL);
-						}
-					}
-				}
+	private static void tryPlaceSnowOnSlab(ServerWorld world, BlockState slabState, BlockPos snowPos) {
+		Biome biome = world.getBiome(snowPos).value();
+		if (biome.getPrecipitation(snowPos, world.getSeaLevel()) != Biome.Precipitation.SNOW) return;
+
+		BlockState stateAtSnowPos = world.getBlockState(snowPos);
+
+		if (stateAtSnowPos.isAir()) {
+			world.setBlockState(snowPos, SlabSnowLayerBlock.createForSlab(slabState), Block.NOTIFY_ALL);
+		} else if (stateAtSnowPos.isOf(DirtSlabBlocks.SNOW_LAYER_SLAB)) {
+			int currentLayers = stateAtSnowPos.get(SlabSnowLayerBlock.LAYERS);
+			if (currentLayers < 8) {
+				world.setBlockState(snowPos, stateAtSnowPos.with(SlabSnowLayerBlock.LAYERS, currentLayers + 1), Block.NOTIFY_ALL);
 			}
 		}
 	}

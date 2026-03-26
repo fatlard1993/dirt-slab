@@ -14,9 +14,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
@@ -25,11 +23,10 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
-public class SlabStemBlock extends PlantBlock implements Fertilizable {
+public class SlabStemBlock extends PlantBlock implements Fertilizable, OffsetableSlab {
 	public static final MapCodec<SlabStemBlock> CODEC = createCodec(SlabStemBlock::new);
 	public static final int MAX_AGE = 7;
 	public static final IntProperty AGE = Properties.AGE_7;
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 
 	// Normal shapes (same as vanilla StemBlock)
 	private static final VoxelShape[] AGE_TO_SHAPE = new VoxelShape[]{
@@ -106,9 +103,6 @@ public class SlabStemBlock extends PlantBlock implements Fertilizable {
 
 	@Override
 	protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		int currentAge = state.get(AGE);
-		System.out.println("[SlabStem] randomTick at " + pos + " age=" + currentAge + " offset=" + state.get(BOTTOM_OFFSET));
-
 		if (world.getBaseLightLevel(pos, 0) >= 9) {
 			float growthChance = getGrowthChance(world, pos);
 			if (random.nextInt((int)(25.0F / growthChance) + 1) == 0) {
@@ -128,11 +122,6 @@ public class SlabStemBlock extends PlantBlock implements Fertilizable {
 						BlockPos groundPos = fruitPos.down();
 						BlockState groundState = world.getBlockState(groundPos);
 
-						// Debug logging
-						System.out.println("[SlabStem] Checking " + direction + ": fruitPos=" + fruitPos + " groundPos=" + groundPos);
-						System.out.println("[SlabStem]   fruitPos block: " + world.getBlockState(fruitPos).getBlock());
-						System.out.println("[SlabStem]   groundPos block: " + groundState.getBlock());
-						System.out.println("[SlabStem]   canSpawn=" + canSpawnFruitAt(world, fruitPos) + " validGround=" + isValidGourdGround(groundState));
 
 						// Check standard position (same level as stem, ground below)
 						if (canSpawnFruitAt(world, fruitPos) && isValidGourdGround(groundState)) {
@@ -146,8 +135,7 @@ public class SlabStemBlock extends PlantBlock implements Fertilizable {
 							Block attachedStemBlock = isMelon ? DirtSlabBlocks.ATTACHED_MELON_STEM_SLAB : DirtSlabBlocks.ATTACHED_PUMPKIN_STEM_SLAB;
 							world.setBlockState(pos, attachedStemBlock.getDefaultState()
 								.with(SlabAttachedStemBlock.FACING, direction)
-								.with(SlabAttachedStemBlock.BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
-							System.out.println("[SlabStem] Spawned fruit at " + fruitPos);
+								.with(BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
 							break;
 						}
 
@@ -165,8 +153,7 @@ public class SlabStemBlock extends PlantBlock implements Fertilizable {
 							Block attachedStemBlock = isMelon ? DirtSlabBlocks.ATTACHED_MELON_STEM_SLAB : DirtSlabBlocks.ATTACHED_PUMPKIN_STEM_SLAB;
 							world.setBlockState(pos, attachedStemBlock.getDefaultState()
 								.with(SlabAttachedStemBlock.FACING, direction)
-								.with(SlabAttachedStemBlock.BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
-							System.out.println("[SlabStem] Spawned fruit at lower pos " + lowerFruitPos);
+								.with(BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
 							break;
 						}
 					}
@@ -178,30 +165,10 @@ public class SlabStemBlock extends PlantBlock implements Fertilizable {
 	private boolean isValidGourdGround(BlockState groundState) {
 		Block block = groundState.getBlock();
 
-		// Full blocks are always valid
-		if (block == Blocks.FARMLAND ||
-			block == Blocks.DIRT ||
-			block == Blocks.COARSE_DIRT ||
-			block == Blocks.PODZOL ||
-			block == Blocks.GRASS_BLOCK ||
-			block == Blocks.MOSS_BLOCK ||
-			block == Blocks.MUD ||
-			block == Blocks.MUDDY_MANGROVE_ROOTS ||
-			block == Blocks.MYCELIUM ||
-			block == Blocks.ROOTED_DIRT) {
-			return true;
-		}
+		if (SlabRegistry.isGourdGround(block)) return true;
 
-		// Slabs are only valid if they're TOP or DOUBLE (not BOTTOM)
-		// because melons can't sit on the surface of a bottom slab
-		if (block == DirtSlabBlocks.FARMLAND_SLAB ||
-			block == DirtSlabBlocks.DIRT_SLAB ||
-			block == DirtSlabBlocks.COARSE_DIRT_SLAB ||
-			block == DirtSlabBlocks.PODZOL_SLAB ||
-			block == DirtSlabBlocks.GRASS_SLAB ||
-			block == DirtSlabBlocks.MUD_SLAB ||
-			block == DirtSlabBlocks.MYCELIUM_SLAB ||
-			block == DirtSlabBlocks.ROOTED_DIRT_SLAB) {
+		// Terrain slabs are valid if TOP or DOUBLE (bottom slabs have no surface for fruit)
+		if (SlabRegistry.isTerrainSlab(block)) {
 			SlabType slabType = groundState.get(SlabBlock.TYPE);
 			return slabType == SlabType.TOP || slabType == SlabType.DOUBLE;
 		}
@@ -241,7 +208,7 @@ public class SlabStemBlock extends PlantBlock implements Fertilizable {
 				float bonus = 0.0F;
 				BlockState floor = world.getBlockState(floorPos.add(x, 0, z));
 				if (floor.getBlock() == DirtSlabBlocks.FARMLAND_SLAB) {
-					bonus = 1.0F;
+					bonus = floor.get(FarmlandSlab.MOISTURE) > 0 ? 3.0F : 1.0F;
 				}
 				if (x != 0 || z != 0) {
 					bonus /= 4.0F;
@@ -252,6 +219,7 @@ public class SlabStemBlock extends PlantBlock implements Fertilizable {
 		return chance;
 	}
 
+	@Override
 	public boolean shouldOffset(WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
 		if (below.getBlock() == DirtSlabBlocks.FARMLAND_SLAB) {

@@ -9,7 +9,6 @@ import net.minecraft.block.SlabBlock;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
@@ -17,8 +16,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
-public class BeetrootSlabCropBlock extends BeetrootsBlock {
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
+public class BeetrootSlabCropBlock extends BeetrootsBlock implements OffsetableSlab {
 
 	// Offset shapes for bottom slab placement (8 pixels lower)
 	private static final VoxelShape[] OFFSET_AGE_TO_SHAPE = new VoxelShape[]{
@@ -95,6 +93,7 @@ public class BeetrootSlabCropBlock extends BeetrootsBlock {
 		return canPlantOnTop(floorState, world, below);
 	}
 
+	@Override
 	public boolean shouldOffset(WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
 		if (below.getBlock() == DirtSlabBlocks.FARMLAND_SLAB) {

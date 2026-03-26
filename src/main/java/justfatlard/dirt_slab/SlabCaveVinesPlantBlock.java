@@ -12,6 +12,7 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
@@ -59,6 +60,13 @@ public class SlabCaveVinesPlantBlock extends PlantBlock implements Fertilizable,
 	@Override
 	protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
 		return false;
+	}
+
+	@Override
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
+		BlockPos pos = ctx.getBlockPos();
+		boolean topOffset = shouldOffset(ctx.getWorld(), pos);
+		return this.getDefaultState().with(TOP_OFFSET, topOffset);
 	}
 
 	@Override

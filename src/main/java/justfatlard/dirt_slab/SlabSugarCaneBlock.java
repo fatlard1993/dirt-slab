@@ -16,7 +16,6 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -28,9 +27,8 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 
-public class SlabSugarCaneBlock extends Block {
+public class SlabSugarCaneBlock extends Block implements OffsetableSlab {
 	public static final MapCodec<SlabSugarCaneBlock> CODEC = createCodec(SlabSugarCaneBlock::new);
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 	public static final IntProperty AGE = IntProperty.of("age", 0, 15);
 
 	// Same shape as vanilla sugar cane
@@ -88,10 +86,7 @@ public class SlabSugarCaneBlock extends Block {
 	}
 
 	private boolean isDirtSlab(Block block) {
-		return block == DirtSlabBlocks.GRASS_SLAB ||
-			   block == DirtSlabBlocks.DIRT_SLAB ||
-			   block == DirtSlabBlocks.COARSE_DIRT_SLAB ||
-			   block == DirtSlabBlocks.PODZOL_SLAB;
+		return SlabRegistry.isSugarCanePlantable(block);
 	}
 
 	@Override
@@ -116,6 +111,7 @@ public class SlabSugarCaneBlock extends Block {
 		}
 	}
 
+	@Override
 	public boolean shouldOffset(WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
 		// If below is also slab sugar cane, inherit its offset

@@ -12,7 +12,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.StringIdentifiable;
@@ -29,9 +28,8 @@ import net.minecraft.world.tick.ScheduledTickView;
 
 import org.jetbrains.annotations.Nullable;
 
-public class SlabBambooBlock extends Block {
+public class SlabBambooBlock extends Block implements OffsetableSlab {
 	public static final MapCodec<SlabBambooBlock> CODEC = createCodec(SlabBambooBlock::new);
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 	public static final IntProperty AGE = IntProperty.of("age", 0, 1);
 	public static final EnumProperty<BambooLeaves> LEAVES = EnumProperty.of("leaves", BambooLeaves.class);
 	public static final IntProperty STAGE = IntProperty.of("stage", 0, 1);
@@ -84,7 +82,7 @@ public class SlabBambooBlock extends Block {
 		}
 
 		// Can place on grass-type dirt slabs
-		return Main.isGrassType(below.getBlock()) && Main.isAnySlab(below.getBlock());
+		return SlabRegistry.isGrassType(below.getBlock()) && SlabRegistry.isTerrainSlab(below.getBlock());
 	}
 
 	@Override
@@ -95,7 +93,7 @@ public class SlabBambooBlock extends Block {
 		BlockPos belowPos = pos.down();
 		BlockState belowState = world.getBlockState(belowPos);
 		if (belowState.getBlock() == DirtSlabBlocks.BAMBOO_SHOOT_SLAB) {
-			boolean bottomOffset = belowState.get(SlabBambooShootBlock.BOTTOM_OFFSET);
+			boolean bottomOffset = belowState.get(BOTTOM_OFFSET);
 			world.setBlockState(belowPos, this.getDefaultState()
 				.with(BOTTOM_OFFSET, bottomOffset)
 				.with(AGE, 0)
@@ -156,6 +154,7 @@ public class SlabBambooBlock extends Block {
 		return BambooLeaves.NONE;
 	}
 
+	@Override
 	public boolean shouldOffset(WorldView world, BlockPos pos) {
 		BlockState below = world.getBlockState(pos.down());
 		// If below is slab bamboo or bamboo shoot, inherit offset
@@ -163,10 +162,10 @@ public class SlabBambooBlock extends Block {
 			return below.get(BOTTOM_OFFSET);
 		}
 		if (below.getBlock() == DirtSlabBlocks.BAMBOO_SHOOT_SLAB) {
-			return below.get(SlabBambooShootBlock.BOTTOM_OFFSET);
+			return below.get(BOTTOM_OFFSET);
 		}
 		// Otherwise check if on bottom slab
-		if (Main.isAnySlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
+		if (SlabRegistry.isTerrainSlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
 			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 		return false;

@@ -13,7 +13,6 @@ import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
@@ -25,9 +24,8 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 
-public class SlabSnowLayerBlock extends Block {
+public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 	public static final MapCodec<SlabSnowLayerBlock> CODEC = createCodec(SlabSnowLayerBlock::new);
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 	public static final IntProperty LAYERS = Properties.LAYERS;
 
 	// Normal shapes (on full blocks or top slabs)
@@ -137,7 +135,7 @@ public class SlabSnowLayerBlock extends Block {
 
 		// Can place on our dirt slabs (any type - TOP, BOTTOM, or DOUBLE)
 		// For BOTTOM slabs, the snow renders with offset to sit on top of the half-height slab
-		if (Main.isAnySlab(below.getBlock())) {
+		if (SlabRegistry.isTerrainSlab(below.getBlock())) {
 			return true;
 		}
 
@@ -195,7 +193,7 @@ public class SlabSnowLayerBlock extends Block {
 	}
 
 	public static boolean shouldOffset(BlockState below) {
-		if (Main.isAnySlab(below.getBlock()) && below.contains(SlabBlock.TYPE)) {
+		if (SlabRegistry.isTerrainSlab(below.getBlock()) && below.contains(SlabBlock.TYPE)) {
 			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 		return false;

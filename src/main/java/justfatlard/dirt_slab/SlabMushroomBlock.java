@@ -6,18 +6,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.PlantBlock;
 import net.minecraft.block.ShapeContext;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldView;
 
-public class SlabMushroomBlock extends PlantBlock {
+public class SlabMushroomBlock extends PlantBlock implements OffsetableSlab {
 	public static final MapCodec<SlabMushroomBlock> CODEC = createCodec(SlabMushroomBlock::new);
-	public static final BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
 
 	// Normal shape (same as vanilla mushroom)
 	private static final VoxelShape SHAPE = Block.createCuboidShape(5.0, 0.0, 5.0, 11.0, 6.0, 11.0);
@@ -49,10 +45,7 @@ public class SlabMushroomBlock extends PlantBlock {
 
 	@Override
 	protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-		// Allow on mycelium, podzol slabs, and other dirt slabs
-		return floor.getBlock() == DirtSlabBlocks.MYCELIUM_SLAB ||
-			   floor.getBlock() == DirtSlabBlocks.PODZOL_SLAB ||
-			   Main.isAnySlab(floor.getBlock());
+		return SlabRegistry.isTerrainSlab(floor.getBlock());
 	}
 
 	@Override
@@ -67,18 +60,10 @@ public class SlabMushroomBlock extends PlantBlock {
 		}
 
 		// Can place on other dirt slabs in low light
-		if (Main.isAnySlab(groundBlock) && world.getBaseLightLevel(pos, 0) < 13) {
+		if (SlabRegistry.isTerrainSlab(groundBlock) && world.getBaseLightLevel(pos, 0) < 13) {
 			return true;
 		}
 
-		return false;
-	}
-
-	public boolean shouldOffset(WorldView world, BlockPos pos) {
-		BlockState below = world.getBlockState(pos.down());
-		if (Main.isAnySlab(below.getBlock()) && below.getBlock() instanceof SlabBlock) {
-			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
-		}
 		return false;
 	}
 }
