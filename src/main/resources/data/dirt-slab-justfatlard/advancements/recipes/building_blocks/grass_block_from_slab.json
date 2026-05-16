@@ -1,0 +1,9 @@
+{
+  "criteria": {
+    "required_criteria_0": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [{ "item": "dirt-slab-justfatlard:grass_slab" }] }
+    }
+  },
+  "rewards": { "recipes": ["dirt-slab-justfatlard:grass_block_from_slab"] }
+}

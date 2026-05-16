@@ -1,79 +1,77 @@
 package justfatlard.dirt_slab;
 
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.SnowBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.entity.ai.pathing.NavigationType;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
-	public static final MapCodec<SlabSnowLayerBlock> CODEC = createCodec(SlabSnowLayerBlock::new);
-	public static final IntProperty LAYERS = Properties.LAYERS;
+	public static final MapCodec<SlabSnowLayerBlock> CODEC = simpleCodec(SlabSnowLayerBlock::new);
+	public static final IntegerProperty LAYERS = BlockStateProperties.LAYERS;
 
 	// Normal shapes (on full blocks or top slabs)
 	protected static final VoxelShape[] LAYERS_TO_SHAPE = new VoxelShape[]{
-		VoxelShapes.empty(),
-		Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 2.0, 16.0),
-		Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 4.0, 16.0),
-		Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 6.0, 16.0),
-		Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 8.0, 16.0),
-		Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 10.0, 16.0),
-		Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 12.0, 16.0),
-		Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 14.0, 16.0),
-		Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 16.0, 16.0)
+		Shapes.empty(),
+		Block.box(0.0, 0.0, 0.0, 16.0, 2.0, 16.0),
+		Block.box(0.0, 0.0, 0.0, 16.0, 4.0, 16.0),
+		Block.box(0.0, 0.0, 0.0, 16.0, 6.0, 16.0),
+		Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0),
+		Block.box(0.0, 0.0, 0.0, 16.0, 10.0, 16.0),
+		Block.box(0.0, 0.0, 0.0, 16.0, 12.0, 16.0),
+		Block.box(0.0, 0.0, 0.0, 16.0, 14.0, 16.0),
+		Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0)
 	};
 
 	// Offset shapes (on bottom slabs - shifted down by 8)
 	protected static final VoxelShape[] LAYERS_TO_SHAPE_OFFSET = new VoxelShape[]{
-		VoxelShapes.empty(),
-		Block.createCuboidShape(0.0, -8.0, 0.0, 16.0, -6.0, 16.0),
-		Block.createCuboidShape(0.0, -8.0, 0.0, 16.0, -4.0, 16.0),
-		Block.createCuboidShape(0.0, -8.0, 0.0, 16.0, -2.0, 16.0),
-		Block.createCuboidShape(0.0, -8.0, 0.0, 16.0, 0.0, 16.0),
-		Block.createCuboidShape(0.0, -8.0, 0.0, 16.0, 2.0, 16.0),
-		Block.createCuboidShape(0.0, -8.0, 0.0, 16.0, 4.0, 16.0),
-		Block.createCuboidShape(0.0, -8.0, 0.0, 16.0, 6.0, 16.0),
-		Block.createCuboidShape(0.0, -8.0, 0.0, 16.0, 8.0, 16.0)
+		Shapes.empty(),
+		Block.box(0.0, -8.0, 0.0, 16.0, -6.0, 16.0),
+		Block.box(0.0, -8.0, 0.0, 16.0, -4.0, 16.0),
+		Block.box(0.0, -8.0, 0.0, 16.0, -2.0, 16.0),
+		Block.box(0.0, -8.0, 0.0, 16.0, 0.0, 16.0),
+		Block.box(0.0, -8.0, 0.0, 16.0, 2.0, 16.0),
+		Block.box(0.0, -8.0, 0.0, 16.0, 4.0, 16.0),
+		Block.box(0.0, -8.0, 0.0, 16.0, 6.0, 16.0),
+		Block.box(0.0, -8.0, 0.0, 16.0, 8.0, 16.0)
 	};
 
-	public SlabSnowLayerBlock(Settings settings) {
+	public SlabSnowLayerBlock(Properties settings) {
 		super(settings);
-		this.setDefaultState(this.stateManager.getDefaultState().with(LAYERS, 1).with(BOTTOM_OFFSET, false));
+		this.registerDefaultState(this.stateDefinition.any().setValue(LAYERS, 1).setValue(BOTTOM_OFFSET, false));
 	}
 
 	@Override
-	protected MapCodec<SlabSnowLayerBlock> getCodec() {
+	protected MapCodec<SlabSnowLayerBlock> codec() {
 		return CODEC;
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(LAYERS, BOTTOM_OFFSET);
 	}
 
 	@Override
-	protected boolean canPathfindThrough(BlockState state, NavigationType type) {
+	protected boolean isPathfindable(BlockState state, PathComputationType type) {
 		switch (type) {
 			case LAND:
-				return state.get(LAYERS) < 5;
+				return state.getValue(LAYERS) < 5;
 			case WATER:
 				return false;
 			case AIR:
@@ -84,22 +82,22 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 	}
 
 	@Override
-	protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		int layers = state.get(LAYERS);
-		if (state.get(BOTTOM_OFFSET)) {
+	protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		int layers = state.getValue(LAYERS);
+		if (state.getValue(BOTTOM_OFFSET)) {
 			return LAYERS_TO_SHAPE_OFFSET[layers];
 		}
 		return LAYERS_TO_SHAPE[layers];
 	}
 
 	@Override
-	protected VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		int layers = state.get(LAYERS);
-		if (state.get(BOTTOM_OFFSET)) {
+	protected VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		int layers = state.getValue(LAYERS);
+		if (state.getValue(BOTTOM_OFFSET)) {
 			// For bottom slab offset, layers 1-4 have no collision (below slab surface)
 			// layers 5-8 have collision starting from slab surface
 			if (layers <= 4) {
-				return VoxelShapes.empty();
+				return Shapes.empty();
 			}
 			return LAYERS_TO_SHAPE_OFFSET[layers - 4];
 		}
@@ -107,31 +105,31 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 	}
 
 	@Override
-	protected VoxelShape getSidesShape(BlockState state, BlockView world, BlockPos pos) {
-		int layers = state.get(LAYERS);
-		if (state.get(BOTTOM_OFFSET)) {
+	protected VoxelShape getBlockSupportShape(BlockState state, BlockGetter world, BlockPos pos) {
+		int layers = state.getValue(LAYERS);
+		if (state.getValue(BOTTOM_OFFSET)) {
 			return LAYERS_TO_SHAPE_OFFSET[layers];
 		}
 		return LAYERS_TO_SHAPE[layers];
 	}
 
 	@Override
-	protected VoxelShape getCameraCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		int layers = state.get(LAYERS);
-		if (state.get(BOTTOM_OFFSET)) {
+	protected VoxelShape getVisualShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		int layers = state.getValue(LAYERS);
+		if (state.getValue(BOTTOM_OFFSET)) {
 			return LAYERS_TO_SHAPE_OFFSET[layers];
 		}
 		return LAYERS_TO_SHAPE[layers];
 	}
 
 	@Override
-	protected boolean hasSidedTransparency(BlockState state) {
+	protected boolean useShapeForLightOcclusion(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-		BlockState below = world.getBlockState(pos.down());
+	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+		BlockState below = world.getBlockState(pos.below());
 
 		// Can place on our dirt slabs (any type - TOP, BOTTOM, or DOUBLE)
 		// For BOTTOM slabs, the snow renders with offset to sit on top of the half-height slab
@@ -140,52 +138,52 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 		}
 
 		// Can place on vanilla snow layer support blocks
-		if (!below.isIn(net.minecraft.registry.tag.BlockTags.SNOW_LAYER_CANNOT_SURVIVE_ON)) {
-			if (below.isIn(net.minecraft.registry.tag.BlockTags.SNOW_LAYER_CAN_SURVIVE_ON)) {
+		if (!below.is(net.minecraft.tags.BlockTags.CANNOT_SUPPORT_SNOW_LAYER)) {
+			if (below.is(net.minecraft.tags.BlockTags.SUPPORT_OVERRIDE_SNOW_LAYER)) {
 				return true;
 			}
-			return Block.isFaceFullSquare(below.getCollisionShape(world, pos.down()), Direction.UP) ||
-				   (below.isOf(this) && below.get(LAYERS) == 8);
+			return Block.isFaceFull(below.getCollisionShape(world, pos.below()), Direction.UP) ||
+				   (below.is(this) && below.getValue(LAYERS) == 8);
 		}
 		return false;
 	}
 
 	@Override
-	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
-		if (direction == Direction.DOWN && !canPlaceAt(state, world, pos)) {
-			return Blocks.AIR.getDefaultState();
+	protected BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+		if (direction == Direction.DOWN && !canSurvive(state, world, pos)) {
+			return Blocks.AIR.defaultBlockState();
 		}
-		return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+		return super.updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
 	}
 
 	@Override
-	protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+	protected void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
 		// Melt if light level is too high
-		if (world.getLightLevel(net.minecraft.world.LightType.BLOCK, pos) > 11) {
-			dropStacks(state, world, pos);
+		if (world.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, pos) > 11) {
+			dropResources(state, world, pos);
 			world.removeBlock(pos, false);
 		}
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		BlockState existingState = ctx.getWorld().getBlockState(ctx.getBlockPos());
-		if (existingState.isOf(this)) {
-			int currentLayers = existingState.get(LAYERS);
-			return existingState.with(LAYERS, Math.min(8, currentLayers + 1));
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		BlockState existingState = ctx.getLevel().getBlockState(ctx.getClickedPos());
+		if (existingState.is(this)) {
+			int currentLayers = existingState.getValue(LAYERS);
+			return existingState.setValue(LAYERS, Math.min(8, currentLayers + 1));
 		}
 
-		BlockState below = ctx.getWorld().getBlockState(ctx.getBlockPos().down());
+		BlockState below = ctx.getLevel().getBlockState(ctx.getClickedPos().below());
 		boolean shouldOffset = shouldOffset(below);
-		return super.getPlacementState(ctx).with(BOTTOM_OFFSET, shouldOffset);
+		return super.getStateForPlacement(ctx).setValue(BOTTOM_OFFSET, shouldOffset);
 	}
 
 	@Override
-	protected boolean canReplace(BlockState state, ItemPlacementContext context) {
-		int layers = state.get(LAYERS);
-		if (context.getStack().isOf(this.asItem()) && layers < 8) {
-			if (context.canReplaceExisting()) {
-				return context.getSide() == Direction.UP;
+	protected boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
+		int layers = state.getValue(LAYERS);
+		if (context.getItemInHand().is(this.asItem()) && layers < 8) {
+			if (context.replacingClickedOnBlock()) {
+				return context.getClickedFace() == Direction.UP;
 			}
 			return true;
 		}
@@ -193,8 +191,8 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 	}
 
 	public static boolean shouldOffset(BlockState below) {
-		if (SlabRegistry.isTerrainSlab(below.getBlock()) && below.contains(SlabBlock.TYPE)) {
-			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+		if (SlabRegistry.isTerrainSlab(below.getBlock()) && below.hasProperty(SlabBlock.TYPE)) {
+			return below.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 		return false;
 	}
@@ -204,6 +202,6 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 	 */
 	public static BlockState createForSlab(BlockState below) {
 		boolean offset = shouldOffset(below);
-		return DirtSlabBlocks.SNOW_LAYER_SLAB.getDefaultState().with(BOTTOM_OFFSET, offset);
+		return DirtSlabBlocks.SNOW_LAYER_SLAB.defaultBlockState().setValue(BOTTOM_OFFSET, offset);
 	}
 }

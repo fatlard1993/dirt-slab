@@ -1,115 +1,113 @@
 package justfatlard.dirt_slab;
 
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.Fertilizable;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.TreeConfiguredFeatures;
-import net.minecraft.world.tick.ScheduledTickView;
-
 import java.util.Optional;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.worldgen.features.TreeFeatures;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class SlabAzaleaBlock extends Block implements Fertilizable, OffsetableSlab {
-	public static final MapCodec<SlabAzaleaBlock> CODEC = createCodec(SlabAzaleaBlock::new);
-	public static final BooleanProperty FLOWERING = BooleanProperty.of("flowering");
+public class SlabAzaleaBlock extends Block implements BonemealableBlock, OffsetableSlab {
+	public static final MapCodec<SlabAzaleaBlock> CODEC = simpleCodec(SlabAzaleaBlock::new);
+	public static final BooleanProperty FLOWERING = BooleanProperty.create("flowering");
 
-	private static final VoxelShape SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
-	private static final VoxelShape OFFSET_SHAPE = Block.createCuboidShape(0.0, -8.0, 0.0, 16.0, 8.0, 16.0);
+	private static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
+	private static final VoxelShape OFFSET_SHAPE = Block.box(0.0, -8.0, 0.0, 16.0, 8.0, 16.0);
 
-	public SlabAzaleaBlock(Settings settings) {
+	public SlabAzaleaBlock(Properties settings) {
 		super(settings);
-		this.setDefaultState(this.stateManager.getDefaultState().with(BOTTOM_OFFSET, false).with(FLOWERING, false));
+		this.registerDefaultState(this.stateDefinition.any().setValue(BOTTOM_OFFSET, false).setValue(FLOWERING, false));
 	}
 
 	@Override
-	protected MapCodec<SlabAzaleaBlock> getCodec() {
+	protected MapCodec<SlabAzaleaBlock> codec() {
 		return CODEC;
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(BOTTOM_OFFSET, FLOWERING);
 	}
 
 	@Override
-	public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state, boolean includeData) {
-		return new ItemStack(state.get(FLOWERING) ? Items.FLOWERING_AZALEA : Items.AZALEA);
+	public ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state, boolean includeData) {
+		return new ItemStack(state.getValue(FLOWERING) ? Items.FLOWERING_AZALEA : Items.AZALEA);
 	}
 
 	@Override
-	protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		if (state.get(BOTTOM_OFFSET)) {
+	protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		if (state.getValue(BOTTOM_OFFSET)) {
 			return OFFSET_SHAPE;
 		}
 		return SHAPE;
 	}
 
 	@Override
-	protected boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-		BlockState below = world.getBlockState(pos.down());
+	protected boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+		BlockState below = world.getBlockState(pos.below());
 		return SlabRegistry.isGrassType(below.getBlock()) || SlabRegistry.isTerrainSlab(below.getBlock()) ||
-			   below.isOf(Blocks.GRASS_BLOCK) || below.isOf(Blocks.DIRT) || below.isOf(Blocks.COARSE_DIRT) ||
-			   below.isOf(Blocks.PODZOL) || below.isOf(Blocks.FARMLAND) || below.isOf(Blocks.CLAY) ||
-			   below.isOf(Blocks.MOSS_BLOCK);
+			   below.is(Blocks.GRASS_BLOCK) || below.is(Blocks.DIRT) || below.is(Blocks.COARSE_DIRT) ||
+			   below.is(Blocks.PODZOL) || below.is(Blocks.FARMLAND) || below.is(Blocks.CLAY) ||
+			   below.is(Blocks.MOSS_BLOCK);
 	}
 
 	@Override
-	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
-		if (direction == Direction.DOWN && !canPlaceAt(state, world, pos)) {
-			return Blocks.AIR.getDefaultState();
+	protected BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+		if (direction == Direction.DOWN && !canSurvive(state, world, pos)) {
+			return Blocks.AIR.defaultBlockState();
 		}
-		return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+		return super.updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
 	}
 
 	@Override
-	public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state) {
-		return world.getFluidState(pos.up()).isEmpty();
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+		return world.getFluidState(pos.above()).isEmpty();
 	}
 
 	@Override
-	public boolean canGrow(World world, Random random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
 		return (double)random.nextFloat() < 0.45;
 	}
 
 	@Override
-	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
 		// Try to grow into an azalea tree
-		Optional<RegistryEntry.Reference<ConfiguredFeature<?, ?>>> feature = world.getRegistryManager()
-			.getOrThrow(RegistryKeys.CONFIGURED_FEATURE)
-			.getOptional(TreeConfiguredFeatures.AZALEA_TREE);
+		Optional<Holder.Reference<ConfiguredFeature<?, ?>>> feature = world.registryAccess()
+			.lookupOrThrow(Registries.CONFIGURED_FEATURE)
+			.get(TreeFeatures.AZALEA_TREE);
 
 		if (feature.isPresent()) {
 			// Replace the block below with dirt if it's a slab (tree needs solid ground)
-			BlockPos belowPos = pos.down();
+			BlockPos belowPos = pos.below();
 			BlockState below = world.getBlockState(belowPos);
 			if (SlabRegistry.isTerrainSlab(below.getBlock())) {
-				world.setBlockState(belowPos, Blocks.DIRT.getDefaultState());
+				world.setBlockAndUpdate(belowPos, Blocks.DIRT.defaultBlockState());
 			}
 			// Remove this block so tree can generate
-			world.setBlockState(pos, Blocks.AIR.getDefaultState());
-			if (!feature.get().value().generate(world, world.getChunkManager().getChunkGenerator(), random, pos)) {
+			world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+			if (!feature.get().value().place(world, world.getChunkSource().getGenerator(), random, pos)) {
 				// If tree generation failed, put the azalea back
-				world.setBlockState(pos, state);
+				world.setBlockAndUpdate(pos, state);
 				if (SlabRegistry.isTerrainSlab(below.getBlock())) {
-					world.setBlockState(belowPos, below);
+					world.setBlockAndUpdate(belowPos, below);
 				}
 			}
 		}

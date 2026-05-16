@@ -4,38 +4,36 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.TallPlantBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.util.math.BlockPos;
-
 import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlabTallPlantBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
 
 @Mixin(Block.class)
 public class TallPlantMixin {
-	@Inject(at = @At("HEAD"), method = "getPlacementState", cancellable = true)
-	private void redirectTallPlantPlacement(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
+	@Inject(at = @At("HEAD"), method = "getStateForPlacement", cancellable = true)
+	private void redirectTallPlantPlacement(BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
 		Block self = (Block)(Object)this;
 
 		// Only apply to tall plant blocks (tall grass, large fern)
-		if (!(self instanceof TallPlantBlock)) {
+		if (!(self instanceof DoublePlantBlock)) {
 			return;
 		}
 
-		BlockPos clickedPos = ctx.getBlockPos();
-		BlockPos belowPos = clickedPos.down();
-		BlockState belowState = ctx.getWorld().getBlockState(belowPos);
+		BlockPos clickedPos = ctx.getClickedPos();
+		BlockPos belowPos = clickedPos.below();
+		BlockState belowState = ctx.getLevel().getBlockState(belowPos);
 
 		// Check if placing on a grass-type slab
 		if (SlabRegistry.isTerrainSlab(belowState.getBlock())) {
-			boolean isBottomSlab = belowState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+			boolean isBottomSlab = belowState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 
 			Block targetBlock = null;
 
@@ -47,8 +45,8 @@ public class TallPlantMixin {
 			}
 
 			if (targetBlock != null) {
-				BlockState targetState = targetBlock.getDefaultState()
-					.with(SlabTallPlantBlock.BOTTOM_OFFSET, isBottomSlab);
+				BlockState targetState = targetBlock.defaultBlockState()
+					.setValue(SlabTallPlantBlock.BOTTOM_OFFSET, isBottomSlab);
 				info.setReturnValue(targetState);
 			}
 		}

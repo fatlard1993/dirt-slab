@@ -10,35 +10,35 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.FarmlandSlab;
-import net.minecraft.block.Block;
-import net.minecraft.entity.ai.brain.Brain;
-import net.minecraft.entity.ai.brain.MemoryModuleType;
-import net.minecraft.entity.ai.brain.sensor.SecondaryPointsOfInterestSensor;
-import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.GlobalPos;
-import net.minecraft.village.VillagerProfession;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.sensing.SecondaryPoiSensor;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 
-@Mixin(SecondaryPointsOfInterestSensor.class)
+@Mixin(SecondaryPoiSensor.class)
 public class SecondaryPointsOfInterestSensorMixin {
 
 	// Inject at the end of the sense method to add FarmlandSlab positions for farmer villagers
-	@Inject(at = @At("TAIL"), method = "sense")
-	private void addFarmlandSlabToSecondaryJobSites(ServerWorld serverWorld, VillagerEntity villagerEntity, CallbackInfo ci) {
+	@Inject(at = @At("TAIL"), method = "doTick")
+	private void addFarmlandSlabToSecondaryJobSites(ServerLevel serverWorld, Villager villagerEntity, CallbackInfo ci) {
 		// Only process for farmer villagers
-		if (!villagerEntity.getVillagerData().profession().matchesKey(VillagerProfession.FARMER)) {
+		if (!villagerEntity.getVillagerData().profession().is(VillagerProfession.FARMER)) {
 			return;
 		}
 
-		RegistryKey<World> registryKey = serverWorld.getRegistryKey();
-		BlockPos blockPos = villagerEntity.getBlockPos();
+		ResourceKey<Level> registryKey = serverWorld.dimension();
+		BlockPos blockPos = villagerEntity.blockPosition();
 		Brain<?> brain = villagerEntity.getBrain();
 
 		// Get existing secondary job sites or create a new list
-		List<GlobalPos> existingSites = brain.getOptionalRegisteredMemory(MemoryModuleType.SECONDARY_JOB_SITE)
+		List<GlobalPos> existingSites = brain.getMemory(MemoryModuleType.SECONDARY_JOB_SITE)
 			.map(list -> new java.util.ArrayList<>(list))
 			.orElse(new java.util.ArrayList<>());
 
@@ -46,11 +46,11 @@ public class SecondaryPointsOfInterestSensorMixin {
 		for (int j = -4; j <= 4; j++) {
 			for (int k = -2; k <= 2; k++) {
 				for (int l = -4; l <= 4; l++) {
-					BlockPos blockPos2 = blockPos.add(j, k, l);
+					BlockPos blockPos2 = blockPos.offset(j, k, l);
 					Block block = serverWorld.getBlockState(blockPos2).getBlock();
 
 					if (block instanceof FarmlandSlab) {
-						GlobalPos globalPos = GlobalPos.create(registryKey, blockPos2);
+						GlobalPos globalPos = GlobalPos.of(registryKey, blockPos2);
 						if (!existingSites.contains(globalPos)) {
 							existingSites.add(globalPos);
 						}
@@ -61,7 +61,7 @@ public class SecondaryPointsOfInterestSensorMixin {
 
 		// Update the memory if we found any sites
 		if (!existingSites.isEmpty()) {
-			brain.remember(MemoryModuleType.SECONDARY_JOB_SITE, existingSites);
+			brain.setMemory(MemoryModuleType.SECONDARY_JOB_SITE, existingSites);
 		}
 	}
 }

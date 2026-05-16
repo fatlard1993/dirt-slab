@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "dirt-slab-justfatlard:dirt_slab" },
+    { "item": "dirt-slab-justfatlard:dirt_slab" }
+  ],
+  "result": {
+    "item": "minecraft:dirt",
+    "count": 1
+  }
+}

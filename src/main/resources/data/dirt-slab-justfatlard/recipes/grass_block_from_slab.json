@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "dirt-slab-justfatlard:grass_slab" },
+    { "item": "dirt-slab-justfatlard:grass_slab" }
+  ],
+  "result": {
+    "item": "minecraft:grass_block",
+    "count": 1
+  }
+}

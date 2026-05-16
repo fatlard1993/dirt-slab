@@ -2,7 +2,7 @@
 	"required": true,
 	"package": "justfatlard.dirt_slab.mixins",
 	"minVersion": "0.8",
-	"compatibilityLevel": "JAVA_21",
+	"compatibilityLevel": "JAVA_25",
 	"injectors": { "defaultRequire": 1 },
 	"mixins": [
 		"BambooMixin",
@@ -37,6 +37,5 @@
 		"TallPlantMixin"
 	],
 	"client": [
-		"client.BlockRenderManagerMixin"
 	]
 }

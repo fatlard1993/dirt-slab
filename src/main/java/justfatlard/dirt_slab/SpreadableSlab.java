@@ -2,25 +2,25 @@ package justfatlard.dirt_slab;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SnowBlock;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.chunk.light.ChunkLightProvider;
-import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.lighting.LightEngine;
 
 /**
  * Slab that spreads to adjacent dirt slabs (grass, mycelium).
@@ -29,34 +29,34 @@ import net.minecraft.world.tick.ScheduledTickView;
 
 public class SpreadableSlab extends SlabBlock {
 	final Block baseBlock;
-	public static final BooleanProperty SNOWY = Properties.SNOWY;
+	public static final BooleanProperty SNOWY = BlockStateProperties.SNOWY;
 
-	public SpreadableSlab(Settings settings, Block baseBlock){
+	public SpreadableSlab(Properties settings, Block baseBlock){
 		super(settings);
 
 		this.baseBlock = baseBlock;
 
-		this.setDefaultState(this.stateManager.getDefaultState().with(TYPE, SlabType.BOTTOM).with(WATERLOGGED, false).with(SNOWY, false));
+		this.registerDefaultState(this.stateDefinition.any().setValue(TYPE, SlabType.BOTTOM).setValue(WATERLOGGED, false).setValue(SNOWY, false));
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void randomDisplayTick(BlockState blockState, World world, BlockPos blockPos, Random random){
-		this.baseBlock.randomDisplayTick(blockState, world, blockPos, random);
+	public void animateTick(BlockState blockState, Level world, BlockPos blockPos, RandomSource random){
+		this.baseBlock.animateTick(blockState, world, blockPos, random);
 	}
 
 	@Override
-	protected void randomTick(BlockState spreader, ServerWorld world, BlockPos pos, Random random){
+	protected void randomTick(BlockState spreader, ServerLevel world, BlockPos pos, RandomSource random){
 		if(!canCoverSurvive(spreader, world, pos)) SlabEffects.setToDirt(world, pos);
 
 		else spreadableTick(spreader, world, pos, random);
 	}
 
-	public static void spreadableTick(BlockState spreader, ServerWorld world, BlockPos pos, Random random){
-		if(world.getLightLevel(pos.up()) < 9) return;
+	public static void spreadableTick(BlockState spreader, ServerLevel world, BlockPos pos, RandomSource random){
+		if(world.getMaxLocalRawBrightness(pos.above()) < 9) return;
 
 		for(int x = 0; x < 4; ++x){
-			BlockPos randBlockPos = pos.add(random.nextInt(3) - 1, random.nextInt(5) - 3, random.nextInt(3) - 1);
+			BlockPos randBlockPos = pos.offset(random.nextInt(3) - 1, random.nextInt(5) - 3, random.nextInt(3) - 1);
 			BlockState spreadee = world.getBlockState(randBlockPos);
 
 			if(!canSpread(spreader, world, randBlockPos)) continue;
@@ -64,72 +64,72 @@ public class SpreadableSlab extends SlabBlock {
 			// Spread to vanilla dirt
 			Block vanillaResult = SlabRegistry.getVanillaSpreadResult(spreader.getBlock());
 			if(vanillaResult != null && spreadee.getBlock() == Blocks.DIRT){
-				world.setBlockState(randBlockPos, vanillaResult.getDefaultState());
+				world.setBlockAndUpdate(randBlockPos, vanillaResult.defaultBlockState());
 				continue;
 			}
 
 			// Spread to dirt slab
 			Block slabResult = SlabRegistry.getSpreadResult(spreader.getBlock());
 			if(slabResult != null && spreadee.getBlock() == DirtSlabBlocks.DIRT_SLAB){
-				world.setBlockState(randBlockPos, SlabRegistry.copySlabProperties(spreadee, slabResult));
+				world.setBlockAndUpdate(randBlockPos, SlabRegistry.copySlabProperties(spreadee, slabResult));
 			}
 		}
 	}
 
 	@Override
-	protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random){
+	protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random){
 		if(!canCoverSurvive(state, world, pos)) SlabEffects.setToDirt(world, pos);
 	}
 
 	/** Check if the spreadable covering (grass/mycelium) can survive — not the slab itself, but the surface layer. */
-	public static boolean canCoverSurvive(BlockState state, WorldView world, BlockPos pos){
-		BlockPos posUp = pos.up();
+	public static boolean canCoverSurvive(BlockState state, LevelReader world, BlockPos pos){
+		BlockPos posUp = pos.above();
 		BlockState topBlock = world.getBlockState(posUp);
 
 		// Single snow layer always allows survival
-		if(topBlock.getBlock() == Blocks.SNOW && topBlock.get(SnowBlock.LAYERS) == 1) return true;
-		if(topBlock.isOf(DirtSlabBlocks.SNOW_LAYER_SLAB) && topBlock.get(SlabSnowLayerBlock.LAYERS) == 1) return true;
+		if(topBlock.getBlock() == Blocks.SNOW && topBlock.getValue(SnowLayerBlock.LAYERS) == 1) return true;
+		if(topBlock.is(DirtSlabBlocks.SNOW_LAYER_SLAB) && topBlock.getValue(SlabSnowLayerBlock.LAYERS) == 1) return true;
 
 		// Top slabs survive under non-solid blocks (no full block above to smother them)
-		if(state.getBlock() instanceof SpreadableSlab && !topBlock.isSolid() && state.get(TYPE) == SlabType.TOP) return true;
+		if(state.getBlock() instanceof SpreadableSlab && !topBlock.isSolid() && state.getValue(TYPE) == SlabType.TOP) return true;
 
 		// Otherwise check light opacity
-		int i = ChunkLightProvider.getRealisticOpacity(state, topBlock, Direction.UP, topBlock.getOpacity());
+		int i = LightEngine.getLightBlockInto(state, topBlock, Direction.UP, topBlock.getLightDampening());
 		return i < 15;
 	}
 
-	public static boolean canSpread(BlockState state, WorldView world, BlockPos pos){
+	public static boolean canSpread(BlockState state, LevelReader world, BlockPos pos){
 		if(!canCoverSurvive(state, world, pos)) return false;
-		if(world.getFluidState(pos.up()).isIn(FluidTags.WATER)) return false;
+		if(world.getFluidState(pos.above()).is(FluidTags.WATER)) return false;
 		BlockState target = world.getBlockState(pos);
-		if(target.getBlock() instanceof SpreadableSlab && target.get(WATERLOGGED) && target.get(TYPE) == SlabType.BOTTOM) return false;
+		if(target.getBlock() instanceof SpreadableSlab && target.getValue(WATERLOGGED) && target.getValue(TYPE) == SlabType.BOTTOM) return false;
 		return true;
 	}
 
 	@Override
-	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random){
-		if(direction == Direction.UP && !state.canPlaceAt(world, pos)) tickView.scheduleBlockTick(pos, this, 1);
+	protected BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random){
+		if(direction == Direction.UP && !state.canSurvive(world, pos)) tickView.scheduleTick(pos, this, 1);
 
-		state = super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+		state = super.updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
 
 		if(direction == Direction.UP){
-			return state.with(SNOWY, isSnow(neighborState));
+			return state.setValue(SNOWY, isSnow(neighborState));
 		}
 		return state;
 	}
 
 	private static boolean isSnow(BlockState state){
 		Block block = state.getBlock();
-		return block == Blocks.SNOW || block == Blocks.SNOW_BLOCK || state.isOf(DirtSlabBlocks.SNOW_LAYER_SLAB);
+		return block == Blocks.SNOW || block == Blocks.SNOW_BLOCK || state.is(DirtSlabBlocks.SNOW_LAYER_SLAB);
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext ctx){
-		BlockState topState = ctx.getWorld().getBlockState(ctx.getBlockPos().up());
+	public BlockState getStateForPlacement(BlockPlaceContext ctx){
+		BlockState topState = ctx.getLevel().getBlockState(ctx.getClickedPos().above());
 
-		return (!this.getDefaultState().canPlaceAt(ctx.getWorld(), ctx.getBlockPos()) ? pushEntitiesUpBeforeBlockChange(this.getDefaultState(), DirtSlabBlocks.DIRT_SLAB.getDefaultState(), ctx.getWorld(), ctx.getBlockPos()) : super.getPlacementState(ctx)).with(SNOWY, isSnow(topState));
+		return (!this.defaultBlockState().canSurvive(ctx.getLevel(), ctx.getClickedPos()) ? pushEntitiesUp(this.defaultBlockState(), DirtSlabBlocks.DIRT_SLAB.defaultBlockState(), ctx.getLevel(), ctx.getClickedPos()) : super.getStateForPlacement(ctx)).setValue(SNOWY, isSnow(topState));
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder){ builder.add(TYPE, WATERLOGGED, SNOWY); }
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder){ builder.add(TYPE, WATERLOGGED, SNOWY); }
 }

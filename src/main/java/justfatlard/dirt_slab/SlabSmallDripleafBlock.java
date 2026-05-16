@@ -1,113 +1,112 @@
 package justfatlard.dirt_slab;
 
 import com.mojang.serialization.MapCodec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.Fertilizable;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.TallPlantBlock;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-
-public class SlabSmallDripleafBlock extends TallPlantBlock implements Fertilizable, OffsetableSlab {
+public class SlabSmallDripleafBlock extends DoublePlantBlock implements BonemealableBlock, OffsetableSlab {
 	@SuppressWarnings("unchecked")
-	public static final MapCodec<TallPlantBlock> CODEC = (MapCodec<TallPlantBlock>)(MapCodec<?>)createCodec(SlabSmallDripleafBlock::new);
+	public static final MapCodec<DoublePlantBlock> CODEC = (MapCodec<DoublePlantBlock>)(MapCodec<?>)simpleCodec(SlabSmallDripleafBlock::new);
 
-	private static final VoxelShape NORMAL_SHAPE = Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
-	private static final VoxelShape OFFSET_SHAPE = Block.createCuboidShape(2.0, -8.0, 2.0, 14.0, 8.0, 14.0);
+	private static final VoxelShape NORMAL_SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
+	private static final VoxelShape OFFSET_SHAPE = Block.box(2.0, -8.0, 2.0, 14.0, 8.0, 14.0);
 
-	public SlabSmallDripleafBlock(Settings settings) {
+	public SlabSmallDripleafBlock(Properties settings) {
 		super(settings);
-		this.setDefaultState(this.stateManager.getDefaultState()
-			.with(HALF, DoubleBlockHalf.LOWER)
-			.with(BOTTOM_OFFSET, false));
+		this.registerDefaultState(this.stateDefinition.any()
+			.setValue(HALF, DoubleBlockHalf.LOWER)
+			.setValue(BOTTOM_OFFSET, false));
 	}
 
 	@Override
-	public MapCodec<TallPlantBlock> getCodec() {
+	public MapCodec<DoublePlantBlock> codec() {
 		return CODEC;
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(HALF, BOTTOM_OFFSET);
 	}
 
 	@Override
-	protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		if (state.get(BOTTOM_OFFSET)) {
+	protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		if (state.getValue(BOTTOM_OFFSET)) {
 			return OFFSET_SHAPE;
 		}
 		return NORMAL_SHAPE;
 	}
 
 	@Override
-	public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state, boolean includeData) {
+	public ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state, boolean includeData) {
 		return new ItemStack(Items.SMALL_DRIPLEAF);
 	}
 
 	@Override
-	protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
+	protected boolean mayPlaceOn(BlockState floor, BlockGetter world, BlockPos pos) {
 		// Small dripleaf can grow on clay, moss, mud, and dirt-type slabs
-		return floor.isOf(Blocks.CLAY) ||
-			   floor.isOf(Blocks.MOSS_BLOCK) ||
-			   floor.isOf(Blocks.MUD) ||
+		return floor.is(Blocks.CLAY) ||
+			   floor.is(Blocks.MOSS_BLOCK) ||
+			   floor.is(Blocks.MUD) ||
 			   SlabRegistry.isPlantable(floor.getBlock());
 	}
 
 	@Override
-	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
-		if (state.get(HALF) == DoubleBlockHalf.LOWER) {
-			BlockPos upperPos = pos.up();
-			boolean isOffset = state.get(BOTTOM_OFFSET);
-			BlockState upperState = this.getDefaultState()
-				.with(HALF, DoubleBlockHalf.UPPER)
-				.with(BOTTOM_OFFSET, isOffset);
-			world.setBlockState(upperPos, upperState, Block.NOTIFY_ALL);
+	public void setPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
+		if (state.getValue(HALF) == DoubleBlockHalf.LOWER) {
+			BlockPos upperPos = pos.above();
+			boolean isOffset = state.getValue(BOTTOM_OFFSET);
+			BlockState upperState = this.defaultBlockState()
+				.setValue(HALF, DoubleBlockHalf.UPPER)
+				.setValue(BOTTOM_OFFSET, isOffset);
+			world.setBlock(upperPos, upperState, Block.UPDATE_ALL);
 		}
 	}
 
 	// Fertilizable - grows into big dripleaf
 	@Override
-	public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
 		return true;
 	}
 
 	@Override
-	public boolean canGrow(World world, Random random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
 		return true;
 	}
 
 	@Override
-	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
-		if (state.get(HALF) == DoubleBlockHalf.UPPER) {
-			pos = pos.down();
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+		if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
+			pos = pos.below();
 			state = world.getBlockState(pos);
 		}
-		boolean isOffset = state.get(BOTTOM_OFFSET);
+		boolean isOffset = state.getValue(BOTTOM_OFFSET);
 		Direction facing = new Direction[]{Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST}[random.nextInt(4)];
 		// Clear both halves
-		world.setBlockState(pos, Blocks.AIR.getDefaultState());
-		world.setBlockState(pos.up(), Blocks.AIR.getDefaultState());
+		world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+		world.setBlockAndUpdate(pos.above(), Blocks.AIR.defaultBlockState());
 		// Place slab big dripleaf stem + head
-		world.setBlockState(pos, DirtSlabBlocks.BIG_DRIPLEAF_STEM_SLAB.getDefaultState()
-			.with(SlabBigDripleafStemBlock.FACING, facing)
-			.with(BOTTOM_OFFSET, isOffset));
-		world.setBlockState(pos.up(), DirtSlabBlocks.BIG_DRIPLEAF_SLAB.getDefaultState()
-			.with(SlabBigDripleafBlock.FACING, facing)
-			.with(BOTTOM_OFFSET, isOffset));
+		world.setBlockAndUpdate(pos, DirtSlabBlocks.BIG_DRIPLEAF_STEM_SLAB.defaultBlockState()
+			.setValue(SlabBigDripleafStemBlock.FACING, facing)
+			.setValue(BOTTOM_OFFSET, isOffset));
+		world.setBlockAndUpdate(pos.above(), DirtSlabBlocks.BIG_DRIPLEAF_SLAB.defaultBlockState()
+			.setValue(SlabBigDripleafBlock.FACING, facing)
+			.setValue(BOTTOM_OFFSET, isOffset));
 	}
 }

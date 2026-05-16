@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "dirt-slab-justfatlard:podzol_slab" },
+    { "item": "dirt-slab-justfatlard:podzol_slab" }
+  ],
+  "result": {
+    "item": "minecraft:podzol",
+    "count": 1
+  }
+}

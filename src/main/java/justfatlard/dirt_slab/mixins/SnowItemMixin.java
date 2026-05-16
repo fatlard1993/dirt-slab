@@ -4,20 +4,18 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.Items;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlabSnowLayerBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
 
 @Mixin(BlockItem.class)
 public class SnowItemMixin {
@@ -25,8 +23,8 @@ public class SnowItemMixin {
 	/**
 	 * Intercept snow block item placement to place our slab snow on bottom slabs
 	 */
-	@Inject(method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;", at = @At("HEAD"), cancellable = true)
-	private void interceptSnowPlacement(ItemPlacementContext context, CallbackInfoReturnable<ActionResult> cir) {
+	@Inject(method = "place(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/InteractionResult;", at = @At("HEAD"), cancellable = true)
+	private void interceptSnowPlacement(BlockPlaceContext context, CallbackInfoReturnable<InteractionResult> cir) {
 		BlockItem self = (BlockItem)(Object)this;
 
 		// Only intercept snow layer item
@@ -34,42 +32,42 @@ public class SnowItemMixin {
 			return;
 		}
 
-		World world = context.getWorld();
-		BlockPos placePos = context.getBlockPos();
-		BlockPos belowPos = placePos.down();
+		Level world = context.getLevel();
+		BlockPos placePos = context.getClickedPos();
+		BlockPos belowPos = placePos.below();
 		BlockState belowState = world.getBlockState(belowPos);
 
 		// Check if we're placing on a bottom slab
-		if (SlabRegistry.isTerrainSlab(belowState.getBlock()) && belowState.contains(SlabBlock.TYPE)) {
-			SlabType type = belowState.get(SlabBlock.TYPE);
+		if (SlabRegistry.isTerrainSlab(belowState.getBlock()) && belowState.hasProperty(SlabBlock.TYPE)) {
+			SlabType type = belowState.getValue(SlabBlock.TYPE);
 
 			if (type == SlabType.BOTTOM) {
 				BlockState currentState = world.getBlockState(placePos);
 
 				// If there's already our slab snow, try to add layers
-				if (currentState.isOf(justfatlard.dirt_slab.DirtSlabBlocks.SNOW_LAYER_SLAB)) {
-					int currentLayers = currentState.get(SlabSnowLayerBlock.LAYERS);
+				if (currentState.is(justfatlard.dirt_slab.DirtSlabBlocks.SNOW_LAYER_SLAB)) {
+					int currentLayers = currentState.getValue(SlabSnowLayerBlock.LAYERS);
 					if (currentLayers < 8) {
-						world.setBlockState(placePos, currentState.with(SlabSnowLayerBlock.LAYERS, currentLayers + 1), Block.NOTIFY_ALL);
-						if (context.getPlayer() == null || !context.getPlayer().getAbilities().creativeMode) {
-							context.getStack().decrement(1);
+						world.setBlock(placePos, currentState.setValue(SlabSnowLayerBlock.LAYERS, currentLayers + 1), Block.UPDATE_ALL);
+						if (context.getPlayer() == null || !context.getPlayer().getAbilities().instabuild) {
+							context.getItemInHand().shrink(1);
 						}
-						cir.setReturnValue(ActionResult.SUCCESS);
+						cir.setReturnValue(InteractionResult.SUCCESS);
 						return;
 					}
 					// Already at max layers
-					cir.setReturnValue(ActionResult.FAIL);
+					cir.setReturnValue(InteractionResult.FAIL);
 					return;
 				}
 
 				// If the position is air, place our slab snow
 				if (currentState.isAir()) {
 					BlockState snowState = SlabSnowLayerBlock.createForSlab(belowState);
-					world.setBlockState(placePos, snowState, Block.NOTIFY_ALL);
-					if (context.getPlayer() == null || !context.getPlayer().getAbilities().creativeMode) {
-						context.getStack().decrement(1);
+					world.setBlock(placePos, snowState, Block.UPDATE_ALL);
+					if (context.getPlayer() == null || !context.getPlayer().getAbilities().instabuild) {
+						context.getItemInHand().shrink(1);
 					}
-					cir.setReturnValue(ActionResult.SUCCESS);
+					cir.setReturnValue(InteractionResult.SUCCESS);
 					return;
 				}
 			}

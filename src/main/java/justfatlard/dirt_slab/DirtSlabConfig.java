@@ -18,9 +18,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.Block;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.Block;
 
 public class DirtSlabConfig {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DirtSlab.MOD_ID);
@@ -90,15 +90,15 @@ public class DirtSlabConfig {
 		Map<Block, Block> resolved = new LinkedHashMap<>();
 
 		for (Map.Entry<String, String> entry : terrainSlabs.entrySet()) {
-			Identifier sourceId = Identifier.of(entry.getKey());
-			Identifier targetId = Identifier.of(entry.getValue());
+			Identifier sourceId = Identifier.parse(entry.getKey());
+			Identifier targetId = Identifier.parse(entry.getValue());
 
-			if (!Registries.BLOCK.containsId(sourceId) || !Registries.BLOCK.containsId(targetId)) {
+			if (!BuiltInRegistries.BLOCK.containsKey(sourceId) || !BuiltInRegistries.BLOCK.containsKey(targetId)) {
 				LOGGER.warn("Skipping terrain slab mapping: {} -> {} (block not found)", entry.getKey(), entry.getValue());
 				continue;
 			}
 
-			resolved.put(Registries.BLOCK.get(sourceId), Registries.BLOCK.get(targetId));
+			resolved.put(BuiltInRegistries.BLOCK.getValue(sourceId), BuiltInRegistries.BLOCK.getValue(targetId));
 		}
 
 		return resolved;

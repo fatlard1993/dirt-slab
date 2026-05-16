@@ -4,25 +4,23 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SugarCaneBlock;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.WorldView;
-
 import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.SlabRegistry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SugarCaneBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 
 @Mixin(SugarCaneBlock.class)
 public class SugarCaneMixin {
-	@Inject(at = @At("TAIL"), method = "canPlaceAt", cancellable = true)
-	public void canPlaceAt(BlockState state, WorldView world, BlockPos pos, CallbackInfoReturnable<Boolean> info){
-		BlockPos groundPos = pos.down();
+	@Inject(at = @At("TAIL"), method = "canSurvive", cancellable = true)
+	public void canPlaceAt(BlockState state, LevelReader world, BlockPos pos, CallbackInfoReturnable<Boolean> info){
+		BlockPos groundPos = pos.below();
 		BlockState groundState = world.getBlockState(groundPos);
 		Block groundBlock = groundState.getBlock();
 
@@ -33,11 +31,11 @@ public class SugarCaneMixin {
 		}
 
 		if (SlabRegistry.isSugarCanePlantable(groundBlock)) {
-			for (Direction direction : Direction.Type.HORIZONTAL) {
-				BlockState blockState = world.getBlockState(groundPos.offset(direction));
-				FluidState fluidState = world.getFluidState(groundPos.offset(direction));
+			for (Direction direction : Direction.Plane.HORIZONTAL) {
+				BlockState blockState = world.getBlockState(groundPos.relative(direction));
+				FluidState fluidState = world.getFluidState(groundPos.relative(direction));
 
-				if (fluidState.isIn(FluidTags.WATER) || blockState.getBlock() == Blocks.FROSTED_ICE) {
+				if (fluidState.is(FluidTags.WATER) || blockState.getBlock() == Blocks.FROSTED_ICE) {
 					info.setReturnValue(true);
 					return;
 				}

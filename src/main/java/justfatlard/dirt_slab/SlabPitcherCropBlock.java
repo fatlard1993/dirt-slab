@@ -1,60 +1,59 @@
 package justfatlard.dirt_slab;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CropBlock;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabPitcherCropBlock extends CropBlock implements OffsetableSlab {
-	public static final IntProperty AGE = IntProperty.of("age", 0, 4);
-	public static final EnumProperty<DoubleBlockHalf> HALF = Properties.DOUBLE_BLOCK_HALF;
+	public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 4);
+	public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
 
 	private static final VoxelShape[] LOWER_AGE_TO_SHAPE = new VoxelShape[]{
-		Block.createCuboidShape(3.0, 0.0, 3.0, 13.0, 11.0, 13.0),  // age 0
-		Block.createCuboidShape(3.0, 0.0, 3.0, 13.0, 14.0, 13.0),  // age 1
-		Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 16.0, 14.0),  // age 2
-		Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 16.0, 14.0),  // age 3 (2 blocks tall)
-		Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 16.0, 14.0)   // age 4 (2 blocks tall)
+		Block.box(3.0, 0.0, 3.0, 13.0, 11.0, 13.0),  // age 0
+		Block.box(3.0, 0.0, 3.0, 13.0, 14.0, 13.0),  // age 1
+		Block.box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0),  // age 2
+		Block.box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0),  // age 3 (2 blocks tall)
+		Block.box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0)   // age 4 (2 blocks tall)
 	};
 
 	private static final VoxelShape[] LOWER_OFFSET_AGE_TO_SHAPE = new VoxelShape[]{
-		Block.createCuboidShape(3.0, -8.0, 3.0, 13.0, 3.0, 13.0),   // age 0
-		Block.createCuboidShape(3.0, -8.0, 3.0, 13.0, 6.0, 13.0),   // age 1
-		Block.createCuboidShape(2.0, -8.0, 2.0, 14.0, 8.0, 14.0),   // age 2
-		Block.createCuboidShape(2.0, -8.0, 2.0, 14.0, 8.0, 14.0),   // age 3
-		Block.createCuboidShape(2.0, -8.0, 2.0, 14.0, 8.0, 14.0)    // age 4
+		Block.box(3.0, -8.0, 3.0, 13.0, 3.0, 13.0),   // age 0
+		Block.box(3.0, -8.0, 3.0, 13.0, 6.0, 13.0),   // age 1
+		Block.box(2.0, -8.0, 2.0, 14.0, 8.0, 14.0),   // age 2
+		Block.box(2.0, -8.0, 2.0, 14.0, 8.0, 14.0),   // age 3
+		Block.box(2.0, -8.0, 2.0, 14.0, 8.0, 14.0)    // age 4
 	};
 
-	private static final VoxelShape UPPER_SHAPE = Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
-	private static final VoxelShape UPPER_OFFSET_SHAPE = Block.createCuboidShape(2.0, -8.0, 2.0, 14.0, 8.0, 14.0);
+	private static final VoxelShape UPPER_SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
+	private static final VoxelShape UPPER_OFFSET_SHAPE = Block.box(2.0, -8.0, 2.0, 14.0, 8.0, 14.0);
 
-	public SlabPitcherCropBlock(Settings settings) {
+	public SlabPitcherCropBlock(Properties settings) {
 		super(settings);
-		this.setDefaultState(this.stateManager.getDefaultState()
-			.with(AGE, 0)
-			.with(BOTTOM_OFFSET, false)
-			.with(HALF, DoubleBlockHalf.LOWER));
+		this.registerDefaultState(this.stateDefinition.any()
+			.setValue(AGE, 0)
+			.setValue(BOTTOM_OFFSET, false)
+			.setValue(HALF, DoubleBlockHalf.LOWER));
 	}
 
 	@Override
-	protected IntProperty getAgeProperty() {
+	protected IntegerProperty getAgeProperty() {
 		return AGE;
 	}
 
@@ -64,22 +63,22 @@ public class SlabPitcherCropBlock extends CropBlock implements OffsetableSlab {
 	}
 
 	@Override
-	protected ItemConvertible getSeedsItem() {
+	protected ItemLike getBaseSeedId() {
 		return Items.PITCHER_POD;
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(AGE, BOTTOM_OFFSET, HALF);
 	}
 
 	@Override
-	public BlockState withAge(int age) {
-		return this.getDefaultState().with(AGE, age);
+	public BlockState getStateForAge(int age) {
+		return this.defaultBlockState().setValue(AGE, age);
 	}
 
 	public BlockState withAgeAndOffset(int age, boolean offset, DoubleBlockHalf half) {
-		return this.getDefaultState().with(AGE, age).with(BOTTOM_OFFSET, offset).with(HALF, half);
+		return this.defaultBlockState().setValue(AGE, age).setValue(BOTTOM_OFFSET, offset).setValue(HALF, half);
 	}
 
 	private boolean isTwoBlockTall(int age) {
@@ -87,16 +86,16 @@ public class SlabPitcherCropBlock extends CropBlock implements OffsetableSlab {
 	}
 
 	@Override
-	protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+	protected void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
 		// Only the lower half should tick
-		if (state.get(HALF) != DoubleBlockHalf.LOWER) {
+		if (state.getValue(HALF) != DoubleBlockHalf.LOWER) {
 			return;
 		}
 
-		if (world.getBaseLightLevel(pos, 0) >= 9) {
+		if (world.getRawBrightness(pos, 0) >= 9) {
 			int age = this.getAge(state);
 			if (age < this.getMaxAge()) {
-				float moisture = getAvailableMoisture(this, world, pos);
+				float moisture = getGrowthSpeed(this, world, pos);
 				if (random.nextInt((int)(25.0F / moisture) + 1) == 0) {
 					growCrop(world, pos, state, age + 1);
 				}
@@ -105,68 +104,68 @@ public class SlabPitcherCropBlock extends CropBlock implements OffsetableSlab {
 	}
 
 	@Override
-	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
 		// If this is the upper half, find the lower half
-		if (state.get(HALF) == DoubleBlockHalf.UPPER) {
-			BlockPos lowerPos = pos.down();
+		if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
+			BlockPos lowerPos = pos.below();
 			BlockState lowerState = world.getBlockState(lowerPos);
 			if (lowerState.getBlock() == this) {
-				grow(world, random, lowerPos, lowerState);
+				performBonemeal(world, random, lowerPos, lowerState);
 			}
 			return;
 		}
 
-		int newAge = Math.min(this.getAge(state) + this.getGrowthAmount(world), this.getMaxAge());
+		int newAge = Math.min(this.getAge(state) + this.getBonemealAgeIncrease(world), this.getMaxAge());
 		growCrop(world, pos, state, newAge);
 	}
 
-	private void growCrop(ServerWorld world, BlockPos pos, BlockState state, int newAge) {
-		boolean offset = state.get(BOTTOM_OFFSET);
+	private void growCrop(ServerLevel world, BlockPos pos, BlockState state, int newAge) {
+		boolean offset = state.getValue(BOTTOM_OFFSET);
 		int oldAge = this.getAge(state);
 
 		if (newAge >= this.getMaxAge()) {
 			// Transform into pitcher plant when fully grown
-			BlockPos upperPos = pos.up();
-			if (!isTwoBlockTall(oldAge) && !world.getBlockState(upperPos).isReplaceable()) {
+			BlockPos upperPos = pos.above();
+			if (!isTwoBlockTall(oldAge) && !world.getBlockState(upperPos).canBeReplaced()) {
 				return; // Can't grow - no space for upper half
 			}
-			world.setBlockState(pos, DirtSlabBlocks.PITCHER_PLANT_SLAB.getDefaultState()
-				.with(SlabPitcherPlantBlock.HALF, DoubleBlockHalf.LOWER)
-				.with(BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
-			world.setBlockState(upperPos, DirtSlabBlocks.PITCHER_PLANT_SLAB.getDefaultState()
-				.with(SlabPitcherPlantBlock.HALF, DoubleBlockHalf.UPPER)
-				.with(BOTTOM_OFFSET, offset), Block.NOTIFY_LISTENERS);
+			world.setBlock(pos, DirtSlabBlocks.PITCHER_PLANT_SLAB.defaultBlockState()
+				.setValue(SlabPitcherPlantBlock.HALF, DoubleBlockHalf.LOWER)
+				.setValue(BOTTOM_OFFSET, offset), Block.UPDATE_CLIENTS);
+			world.setBlock(upperPos, DirtSlabBlocks.PITCHER_PLANT_SLAB.defaultBlockState()
+				.setValue(SlabPitcherPlantBlock.HALF, DoubleBlockHalf.UPPER)
+				.setValue(BOTTOM_OFFSET, offset), Block.UPDATE_CLIENTS);
 			return;
 		}
 
 		// Check if we need to add or update the upper half
 		if (isTwoBlockTall(newAge)) {
-			BlockPos upperPos = pos.up();
+			BlockPos upperPos = pos.above();
 			if (!isTwoBlockTall(oldAge)) {
 				// Becoming two blocks tall - check if space is available
-				if (!world.getBlockState(upperPos).isReplaceable()) {
+				if (!world.getBlockState(upperPos).canBeReplaced()) {
 					return; // Can't grow - no space
 				}
 			}
 
 			// Set the lower half
-			world.setBlockState(pos, this.withAgeAndOffset(newAge, offset, DoubleBlockHalf.LOWER), Block.NOTIFY_LISTENERS);
+			world.setBlock(pos, this.withAgeAndOffset(newAge, offset, DoubleBlockHalf.LOWER), Block.UPDATE_CLIENTS);
 			// Set the upper half
-			world.setBlockState(upperPos, this.withAgeAndOffset(newAge, offset, DoubleBlockHalf.UPPER), Block.NOTIFY_LISTENERS);
+			world.setBlock(upperPos, this.withAgeAndOffset(newAge, offset, DoubleBlockHalf.UPPER), Block.UPDATE_CLIENTS);
 		} else {
 			// Still single block
-			world.setBlockState(pos, this.withAgeAndOffset(newAge, offset, DoubleBlockHalf.LOWER), Block.NOTIFY_LISTENERS);
+			world.setBlock(pos, this.withAgeAndOffset(newAge, offset, DoubleBlockHalf.LOWER), Block.UPDATE_CLIENTS);
 		}
 	}
 
 	@Override
-	public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
 		// Only fertilizable if not at max age
-		if (state.get(HALF) == DoubleBlockHalf.UPPER) {
-			BlockPos lowerPos = pos.down();
+		if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
+			BlockPos lowerPos = pos.below();
 			BlockState lowerState = world.getBlockState(lowerPos);
 			if (lowerState.getBlock() == this) {
-				return lowerState.get(AGE) < this.getMaxAge();
+				return lowerState.getValue(AGE) < this.getMaxAge();
 			}
 			return false;
 		}
@@ -174,15 +173,15 @@ public class SlabPitcherCropBlock extends CropBlock implements OffsetableSlab {
 	}
 
 	@Override
-	public boolean canGrow(World world, Random random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
 		return true;
 	}
 
 	@Override
-	protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		int age = state.get(AGE);
-		boolean offset = state.get(BOTTOM_OFFSET);
-		DoubleBlockHalf half = state.get(HALF);
+	protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		int age = state.getValue(AGE);
+		boolean offset = state.getValue(BOTTOM_OFFSET);
+		DoubleBlockHalf half = state.getValue(HALF);
 
 		if (half == DoubleBlockHalf.UPPER) {
 			return offset ? UPPER_OFFSET_SHAPE : UPPER_SHAPE;
@@ -192,26 +191,26 @@ public class SlabPitcherCropBlock extends CropBlock implements OffsetableSlab {
 	}
 
 	@Override
-	protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
+	protected boolean mayPlaceOn(BlockState floor, BlockGetter world, BlockPos pos) {
 		return floor.getBlock() == DirtSlabBlocks.FARMLAND_SLAB;
 	}
 
 	@Override
-	public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-		if (state.get(HALF) == DoubleBlockHalf.UPPER) {
-			BlockState below = world.getBlockState(pos.down());
-			return below.getBlock() == this && below.get(HALF) == DoubleBlockHalf.LOWER && isTwoBlockTall(below.get(AGE));
+	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+		if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
+			BlockState below = world.getBlockState(pos.below());
+			return below.getBlock() == this && below.getValue(HALF) == DoubleBlockHalf.LOWER && isTwoBlockTall(below.getValue(AGE));
 		}
-		BlockPos below = pos.down();
+		BlockPos below = pos.below();
 		BlockState floorState = world.getBlockState(below);
-		return canPlantOnTop(floorState, world, below);
+		return mayPlaceOn(floorState, world, below);
 	}
 
 	@Override
-	public boolean shouldOffset(WorldView world, BlockPos pos) {
-		BlockState below = world.getBlockState(pos.down());
+	public boolean shouldOffset(LevelReader world, BlockPos pos) {
+		BlockState below = world.getBlockState(pos.below());
 		if (below.getBlock() == DirtSlabBlocks.FARMLAND_SLAB) {
-			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+			return below.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 		return false;
 	}

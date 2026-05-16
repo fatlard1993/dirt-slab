@@ -4,26 +4,24 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.block.BambooBlock;
-import net.minecraft.block.BambooShootBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CropBlock;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.StemBlock;
-import net.minecraft.block.SugarCaneBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-
 import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.OffsetableSlab;
 import justfatlard.dirt_slab.SlabRegistry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.BambooSaplingBlock;
+import net.minecraft.world.level.block.BambooStalkBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StemBlock;
+import net.minecraft.world.level.block.SugarCaneBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.material.FluidState;
 import justfatlard.dirt_slab.SlabBambooBlock;
 import justfatlard.dirt_slab.SlabBambooShootBlock;
 
@@ -35,8 +33,8 @@ import justfatlard.dirt_slab.SlabBambooShootBlock;
  * The instanceof dispatch handles: CropBlock, StemBlock, SugarCaneBlock, BambooBlock, BambooShootBlock.
  */
 public class PlantPlacementMixin {
-	@Inject(at = @At("HEAD"), method = "getPlacementState", cancellable = true)
-	private void getPlacementState(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
+	@Inject(at = @At("HEAD"), method = "getStateForPlacement", cancellable = true)
+	private void getPlacementState(BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
 		Block self = (Block)(Object)this;
 
 		// Handle sugar cane placement
@@ -46,13 +44,13 @@ public class PlantPlacementMixin {
 		}
 
 		// Handle bamboo shoot placement
-		if (self instanceof BambooShootBlock) {
+		if (self instanceof BambooSaplingBlock) {
 			handleBambooShootPlacement(ctx, info);
 			return;
 		}
 
 		// Handle bamboo placement
-		if (self instanceof BambooBlock) {
+		if (self instanceof BambooStalkBlock) {
 			handleBambooPlacement(ctx, info);
 			return;
 		}
@@ -62,10 +60,10 @@ public class PlantPlacementMixin {
 			return;
 		}
 
-		BlockPos clickedPos = ctx.getBlockPos();
-		BlockPos belowPos = clickedPos.down();
-		BlockState belowState = ctx.getWorld().getBlockState(belowPos);
-		BlockState atState = ctx.getWorld().getBlockState(clickedPos);
+		BlockPos clickedPos = ctx.getClickedPos();
+		BlockPos belowPos = clickedPos.below();
+		BlockState belowState = ctx.getLevel().getBlockState(belowPos);
+		BlockState atState = ctx.getLevel().getBlockState(clickedPos);
 
 		// Check if placing on farmland slab - check both below and at the clicked position
 		BlockState farmlandState = null;
@@ -77,7 +75,7 @@ public class PlantPlacementMixin {
 		}
 
 		if (farmlandState != null) {
-			boolean isBottomSlab = farmlandState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+			boolean isBottomSlab = farmlandState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 
 			Block targetBlock = null;
 
@@ -85,26 +83,26 @@ public class PlantPlacementMixin {
 			targetBlock = SlabRegistry.getCropSlab(self);
 
 			if (targetBlock != null) {
-				BlockState targetState = targetBlock.getDefaultState();
+				BlockState targetState = targetBlock.defaultBlockState();
 				if (targetBlock instanceof OffsetableSlab) {
-					targetState = targetState.with(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
+					targetState = targetState.setValue(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
 				}
 				info.setReturnValue(targetState);
 			}
 		}
 	}
 
-	private void handleSugarCanePlacement(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
-		BlockPos pos = ctx.getBlockPos();
-		BlockPos groundPos = pos.down();
-		BlockState groundState = ctx.getWorld().getBlockState(groundPos);
+	private void handleSugarCanePlacement(BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
+		BlockPos pos = ctx.getClickedPos();
+		BlockPos groundPos = pos.below();
+		BlockState groundState = ctx.getLevel().getBlockState(groundPos);
 		Block groundBlock = groundState.getBlock();
 
 		// If placing on slab sugar cane, use slab variant with inherited offset
 		if (groundBlock == DirtSlabBlocks.SUGAR_CANE_SLAB) {
-			boolean bottomOffset = groundState.get(OffsetableSlab.BOTTOM_OFFSET);
-			info.setReturnValue(DirtSlabBlocks.SUGAR_CANE_SLAB.getDefaultState()
-				.with(OffsetableSlab.BOTTOM_OFFSET, bottomOffset));
+			boolean bottomOffset = groundState.getValue(OffsetableSlab.BOTTOM_OFFSET);
+			info.setReturnValue(DirtSlabBlocks.SUGAR_CANE_SLAB.defaultBlockState()
+				.setValue(OffsetableSlab.BOTTOM_OFFSET, bottomOffset));
 			return;
 		}
 
@@ -112,74 +110,74 @@ public class PlantPlacementMixin {
 		if (SlabRegistry.isSugarCanePlantable(groundBlock)) {
 			// Check for water nearby (required for sugar cane)
 			boolean hasWater = false;
-			for (Direction direction : Direction.Type.HORIZONTAL) {
-				FluidState fluidState = ctx.getWorld().getFluidState(groundPos.offset(direction));
-				BlockState blockState = ctx.getWorld().getBlockState(groundPos.offset(direction));
-				if (fluidState.isIn(FluidTags.WATER) || blockState.getBlock() == Blocks.FROSTED_ICE) {
+			for (Direction direction : Direction.Plane.HORIZONTAL) {
+				FluidState fluidState = ctx.getLevel().getFluidState(groundPos.relative(direction));
+				BlockState blockState = ctx.getLevel().getBlockState(groundPos.relative(direction));
+				if (fluidState.is(FluidTags.WATER) || blockState.getBlock() == Blocks.FROSTED_ICE) {
 					hasWater = true;
 					break;
 				}
 			}
 
 			if (hasWater) {
-				boolean bottomOffset = groundState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
-				info.setReturnValue(DirtSlabBlocks.SUGAR_CANE_SLAB.getDefaultState()
-					.with(OffsetableSlab.BOTTOM_OFFSET, bottomOffset));
+				boolean bottomOffset = groundState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
+				info.setReturnValue(DirtSlabBlocks.SUGAR_CANE_SLAB.defaultBlockState()
+					.setValue(OffsetableSlab.BOTTOM_OFFSET, bottomOffset));
 			}
 		}
 	}
 
-	private void handleBambooShootPlacement(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
-		BlockPos pos = ctx.getBlockPos();
-		BlockState groundState = ctx.getWorld().getBlockState(pos.down());
+	private void handleBambooShootPlacement(BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
+		BlockPos pos = ctx.getClickedPos();
+		BlockState groundState = ctx.getLevel().getBlockState(pos.below());
 		Block groundBlock = groundState.getBlock();
 
 		// If placing on a dirt slab, use slab bamboo shoot variant
-		if (SlabRegistry.isGrassType(groundBlock) && SlabRegistry.isTerrainSlab(groundBlock) && ctx.getWorld().getBlockState(pos).isAir()) {
+		if (SlabRegistry.isGrassType(groundBlock) && SlabRegistry.isTerrainSlab(groundBlock) && ctx.getLevel().getBlockState(pos).isAir()) {
 			boolean bottomOffset = false;
 			if (groundBlock instanceof SlabBlock) {
-				bottomOffset = groundState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+				bottomOffset = groundState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 			}
-			info.setReturnValue(DirtSlabBlocks.BAMBOO_SHOOT_SLAB.getDefaultState()
-				.with(OffsetableSlab.BOTTOM_OFFSET, bottomOffset));
+			info.setReturnValue(DirtSlabBlocks.BAMBOO_SHOOT_SLAB.defaultBlockState()
+				.setValue(OffsetableSlab.BOTTOM_OFFSET, bottomOffset));
 		}
 	}
 
-	private void handleBambooPlacement(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
-		BlockPos pos = ctx.getBlockPos();
-		BlockState groundState = ctx.getWorld().getBlockState(pos.down());
+	private void handleBambooPlacement(BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
+		BlockPos pos = ctx.getClickedPos();
+		BlockState groundState = ctx.getLevel().getBlockState(pos.below());
 		Block groundBlock = groundState.getBlock();
 
 		// If placing on slab bamboo, use slab variant with inherited offset
 		if (groundBlock == DirtSlabBlocks.BAMBOO_SLAB) {
-			boolean bottomOffset = groundState.get(OffsetableSlab.BOTTOM_OFFSET);
-			info.setReturnValue(DirtSlabBlocks.BAMBOO_SLAB.getDefaultState()
-				.with(OffsetableSlab.BOTTOM_OFFSET, bottomOffset)
-				.with(SlabBambooBlock.AGE, 0)
-				.with(SlabBambooBlock.LEAVES, SlabBambooBlock.BambooLeaves.NONE)
-				.with(SlabBambooBlock.STAGE, 0));
+			boolean bottomOffset = groundState.getValue(OffsetableSlab.BOTTOM_OFFSET);
+			info.setReturnValue(DirtSlabBlocks.BAMBOO_SLAB.defaultBlockState()
+				.setValue(OffsetableSlab.BOTTOM_OFFSET, bottomOffset)
+				.setValue(SlabBambooBlock.AGE, 0)
+				.setValue(SlabBambooBlock.LEAVES, SlabBambooBlock.BambooLeaves.NONE)
+				.setValue(SlabBambooBlock.STAGE, 0));
 			return;
 		}
 
 		// If placing on slab bamboo shoot, use slab variant with inherited offset
 		if (groundBlock == DirtSlabBlocks.BAMBOO_SHOOT_SLAB) {
-			boolean bottomOffset = groundState.get(OffsetableSlab.BOTTOM_OFFSET);
-			info.setReturnValue(DirtSlabBlocks.BAMBOO_SLAB.getDefaultState()
-				.with(OffsetableSlab.BOTTOM_OFFSET, bottomOffset)
-				.with(SlabBambooBlock.AGE, 0)
-				.with(SlabBambooBlock.LEAVES, SlabBambooBlock.BambooLeaves.NONE)
-				.with(SlabBambooBlock.STAGE, 0));
+			boolean bottomOffset = groundState.getValue(OffsetableSlab.BOTTOM_OFFSET);
+			info.setReturnValue(DirtSlabBlocks.BAMBOO_SLAB.defaultBlockState()
+				.setValue(OffsetableSlab.BOTTOM_OFFSET, bottomOffset)
+				.setValue(SlabBambooBlock.AGE, 0)
+				.setValue(SlabBambooBlock.LEAVES, SlabBambooBlock.BambooLeaves.NONE)
+				.setValue(SlabBambooBlock.STAGE, 0));
 			return;
 		}
 
 		// If placing on dirt slab, use bamboo shoot slab
-		if (SlabRegistry.isGrassType(groundBlock) && SlabRegistry.isTerrainSlab(groundBlock) && ctx.getWorld().getBlockState(pos).isAir()) {
+		if (SlabRegistry.isGrassType(groundBlock) && SlabRegistry.isTerrainSlab(groundBlock) && ctx.getLevel().getBlockState(pos).isAir()) {
 			boolean bottomOffset = false;
 			if (groundBlock instanceof SlabBlock) {
-				bottomOffset = groundState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+				bottomOffset = groundState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 			}
-			info.setReturnValue(DirtSlabBlocks.BAMBOO_SHOOT_SLAB.getDefaultState()
-				.with(OffsetableSlab.BOTTOM_OFFSET, bottomOffset));
+			info.setReturnValue(DirtSlabBlocks.BAMBOO_SHOOT_SLAB.defaultBlockState()
+				.setValue(OffsetableSlab.BOTTOM_OFFSET, bottomOffset));
 		}
 	}
 

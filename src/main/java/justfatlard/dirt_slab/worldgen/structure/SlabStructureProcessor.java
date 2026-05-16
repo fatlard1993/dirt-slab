@@ -4,20 +4,20 @@ import com.mojang.serialization.MapCodec;
 
 import justfatlard.dirt_slab.DirtSlab;
 import justfatlard.dirt_slab.SlabRegistry;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.structure.StructurePlacementData;
-import net.minecraft.structure.StructureTemplate;
-import net.minecraft.structure.processor.StructureProcessor;
-import net.minecraft.structure.processor.StructureProcessorType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.WorldView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 /**
  * Structure processor that randomly converts some full blocks to slab variants
@@ -34,17 +34,17 @@ public class SlabStructureProcessor extends StructureProcessor {
 	}
 
 	@Override
-	public StructureTemplate.StructureBlockInfo process(
-			WorldView world,
+	public StructureTemplate.StructureBlockInfo processBlock(
+			LevelReader world,
 			BlockPos pos,
 			BlockPos pivot,
 			StructureTemplate.StructureBlockInfo originalBlockInfo,
 			StructureTemplate.StructureBlockInfo currentBlockInfo,
-			StructurePlacementData data) {
+			StructurePlaceSettings data) {
 
 		BlockState state = currentBlockInfo.state();
 		Block block = state.getBlock();
-		Random random = data.getRandom(currentBlockInfo.pos());
+		RandomSource random = data.getRandom(currentBlockInfo.pos());
 
 		// Check if this block can be converted and roll the dice
 		if (random.nextFloat() < CONVERSION_CHANCE) {
@@ -52,7 +52,7 @@ public class SlabStructureProcessor extends StructureProcessor {
 			if (slabState != null) {
 				return new StructureTemplate.StructureBlockInfo(
 					currentBlockInfo.pos(),
-					slabState.with(SlabBlock.TYPE, SlabType.BOTTOM),
+					slabState.setValue(SlabBlock.TYPE, SlabType.BOTTOM),
 					currentBlockInfo.nbt()
 				);
 			}
@@ -72,8 +72,8 @@ public class SlabStructureProcessor extends StructureProcessor {
 
 	public static void register() {
 		TYPE = Registry.register(
-			Registries.STRUCTURE_PROCESSOR,
-			Identifier.of(DirtSlab.MOD_ID, "slab_processor"),
+			BuiltInRegistries.STRUCTURE_PROCESSOR,
+			Identifier.fromNamespaceAndPath(DirtSlab.MOD_ID, "slab_processor"),
 			() -> CODEC
 		);
 	}

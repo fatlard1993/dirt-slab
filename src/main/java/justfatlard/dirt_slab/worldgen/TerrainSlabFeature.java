@@ -4,22 +4,21 @@ import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.OffsetableSlab;
 import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlabSnowLayerBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import java.util.ArrayList;
 
 /**
@@ -29,16 +28,16 @@ import java.util.ArrayList;
  * Two passes: first converts terrain and immediate plants, then revisits
  * bottom slab positions to catch plants placed by later worldgen features.
  */
-public class TerrainSlabFeature extends Feature<DefaultFeatureConfig> {
+public class TerrainSlabFeature extends Feature<NoneFeatureConfiguration> {
 	public TerrainSlabFeature() {
-		super(DefaultFeatureConfig.CODEC);
+		super(NoneFeatureConfiguration.CODEC);
 	}
 
 	@Override
-	public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
-		StructureWorldAccess world = context.getWorld();
-		BlockPos origin = context.getOrigin();
-		Random random = context.getRandom();
+	public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+		WorldGenLevel world = context.level();
+		BlockPos origin = context.origin();
+		RandomSource random = context.random();
 
 		int placed = 0;
 		int radius = 12;
@@ -49,7 +48,7 @@ public class TerrainSlabFeature extends Feature<DefaultFeatureConfig> {
 			for (int z = -radius; z <= radius; z++) {
 				if (random.nextFloat() > 0.40f) continue;
 
-				BlockPos columnPos = origin.add(x, 0, z);
+				BlockPos columnPos = origin.offset(x, 0, z);
 
 				// Surface slabs (bottom type at cliff edges)
 				BlockPos surfacePos = findSurface(world, columnPos);
@@ -60,14 +59,14 @@ public class TerrainSlabFeature extends Feature<DefaultFeatureConfig> {
 					if (SlabRegistry.isConvertibleTerrain(block) && isTerrainEdge(world, surfacePos)) {
 						BlockState slabState = SlabRegistry.getTerrainSlabState(block);
 						if (slabState != null) {
-							BlockState finalState = slabState.with(SlabBlock.TYPE, SlabType.BOTTOM);
-							if (slabState.contains(Properties.SNOWY) && hasSnowOnTop(world, surfacePos)) {
-								finalState = finalState.with(Properties.SNOWY, true);
+							BlockState finalState = slabState.setValue(SlabBlock.TYPE, SlabType.BOTTOM);
+							if (slabState.hasProperty(BlockStateProperties.SNOWY) && hasSnowOnTop(world, surfacePos)) {
+								finalState = finalState.setValue(BlockStateProperties.SNOWY, true);
 							}
 							if (isWaterAdjacent(world, surfacePos)) {
-								finalState = finalState.with(Properties.WATERLOGGED, true);
+								finalState = finalState.setValue(BlockStateProperties.WATERLOGGED, true);
 							}
-							world.setBlockState(surfacePos, finalState, Block.NOTIFY_LISTENERS);
+							world.setBlock(surfacePos, finalState, Block.UPDATE_CLIENTS);
 							placed++;
 							bottomSlabPositions.add(surfacePos);
 
@@ -85,14 +84,14 @@ public class TerrainSlabFeature extends Feature<DefaultFeatureConfig> {
 					if (SlabRegistry.isConvertibleTerrain(block) && isOverhangEdge(world, overhangPos)) {
 						BlockState slabState = SlabRegistry.getTerrainSlabState(block);
 						if (slabState != null) {
-							BlockState finalState = slabState.with(SlabBlock.TYPE, SlabType.TOP);
-							if (slabState.contains(Properties.SNOWY) && hasSnowOnTop(world, overhangPos)) {
-								finalState = finalState.with(Properties.SNOWY, true);
+							BlockState finalState = slabState.setValue(SlabBlock.TYPE, SlabType.TOP);
+							if (slabState.hasProperty(BlockStateProperties.SNOWY) && hasSnowOnTop(world, overhangPos)) {
+								finalState = finalState.setValue(BlockStateProperties.SNOWY, true);
 							}
 							if (isWaterAdjacent(world, overhangPos)) {
-								finalState = finalState.with(Properties.WATERLOGGED, true);
+								finalState = finalState.setValue(BlockStateProperties.WATERLOGGED, true);
 							}
-							world.setBlockState(overhangPos, finalState, Block.NOTIFY_LISTENERS);
+							world.setBlock(overhangPos, finalState, Block.UPDATE_CLIENTS);
 							placed++;
 						}
 					}
@@ -104,46 +103,46 @@ public class TerrainSlabFeature extends Feature<DefaultFeatureConfig> {
 		// Second pass: catch plants placed by other features after our terrain conversion
 		for (BlockPos slabPos : bottomSlabPositions) {
 			BlockState slabState = world.getBlockState(slabPos);
-			placed += convertOrSnow(world, slabPos.up(), slabState);
+			placed += convertOrSnow(world, slabPos.above(), slabState);
 		}
 
 		return placed > 0;
 	}
 
-	private int convertPlantAbove(StructureWorldAccess world, BlockPos surfacePos, BlockState slabState) {
-		BlockPos abovePos = surfacePos.up();
+	private int convertPlantAbove(WorldGenLevel world, BlockPos surfacePos, BlockState slabState) {
+		BlockPos abovePos = surfacePos.above();
 		return convertOrSnow(world, abovePos, slabState);
 	}
 
-	private int convertOrSnow(StructureWorldAccess world, BlockPos abovePos, BlockState slabState) {
+	private int convertOrSnow(WorldGenLevel world, BlockPos abovePos, BlockState slabState) {
 		BlockState aboveState = world.getBlockState(abovePos);
 		BlockState plantSlabState = SlabRegistry.getPlantSlabDefaultState(aboveState.getBlock());
 		if (plantSlabState != null) {
-			boolean isBottomSlab = slabState.contains(SlabBlock.TYPE) && slabState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
-			if (plantSlabState.contains(OffsetableSlab.BOTTOM_OFFSET)) {
-				plantSlabState = plantSlabState.with(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
+			boolean isBottomSlab = slabState.hasProperty(SlabBlock.TYPE) && slabState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
+			if (plantSlabState.hasProperty(OffsetableSlab.BOTTOM_OFFSET)) {
+				plantSlabState = plantSlabState.setValue(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
 			}
-			world.setBlockState(abovePos, plantSlabState, Block.NOTIFY_LISTENERS);
+			world.setBlock(abovePos, plantSlabState, Block.UPDATE_CLIENTS);
 			return 1;
-		} else if (aboveState.isAir() || aboveState.isOf(Blocks.SNOW)) {
+		} else if (aboveState.isAir() || aboveState.is(Blocks.SNOW)) {
 			Biome biome = world.getBiome(abovePos).value();
-			if (biome.getPrecipitation(abovePos, world.getSeaLevel()) == Biome.Precipitation.SNOW) {
+			if (biome.getPrecipitationAt(abovePos, world.getSeaLevel()) == Biome.Precipitation.SNOW) {
 				BlockState snowState = SlabSnowLayerBlock.createForSlab(slabState);
-				world.setBlockState(abovePos, snowState, Block.NOTIFY_LISTENERS);
+				world.setBlock(abovePos, snowState, Block.UPDATE_CLIENTS);
 				return 1;
 			}
 		}
 		return 0;
 	}
 
-	private BlockPos findSurface(StructureWorldAccess world, BlockPos pos) {
-		int surfaceY = world.getTopY(Heightmap.Type.WORLD_SURFACE, pos.getX(), pos.getZ()) - 1;
-		if (surfaceY < world.getBottomY()) return null;
+	private BlockPos findSurface(WorldGenLevel world, BlockPos pos) {
+		int surfaceY = world.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ()) - 1;
+		if (surfaceY < world.getMinY()) return null;
 
 		BlockPos surfacePos = new BlockPos(pos.getX(), surfaceY, pos.getZ());
 		BlockState state = world.getBlockState(surfacePos);
-		if (!state.isAir() && !state.isLiquid()) {
-			BlockState aboveState = world.getBlockState(surfacePos.up());
+		if (!state.isAir() && !state.liquid()) {
+			BlockState aboveState = world.getBlockState(surfacePos.above());
 			Block aboveBlock = aboveState.getBlock();
 			if (aboveState.isAir() || SlabRegistry.isVegetation(aboveBlock) ||
 				aboveBlock == Blocks.SNOW || aboveBlock == Blocks.SNOW_BLOCK) {
@@ -155,14 +154,14 @@ public class TerrainSlabFeature extends Feature<DefaultFeatureConfig> {
 
 	private static final int MAX_OVERHANG_DEPTH = 32;
 
-	private BlockPos findOverhang(StructureWorldAccess world, BlockPos pos) {
-		int startY = world.getTopY(Heightmap.Type.WORLD_SURFACE, pos.getX(), pos.getZ());
-		int minY = Math.max(world.getBottomY() + 1, startY - MAX_OVERHANG_DEPTH);
+	private BlockPos findOverhang(WorldGenLevel world, BlockPos pos) {
+		int startY = world.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
+		int minY = Math.max(world.getMinY() + 1, startY - MAX_OVERHANG_DEPTH);
 		for (int y = startY; y >= minY; y--) {
 			BlockPos checkPos = new BlockPos(pos.getX(), y, pos.getZ());
 			BlockState state = world.getBlockState(checkPos);
-			if (!state.isAir() && !state.isLiquid()) {
-				if (world.getBlockState(checkPos.down()).isAir()) {
+			if (!state.isAir() && !state.liquid()) {
+				if (world.getBlockState(checkPos.below()).isAir()) {
 					return checkPos;
 				}
 			}
@@ -170,33 +169,33 @@ public class TerrainSlabFeature extends Feature<DefaultFeatureConfig> {
 		return null;
 	}
 
-	private boolean hasSnowOnTop(StructureWorldAccess world, BlockPos pos) {
-		BlockState topState = world.getBlockState(pos.up());
+	private boolean hasSnowOnTop(WorldGenLevel world, BlockPos pos) {
+		BlockState topState = world.getBlockState(pos.above());
 		Block topBlock = topState.getBlock();
-		return topBlock == Blocks.SNOW || topBlock == Blocks.SNOW_BLOCK || topState.isOf(DirtSlabBlocks.SNOW_LAYER_SLAB);
+		return topBlock == Blocks.SNOW || topBlock == Blocks.SNOW_BLOCK || topState.is(DirtSlabBlocks.SNOW_LAYER_SLAB);
 	}
 
-	private boolean isWaterAdjacent(StructureWorldAccess world, BlockPos pos) {
+	private boolean isWaterAdjacent(WorldGenLevel world, BlockPos pos) {
 		for (Direction dir : Direction.values()) {
 			if (dir == Direction.DOWN) continue;
-			if (world.getBlockState(pos.offset(dir)).getBlock() == Blocks.WATER) return true;
+			if (world.getBlockState(pos.relative(dir)).getBlock() == Blocks.WATER) return true;
 		}
 		return false;
 	}
 
-	private boolean isOverhangEdge(StructureWorldAccess world, BlockPos pos) {
+	private boolean isOverhangEdge(WorldGenLevel world, BlockPos pos) {
 		int edgeCount = 0;
 
-		for (Direction dir : Direction.Type.HORIZONTAL) {
-			BlockPos adjacent = pos.offset(dir);
+		for (Direction dir : Direction.Plane.HORIZONTAL) {
+			BlockPos adjacent = pos.relative(dir);
 			BlockState adjacentState = world.getBlockState(adjacent);
 
-			if (adjacentState.isAir() || adjacentState.isLiquid()) {
+			if (adjacentState.isAir() || adjacentState.liquid()) {
 				edgeCount++;
 				continue;
 			}
 
-			if (world.getBlockState(adjacent.up()).isAir()) {
+			if (world.getBlockState(adjacent.above()).isAir()) {
 				edgeCount++;
 			}
 		}
@@ -204,19 +203,19 @@ public class TerrainSlabFeature extends Feature<DefaultFeatureConfig> {
 		return edgeCount >= 1 && edgeCount <= 3;
 	}
 
-	private boolean isTerrainEdge(StructureWorldAccess world, BlockPos pos) {
+	private boolean isTerrainEdge(WorldGenLevel world, BlockPos pos) {
 		int airOrLowerCount = 0;
 
-		for (Direction dir : Direction.Type.HORIZONTAL) {
-			BlockPos adjacent = pos.offset(dir);
+		for (Direction dir : Direction.Plane.HORIZONTAL) {
+			BlockPos adjacent = pos.relative(dir);
 			BlockState adjacentState = world.getBlockState(adjacent);
 
-			if (adjacentState.isAir() || adjacentState.isLiquid()) {
+			if (adjacentState.isAir() || adjacentState.liquid()) {
 				airOrLowerCount++;
 				continue;
 			}
 
-			if (world.getBlockState(adjacent.down()).isAir()) {
+			if (world.getBlockState(adjacent.below()).isAir()) {
 				airOrLowerCount++;
 			}
 		}

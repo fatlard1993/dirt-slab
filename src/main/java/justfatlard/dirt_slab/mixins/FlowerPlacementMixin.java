@@ -4,22 +4,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FlowerBlock;
-import net.minecraft.block.MushroomPlantBlock;
-import net.minecraft.block.SaplingBlock;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.SporeBlossomBlock;
-import net.minecraft.block.TallFlowerBlock;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.OffsetableSlab;
 import justfatlard.dirt_slab.SlabCactusFlowerBlock;
@@ -30,11 +14,25 @@ import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlabSaplingBlock;
 import justfatlard.dirt_slab.SlabSporeBlossomBlock;
 import justfatlard.dirt_slab.SlabTallFlowerBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.block.MushroomBlock;
+import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.SporeBlossomBlock;
+import net.minecraft.world.level.block.TallFlowerBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.SlabType;
 
 @Mixin(value = Block.class, priority = 1100)
 public class FlowerPlacementMixin {
-	@Inject(at = @At("HEAD"), method = "getPlacementState", cancellable = true)
-	private void getFlowerPlacementState(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
+	@Inject(at = @At("HEAD"), method = "getStateForPlacement", cancellable = true)
+	private void getFlowerPlacementState(BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
 		Block self = (Block)(Object)this;
 
 		// Handle regular flowers (but not our custom slab flowers)
@@ -50,7 +48,7 @@ public class FlowerPlacementMixin {
 		}
 
 		// Handle mushrooms (but not our custom slab mushrooms)
-		if (self instanceof MushroomPlantBlock && !(self instanceof SlabMushroomBlock)) {
+		if (self instanceof MushroomBlock && !(self instanceof SlabMushroomBlock)) {
 			handleMushroom(self, ctx, info);
 			return;
 		}
@@ -80,10 +78,10 @@ public class FlowerPlacementMixin {
 		}
 	}
 
-	private void handleRegularFlower(Block self, ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
-		BlockPos clickedPos = ctx.getBlockPos();
-		BlockPos groundPos = clickedPos.down();
-		BlockState groundState = ctx.getWorld().getBlockState(groundPos);
+	private void handleRegularFlower(Block self, BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
+		BlockPos clickedPos = ctx.getClickedPos();
+		BlockPos groundPos = clickedPos.below();
+		BlockState groundState = ctx.getLevel().getBlockState(groundPos);
 
 		// Check if placing on a dirt-type slab
 		if (!SlabRegistry.isTerrainSlab(groundState.getBlock())) {
@@ -92,24 +90,24 @@ public class FlowerPlacementMixin {
 
 		boolean isBottomSlab = false;
 		if (groundState.getBlock() instanceof SlabBlock) {
-			isBottomSlab = groundState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+			isBottomSlab = groundState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 
 		Block flowerBlock = getSlabFlowerFor(self);
 
 		if (flowerBlock != null) {
-			BlockState flowerState = flowerBlock.getDefaultState();
+			BlockState flowerState = flowerBlock.defaultBlockState();
 			if (flowerBlock instanceof OffsetableSlab) {
-				flowerState = flowerState.with(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
+				flowerState = flowerState.setValue(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
 			}
 			info.setReturnValue(flowerState);
 		}
 	}
 
-	private void handleTallFlower(Block self, ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
-		BlockPos clickedPos = ctx.getBlockPos();
-		BlockPos groundPos = clickedPos.down();
-		World world = ctx.getWorld();
+	private void handleTallFlower(Block self, BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
+		BlockPos clickedPos = ctx.getClickedPos();
+		BlockPos groundPos = clickedPos.below();
+		Level world = ctx.getLevel();
 		BlockState groundState = world.getBlockState(groundPos);
 
 		// Check if placing on a dirt-type slab
@@ -118,23 +116,23 @@ public class FlowerPlacementMixin {
 		}
 
 		// Check if there's room for the upper half
-		BlockPos upperPos = clickedPos.up();
-		if (!world.getBlockState(upperPos).isReplaceable()) {
+		BlockPos upperPos = clickedPos.above();
+		if (!world.getBlockState(upperPos).canBeReplaced()) {
 			return;
 		}
 
 		boolean isBottomSlab = false;
 		if (groundState.getBlock() instanceof SlabBlock) {
-			isBottomSlab = groundState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+			isBottomSlab = groundState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 
 		Block tallFlowerBlock = getSlabTallFlowerFor(self);
 
 		if (tallFlowerBlock != null) {
 			// Only return the lower state - the upper half will be placed in onPlaced()
-			BlockState lowerState = tallFlowerBlock.getDefaultState()
-				.with(TallFlowerBlock.HALF, DoubleBlockHalf.LOWER)
-				.with(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
+			BlockState lowerState = tallFlowerBlock.defaultBlockState()
+				.setValue(TallFlowerBlock.HALF, DoubleBlockHalf.LOWER)
+				.setValue(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
 
 			info.setReturnValue(lowerState);
 		}
@@ -148,10 +146,10 @@ public class FlowerPlacementMixin {
 		return SlabRegistry.getPlantSlab(vanillaTallFlower);
 	}
 
-	private void handleMushroom(Block self, ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
-		BlockPos clickedPos = ctx.getBlockPos();
-		BlockPos groundPos = clickedPos.down();
-		BlockState groundState = ctx.getWorld().getBlockState(groundPos);
+	private void handleMushroom(Block self, BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
+		BlockPos clickedPos = ctx.getClickedPos();
+		BlockPos groundPos = clickedPos.below();
+		BlockState groundState = ctx.getLevel().getBlockState(groundPos);
 
 		// Check if placing on a dirt-type slab
 		if (!SlabRegistry.isTerrainSlab(groundState.getBlock())) {
@@ -160,15 +158,15 @@ public class FlowerPlacementMixin {
 
 		boolean isBottomSlab = false;
 		if (groundState.getBlock() instanceof SlabBlock) {
-			isBottomSlab = groundState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+			isBottomSlab = groundState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 
 		Block mushroomBlock = getSlabMushroomFor(self);
 
 		if (mushroomBlock != null) {
-			BlockState mushroomState = mushroomBlock.getDefaultState();
+			BlockState mushroomState = mushroomBlock.defaultBlockState();
 			if (mushroomBlock instanceof OffsetableSlab) {
-				mushroomState = mushroomState.with(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
+				mushroomState = mushroomState.setValue(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
 			}
 			info.setReturnValue(mushroomState);
 		}
@@ -178,33 +176,33 @@ public class FlowerPlacementMixin {
 		return SlabRegistry.getPlantSlab(vanillaMushroom);
 	}
 
-	private void handleSporeBlossom(Block self, ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
-		BlockPos clickedPos = ctx.getBlockPos();
-		BlockPos ceilingPos = clickedPos.up();
-		BlockState ceilingState = ctx.getWorld().getBlockState(ceilingPos);
+	private void handleSporeBlossom(Block self, BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
+		BlockPos clickedPos = ctx.getClickedPos();
+		BlockPos ceilingPos = clickedPos.above();
+		BlockState ceilingState = ctx.getLevel().getBlockState(ceilingPos);
 
 		// Check if placing below a slab (top or double)
 		if (!(ceilingState.getBlock() instanceof SlabBlock)) {
 			return;
 		}
 
-		SlabType type = ceilingState.get(SlabBlock.TYPE);
+		SlabType type = ceilingState.getValue(SlabBlock.TYPE);
 		if (type != SlabType.TOP && type != SlabType.DOUBLE) {
 			return;
 		}
 
 		boolean isTopSlab = type == SlabType.TOP;
 
-		BlockState sporeBlossomState = DirtSlabBlocks.SPORE_BLOSSOM_SLAB.getDefaultState()
-			.with(SlabSporeBlossomBlock.TOP_OFFSET, isTopSlab);
+		BlockState sporeBlossomState = DirtSlabBlocks.SPORE_BLOSSOM_SLAB.defaultBlockState()
+			.setValue(SlabSporeBlossomBlock.TOP_OFFSET, isTopSlab);
 
 		info.setReturnValue(sporeBlossomState);
 	}
 
-	private void handleCactusFlower(Block self, ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
-		BlockPos clickedPos = ctx.getBlockPos();
-		BlockPos groundPos = clickedPos.down();
-		BlockState groundState = ctx.getWorld().getBlockState(groundPos);
+	private void handleCactusFlower(Block self, BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
+		BlockPos clickedPos = ctx.getClickedPos();
+		BlockPos groundPos = clickedPos.below();
+		BlockState groundState = ctx.getLevel().getBlockState(groundPos);
 
 		// Check if placing on a slab
 		if (!(groundState.getBlock() instanceof SlabBlock)) {
@@ -214,18 +212,18 @@ public class FlowerPlacementMixin {
 		Block slabBlock = SlabRegistry.getPlantSlab(self);
 		if (slabBlock == null) return;
 
-		boolean isBottomSlab = groundState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+		boolean isBottomSlab = groundState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 
-		BlockState slabState = slabBlock.getDefaultState()
-			.with(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
+		BlockState slabState = slabBlock.defaultBlockState()
+			.setValue(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
 
 		info.setReturnValue(slabState);
 	}
 
-	private void handleFireflyBush(Block self, ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
-		BlockPos clickedPos = ctx.getBlockPos();
-		BlockPos groundPos = clickedPos.down();
-		BlockState groundState = ctx.getWorld().getBlockState(groundPos);
+	private void handleFireflyBush(Block self, BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
+		BlockPos clickedPos = ctx.getClickedPos();
+		BlockPos groundPos = clickedPos.below();
+		BlockState groundState = ctx.getLevel().getBlockState(groundPos);
 
 		// Check if placing on a terrain slab
 		if (!SlabRegistry.isTerrainSlab(groundState.getBlock())) {
@@ -237,19 +235,19 @@ public class FlowerPlacementMixin {
 
 		boolean isBottomSlab = false;
 		if (groundState.getBlock() instanceof SlabBlock) {
-			isBottomSlab = groundState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+			isBottomSlab = groundState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 
-		BlockState slabState = slabBlock.getDefaultState()
-			.with(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
+		BlockState slabState = slabBlock.defaultBlockState()
+			.setValue(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
 
 		info.setReturnValue(slabState);
 	}
 
-	private void handleSapling(Block self, ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> info) {
-		BlockPos clickedPos = ctx.getBlockPos();
-		BlockPos groundPos = clickedPos.down();
-		BlockState groundState = ctx.getWorld().getBlockState(groundPos);
+	private void handleSapling(Block self, BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> info) {
+		BlockPos clickedPos = ctx.getClickedPos();
+		BlockPos groundPos = clickedPos.below();
+		BlockState groundState = ctx.getLevel().getBlockState(groundPos);
 
 		// Check if placing on a dirt-type slab
 		if (!SlabRegistry.isTerrainSlab(groundState.getBlock())) {
@@ -258,15 +256,15 @@ public class FlowerPlacementMixin {
 
 		boolean isBottomSlab = false;
 		if (groundState.getBlock() instanceof SlabBlock) {
-			isBottomSlab = groundState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+			isBottomSlab = groundState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 
 		Block saplingBlock = getSlabSaplingFor(self);
 
 		if (saplingBlock != null) {
-			BlockState saplingState = saplingBlock.getDefaultState();
+			BlockState saplingState = saplingBlock.defaultBlockState();
 			if (saplingBlock instanceof OffsetableSlab) {
-				saplingState = saplingState.with(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
+				saplingState = saplingState.setValue(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
 			}
 			info.setReturnValue(saplingState);
 		}

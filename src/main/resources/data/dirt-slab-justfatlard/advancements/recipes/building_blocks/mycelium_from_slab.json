@@ -1,0 +1,9 @@
+{
+  "criteria": {
+    "required_criteria_0": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [{ "item": "dirt-slab-justfatlard:mycelium_slab" }] }
+    }
+  },
+  "rewards": { "recipes": ["dirt-slab-justfatlard:mycelium_from_slab"] }
+}

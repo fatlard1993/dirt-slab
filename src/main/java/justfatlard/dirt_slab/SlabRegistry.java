@@ -6,11 +6,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SlabBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Single source of truth for vanilla block → slab block mappings.
@@ -176,7 +175,7 @@ public class SlabRegistry {
 	/** Get the default state of the slab for a vanilla terrain block, or null. */
 	public static BlockState getTerrainSlabState(Block vanillaBlock) {
 		Block slab = TERRAIN_SLABS.get(vanillaBlock);
-		return slab != null ? slab.getDefaultState() : null;
+		return slab != null ? slab.defaultBlockState() : null;
 	}
 
 	/** Get the slab block for a vanilla plant block, or null. */
@@ -187,7 +186,7 @@ public class SlabRegistry {
 	/** Get the default state of the slab for a vanilla plant block, or null. */
 	public static BlockState getPlantSlabDefaultState(Block vanillaBlock) {
 		Block slab = PLANT_SLABS.get(vanillaBlock);
-		return slab != null ? slab.getDefaultState() : null;
+		return slab != null ? slab.defaultBlockState() : null;
 	}
 
 	/** Check if a block is a vanilla plant we have a slab variant for. */
@@ -247,9 +246,9 @@ public class SlabRegistry {
 
 	/** Copy TYPE and WATERLOGGED from one slab state to another slab's default state. Other properties (SNOWY, MOISTURE) are intentionally dropped. */
 	public static BlockState copySlabProperties(BlockState from, Block toBlock) {
-		return toBlock.getDefaultState()
-			.with(SlabBlock.TYPE, from.get(SlabBlock.TYPE))
-			.with(SlabBlock.WATERLOGGED, from.get(SlabBlock.WATERLOGGED));
+		return toBlock.defaultBlockState()
+			.setValue(SlabBlock.TYPE, from.getValue(SlabBlock.TYPE))
+			.setValue(SlabBlock.WATERLOGGED, from.getValue(SlabBlock.WATERLOGGED));
 	}
 
 	/** Check if a block is valid ground for gourd (melon/pumpkin) placement. Vanilla dirt-family blocks only. */

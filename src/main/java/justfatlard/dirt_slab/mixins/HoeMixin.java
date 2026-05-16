@@ -4,37 +4,32 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.HoeItem;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-
 import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.SlabEffects;
 import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlicedTopSlab;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.HoeItem;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 @Mixin(HoeItem.class)
 public class HoeMixin {
-	@Inject(at = @At("HEAD"), method = "useOnBlock", cancellable = true)
-	private void useOnBlock(ItemUsageContext context, CallbackInfoReturnable<ActionResult> info){
-		BlockPos pos = context.getBlockPos();
-		World world = context.getWorld();
+	@Inject(at = @At("HEAD"), method = "useOn", cancellable = true)
+	private void useOnBlock(UseOnContext context, CallbackInfoReturnable<InteractionResult> info){
+		BlockPos pos = context.getClickedPos();
+		Level world = context.getLevel();
 		BlockState state = world.getBlockState(pos);
 
-		if(context.getSide() != Direction.DOWN && SlicedTopSlab.canExistAt(state, world, pos)){
-			PlayerEntity player = context.getPlayer();
+		if(context.getClickedFace() != Direction.DOWN && SlicedTopSlab.canExistAt(state, world, pos)){
+			Player player = context.getPlayer();
 			Block block = state.getBlock();
 			boolean success = false;
 			BlockState newState = null;
@@ -44,7 +39,7 @@ public class HoeMixin {
 
 				success = true;
 
-				if(world.isClient()) world.playSound(player, pos, SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
+				if(world.isClientSide()) world.playSound(player, pos, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1.0F, 1.0F);
 			}
 
 			else if(block == DirtSlabBlocks.DIRT_SLAB || block == DirtSlabBlocks.GRASS_SLAB || block == DirtSlabBlocks.GRASS_PATH_SLAB){
@@ -52,19 +47,19 @@ public class HoeMixin {
 
 				success = true;
 
-				if(world.isClient()) world.playSound(player, pos, SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
+				if(world.isClientSide()) world.playSound(player, pos, SoundEvents.GRASS_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);
 			}
 
 			if(success){
-				if(!world.isClient()){
-					world.setBlockState(pos, newState);
+				if(!world.isClientSide()){
+					world.setBlockAndUpdate(pos, newState);
 
-					if(player != null) context.getStack().damage(1, player, context.getHand());
+					if(player != null) context.getItemInHand().hurtAndBreak(1, player, context.getHand());
 				}
 
 				SlabEffects.dirtParticles(world, pos, 1);
 
-				info.setReturnValue(ActionResult.SUCCESS);
+				info.setReturnValue(InteractionResult.SUCCESS);
 			}
 		}
 	}

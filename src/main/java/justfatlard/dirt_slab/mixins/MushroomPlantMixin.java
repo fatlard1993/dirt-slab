@@ -4,21 +4,19 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.MushroomPlantBlock;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldView;
-
 import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.SlabRegistry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.MushroomBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
-@Mixin(MushroomPlantBlock.class)
+@Mixin(MushroomBlock.class)
 public class MushroomPlantMixin {
-	@Inject(at = @At("HEAD"), method = "canPlaceAt", cancellable = true)
-	public void canPlaceAt(BlockState state, WorldView view, BlockPos pos, CallbackInfoReturnable<Boolean> info){
-		BlockState groundState = view.getBlockState(pos.down());
+	@Inject(at = @At("HEAD"), method = "canSurvive", cancellable = true)
+	public void canPlaceAt(BlockState state, LevelReader view, BlockPos pos, CallbackInfoReturnable<Boolean> info){
+		BlockState groundState = view.getBlockState(pos.below());
 		Block groundBlock = groundState.getBlock();
 
 		// Mushrooms can always be placed on mycelium and podzol slabs
@@ -28,7 +26,7 @@ public class MushroomPlantMixin {
 		}
 
 		// Mushrooms can be placed on other dirt-type slabs in low light (< 13)
-		if(SlabRegistry.isTerrainSlab(groundBlock) && view.getBaseLightLevel(pos, 0) < 13) {
+		if(SlabRegistry.isTerrainSlab(groundBlock) && view.getRawBrightness(pos, 0) < 13) {
 			info.setReturnValue(true);
 		}
 	}

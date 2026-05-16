@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "dirt-slab-justfatlard:mycelium_slab" },
+    { "item": "dirt-slab-justfatlard:mycelium_slab" }
+  ],
+  "result": {
+    "item": "minecraft:mycelium",
+    "count": 1
+  }
+}

@@ -6,36 +6,36 @@ import org.slf4j.LoggerFactory;
 import justfatlard.dirt_slab.DirtSlab;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.PlacedFeature;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class DirtSlabWorldGen {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DirtSlab.MOD_ID);
 
 	public static final Feature<?> TERRAIN_SLAB_FEATURE = new TerrainSlabFeature();
 
-	public static final RegistryKey<Feature<?>> TERRAIN_SLAB_FEATURE_KEY =
-		RegistryKey.of(RegistryKeys.FEATURE, Identifier.of(DirtSlab.MOD_ID, "terrain_slab"));
+	public static final ResourceKey<Feature<?>> TERRAIN_SLAB_FEATURE_KEY =
+		ResourceKey.create(Registries.FEATURE, Identifier.fromNamespaceAndPath(DirtSlab.MOD_ID, "terrain_slab"));
 
-	public static final RegistryKey<ConfiguredFeature<?, ?>> TERRAIN_SLAB_CONFIGURED_KEY =
-		RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, Identifier.of(DirtSlab.MOD_ID, "terrain_slab"));
+	public static final ResourceKey<ConfiguredFeature<?, ?>> TERRAIN_SLAB_CONFIGURED_KEY =
+		ResourceKey.create(Registries.CONFIGURED_FEATURE, Identifier.fromNamespaceAndPath(DirtSlab.MOD_ID, "terrain_slab"));
 
-	public static final RegistryKey<PlacedFeature> TERRAIN_SLAB_PLACED_KEY =
-		RegistryKey.of(RegistryKeys.PLACED_FEATURE, Identifier.of(DirtSlab.MOD_ID, "terrain_slab"));
+	public static final ResourceKey<PlacedFeature> TERRAIN_SLAB_PLACED_KEY =
+		ResourceKey.create(Registries.PLACED_FEATURE, Identifier.fromNamespaceAndPath(DirtSlab.MOD_ID, "terrain_slab"));
 
 	public static void register() {
-		Registry.register(Registries.FEATURE, Identifier.of(DirtSlab.MOD_ID, "terrain_slab"), TERRAIN_SLAB_FEATURE);
+		Registry.register(BuiltInRegistries.FEATURE, Identifier.fromNamespaceAndPath(DirtSlab.MOD_ID, "terrain_slab"), TERRAIN_SLAB_FEATURE);
 
 		BiomeModifications.addFeature(
 			BiomeSelectors.foundInOverworld(),
-			GenerationStep.Feature.TOP_LAYER_MODIFICATION,
+			GenerationStep.Decoration.TOP_LAYER_MODIFICATION,
 			TERRAIN_SLAB_PLACED_KEY
 		);
 

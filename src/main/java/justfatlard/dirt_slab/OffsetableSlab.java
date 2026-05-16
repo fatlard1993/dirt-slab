@@ -1,11 +1,11 @@
 package justfatlard.dirt_slab;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.SlabType;
 
 /**
  * Shared interface for slab plant blocks that render offset on bottom slabs.
@@ -16,12 +16,12 @@ import net.minecraft.world.WorldView;
  * bamboo) use BlockRenderManagerMixin for render-time translation instead.
  */
 public interface OffsetableSlab {
-	BooleanProperty BOTTOM_OFFSET = BooleanProperty.of("bottom_offset");
+	BooleanProperty BOTTOM_OFFSET = BooleanProperty.create("bottom_offset");
 
-	default boolean shouldOffset(WorldView world, BlockPos pos) {
-		BlockState below = world.getBlockState(pos.down());
+	default boolean shouldOffset(LevelReader world, BlockPos pos) {
+		BlockState below = world.getBlockState(pos.below());
 		if(SlabRegistry.isTerrainSlab(below.getBlock()) && below.getBlock() instanceof SlabBlock){
-			return below.get(SlabBlock.TYPE) == SlabType.BOTTOM;
+			return below.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 		}
 		return false;
 	}

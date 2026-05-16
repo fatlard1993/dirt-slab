@@ -1,22 +1,21 @@
 package justfatlard.dirt_slab.mixins;
 
-import net.minecraft.util.math.random.Random;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import justfatlard.dirt_slab.SpreadableSlab;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SpreadableBlock;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.SpreadingSnowyBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
-@Mixin(SpreadableBlock.class)
+@Mixin(SpreadingSnowyBlock.class)
 public class SpreadableBlockMixin {
 	@Inject(at = @At("TAIL"), method = "randomTick", cancellable = true)
-	public void randomTick(BlockState spreader, ServerWorld world, BlockPos pos, Random random, CallbackInfo info){
+	public void randomTick(BlockState spreader, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo info){
 		SpreadableSlab.spreadableTick(spreader, world, pos, random);
 	}
 }

@@ -1,190 +1,190 @@
 package justfatlard.dirt_slab;
 
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.Items;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.gen.feature.TreeConfiguredFeatures;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.worldgen.features.TreeFeatures;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class DirtSlabBlocks {
 	private static final String MOD_ID = DirtSlab.MOD_ID;
 
-	public static final Block COARSE_DIRT_SLAB = new SlabBlock(AbstractBlock.Settings.copy(Blocks.COARSE_DIRT).registryKey(blockKey("coarse_dirt_slab")));
-	public static final Block DIRT_SLAB = new SlabBlock(AbstractBlock.Settings.copy(Blocks.DIRT).registryKey(blockKey("dirt_slab")));
-	public static final Block FARMLAND_SLAB = new FarmlandSlab(AbstractBlock.Settings.copy(Blocks.FARMLAND).registryKey(blockKey("farmland_slab")));
-	public static final Block GRASS_PATH_SLAB = new SlicedTopSlab(AbstractBlock.Settings.copy(Blocks.DIRT_PATH).registryKey(blockKey("grass_path_slab")));
-	public static final Block GRASS_SLAB = new GrassSlab(AbstractBlock.Settings.copy(Blocks.GRASS_BLOCK).ticksRandomly().registryKey(blockKey("grass_slab")));
-	public static final Block MUD_SLAB = new MudSlab(AbstractBlock.Settings.copy(Blocks.MUD).registryKey(blockKey("mud_slab")));
-	public static final Block MYCELIUM_SLAB = new SpreadableSlab(AbstractBlock.Settings.copy(Blocks.MYCELIUM).registryKey(blockKey("mycelium_slab")), Blocks.MYCELIUM);
-	public static final Block PODZOL_SLAB = new SlabBlock(AbstractBlock.Settings.copy(Blocks.PODZOL).registryKey(blockKey("podzol_slab")));
-	public static final Block ROOTED_DIRT_SLAB = new RootedDirtSlab(AbstractBlock.Settings.copy(Blocks.ROOTED_DIRT).registryKey(blockKey("rooted_dirt_slab")));
+	public static final Block COARSE_DIRT_SLAB = new SlabBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COARSE_DIRT).setId(blockKey("coarse_dirt_slab")));
+	public static final Block DIRT_SLAB = new SlabBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT).setId(blockKey("dirt_slab")));
+	public static final Block FARMLAND_SLAB = new FarmlandSlab(BlockBehaviour.Properties.ofFullCopy(Blocks.FARMLAND).setId(blockKey("farmland_slab")));
+	public static final Block GRASS_PATH_SLAB = new SlicedTopSlab(BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT_PATH).setId(blockKey("grass_path_slab")));
+	public static final Block GRASS_SLAB = new GrassSlab(BlockBehaviour.Properties.ofFullCopy(Blocks.GRASS_BLOCK).randomTicks().setId(blockKey("grass_slab")));
+	public static final Block MUD_SLAB = new MudSlab(BlockBehaviour.Properties.ofFullCopy(Blocks.MUD).setId(blockKey("mud_slab")));
+	public static final Block MYCELIUM_SLAB = new SpreadableSlab(BlockBehaviour.Properties.ofFullCopy(Blocks.MYCELIUM).setId(blockKey("mycelium_slab")), Blocks.MYCELIUM);
+	public static final Block PODZOL_SLAB = new SlabBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.PODZOL).setId(blockKey("podzol_slab")));
+	public static final Block ROOTED_DIRT_SLAB = new RootedDirtSlab(BlockBehaviour.Properties.ofFullCopy(Blocks.ROOTED_DIRT).setId(blockKey("rooted_dirt_slab")));
 
 	// Crops
-	public static final Block WHEAT_SLAB_CROP = new SlabCropBlock(AbstractBlock.Settings.copy(Blocks.WHEAT).registryKey(blockKey("wheat_slab_crop")), Items.WHEAT_SEEDS);
-	public static final Block CARROT_SLAB_CROP = new SlabCropBlock(AbstractBlock.Settings.copy(Blocks.CARROTS).registryKey(blockKey("carrot_slab_crop")), Items.CARROT);
-	public static final Block POTATO_SLAB_CROP = new SlabCropBlock(AbstractBlock.Settings.copy(Blocks.POTATOES).registryKey(blockKey("potato_slab_crop")), Items.POTATO);
-	public static final Block BEETROOT_SLAB_CROP = new BeetrootSlabCropBlock(AbstractBlock.Settings.copy(Blocks.BEETROOTS).registryKey(blockKey("beetroot_slab_crop")));
-	public static final Block TORCHFLOWER_CROP_SLAB = new SlabTorchflowerCropBlock(AbstractBlock.Settings.copy(Blocks.TORCHFLOWER_CROP).registryKey(blockKey("torchflower_crop_slab")));
-	public static final Block PITCHER_CROP_SLAB = new SlabPitcherCropBlock(AbstractBlock.Settings.copy(Blocks.PITCHER_CROP).registryKey(blockKey("pitcher_crop_slab")));
-	public static final Block PITCHER_PLANT_SLAB = new SlabPitcherPlantBlock(AbstractBlock.Settings.copy(Blocks.PITCHER_PLANT).registryKey(blockKey("pitcher_plant_slab")));
+	public static final Block WHEAT_SLAB_CROP = new SlabCropBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT).setId(blockKey("wheat_slab_crop")), Items.WHEAT_SEEDS);
+	public static final Block CARROT_SLAB_CROP = new SlabCropBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CARROTS).setId(blockKey("carrot_slab_crop")), Items.CARROT);
+	public static final Block POTATO_SLAB_CROP = new SlabCropBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.POTATOES).setId(blockKey("potato_slab_crop")), Items.POTATO);
+	public static final Block BEETROOT_SLAB_CROP = new BeetrootSlabCropBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BEETROOTS).setId(blockKey("beetroot_slab_crop")));
+	public static final Block TORCHFLOWER_CROP_SLAB = new SlabTorchflowerCropBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.TORCHFLOWER_CROP).setId(blockKey("torchflower_crop_slab")));
+	public static final Block PITCHER_CROP_SLAB = new SlabPitcherCropBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.PITCHER_CROP).setId(blockKey("pitcher_crop_slab")));
+	public static final Block PITCHER_PLANT_SLAB = new SlabPitcherPlantBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.PITCHER_PLANT).setId(blockKey("pitcher_plant_slab")));
 
 	// Stems
-	public static final Block MELON_STEM_SLAB = new SlabStemBlock(true, Items.MELON_SEEDS, AbstractBlock.Settings.copy(Blocks.MELON_STEM).registryKey(blockKey("melon_stem_slab")));
-	public static final Block PUMPKIN_STEM_SLAB = new SlabStemBlock(false, Items.PUMPKIN_SEEDS, AbstractBlock.Settings.copy(Blocks.PUMPKIN_STEM).registryKey(blockKey("pumpkin_stem_slab")));
+	public static final Block MELON_STEM_SLAB = new SlabStemBlock(true, Items.MELON_SEEDS, BlockBehaviour.Properties.ofFullCopy(Blocks.MELON_STEM).setId(blockKey("melon_stem_slab")));
+	public static final Block PUMPKIN_STEM_SLAB = new SlabStemBlock(false, Items.PUMPKIN_SEEDS, BlockBehaviour.Properties.ofFullCopy(Blocks.PUMPKIN_STEM).setId(blockKey("pumpkin_stem_slab")));
 
 	// Attached stems
-	public static final Block ATTACHED_MELON_STEM_SLAB = new SlabAttachedStemBlock(true, Items.MELON_SEEDS, AbstractBlock.Settings.copy(Blocks.ATTACHED_MELON_STEM).registryKey(blockKey("attached_melon_stem_slab")));
-	public static final Block ATTACHED_PUMPKIN_STEM_SLAB = new SlabAttachedStemBlock(false, Items.PUMPKIN_SEEDS, AbstractBlock.Settings.copy(Blocks.ATTACHED_PUMPKIN_STEM).registryKey(blockKey("attached_pumpkin_stem_slab")));
+	public static final Block ATTACHED_MELON_STEM_SLAB = new SlabAttachedStemBlock(true, Items.MELON_SEEDS, BlockBehaviour.Properties.ofFullCopy(Blocks.ATTACHED_MELON_STEM).setId(blockKey("attached_melon_stem_slab")));
+	public static final Block ATTACHED_PUMPKIN_STEM_SLAB = new SlabAttachedStemBlock(false, Items.PUMPKIN_SEEDS, BlockBehaviour.Properties.ofFullCopy(Blocks.ATTACHED_PUMPKIN_STEM).setId(blockKey("attached_pumpkin_stem_slab")));
 
 	// Flowers
-	public static final Block DANDELION_SLAB = new SlabFlowerBlock(StatusEffects.SATURATION, 0.35F, AbstractBlock.Settings.copy(Blocks.DANDELION).registryKey(blockKey("dandelion_slab")));
-	public static final Block POPPY_SLAB = new SlabFlowerBlock(StatusEffects.NIGHT_VISION, 5.0F, AbstractBlock.Settings.copy(Blocks.POPPY).registryKey(blockKey("poppy_slab")));
-	public static final Block BLUE_ORCHID_SLAB = new SlabFlowerBlock(StatusEffects.SATURATION, 0.35F, AbstractBlock.Settings.copy(Blocks.BLUE_ORCHID).registryKey(blockKey("blue_orchid_slab")));
-	public static final Block ALLIUM_SLAB = new SlabFlowerBlock(StatusEffects.FIRE_RESISTANCE, 4.0F, AbstractBlock.Settings.copy(Blocks.ALLIUM).registryKey(blockKey("allium_slab")));
-	public static final Block AZURE_BLUET_SLAB = new SlabFlowerBlock(StatusEffects.BLINDNESS, 8.0F, AbstractBlock.Settings.copy(Blocks.AZURE_BLUET).registryKey(blockKey("azure_bluet_slab")));
-	public static final Block RED_TULIP_SLAB = new SlabFlowerBlock(StatusEffects.WEAKNESS, 9.0F, AbstractBlock.Settings.copy(Blocks.RED_TULIP).registryKey(blockKey("red_tulip_slab")));
-	public static final Block ORANGE_TULIP_SLAB = new SlabFlowerBlock(StatusEffects.WEAKNESS, 9.0F, AbstractBlock.Settings.copy(Blocks.ORANGE_TULIP).registryKey(blockKey("orange_tulip_slab")));
-	public static final Block WHITE_TULIP_SLAB = new SlabFlowerBlock(StatusEffects.WEAKNESS, 9.0F, AbstractBlock.Settings.copy(Blocks.WHITE_TULIP).registryKey(blockKey("white_tulip_slab")));
-	public static final Block PINK_TULIP_SLAB = new SlabFlowerBlock(StatusEffects.WEAKNESS, 9.0F, AbstractBlock.Settings.copy(Blocks.PINK_TULIP).registryKey(blockKey("pink_tulip_slab")));
-	public static final Block OXEYE_DAISY_SLAB = new SlabFlowerBlock(StatusEffects.REGENERATION, 8.0F, AbstractBlock.Settings.copy(Blocks.OXEYE_DAISY).registryKey(blockKey("oxeye_daisy_slab")));
-	public static final Block CORNFLOWER_SLAB = new SlabFlowerBlock(StatusEffects.JUMP_BOOST, 6.0F, AbstractBlock.Settings.copy(Blocks.CORNFLOWER).registryKey(blockKey("cornflower_slab")));
-	public static final Block LILY_OF_THE_VALLEY_SLAB = new SlabFlowerBlock(StatusEffects.POISON, 12.0F, AbstractBlock.Settings.copy(Blocks.LILY_OF_THE_VALLEY).registryKey(blockKey("lily_of_the_valley_slab")));
-	public static final Block WITHER_ROSE_SLAB = new SlabFlowerBlock(StatusEffects.WITHER, 8.0F, AbstractBlock.Settings.copy(Blocks.WITHER_ROSE).registryKey(blockKey("wither_rose_slab")));
-	public static final Block TORCHFLOWER_SLAB = new SlabFlowerBlock(StatusEffects.NIGHT_VISION, 5.0F, AbstractBlock.Settings.copy(Blocks.TORCHFLOWER).registryKey(blockKey("torchflower_slab")));
-	public static final Block OPEN_EYEBLOSSOM_SLAB = new SlabFlowerBlock(StatusEffects.NAUSEA, 9.0F, AbstractBlock.Settings.copy(Blocks.OPEN_EYEBLOSSOM).registryKey(blockKey("open_eyeblossom_slab")));
-	public static final Block CLOSED_EYEBLOSSOM_SLAB = new SlabFlowerBlock(StatusEffects.BLINDNESS, 11.0F, AbstractBlock.Settings.copy(Blocks.CLOSED_EYEBLOSSOM).registryKey(blockKey("closed_eyeblossom_slab")));
+	public static final Block DANDELION_SLAB = new SlabFlowerBlock(MobEffects.SATURATION, 0.35F, BlockBehaviour.Properties.ofFullCopy(Blocks.DANDELION).setId(blockKey("dandelion_slab")));
+	public static final Block POPPY_SLAB = new SlabFlowerBlock(MobEffects.NIGHT_VISION, 5.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.POPPY).setId(blockKey("poppy_slab")));
+	public static final Block BLUE_ORCHID_SLAB = new SlabFlowerBlock(MobEffects.SATURATION, 0.35F, BlockBehaviour.Properties.ofFullCopy(Blocks.BLUE_ORCHID).setId(blockKey("blue_orchid_slab")));
+	public static final Block ALLIUM_SLAB = new SlabFlowerBlock(MobEffects.FIRE_RESISTANCE, 4.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.ALLIUM).setId(blockKey("allium_slab")));
+	public static final Block AZURE_BLUET_SLAB = new SlabFlowerBlock(MobEffects.BLINDNESS, 8.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.AZURE_BLUET).setId(blockKey("azure_bluet_slab")));
+	public static final Block RED_TULIP_SLAB = new SlabFlowerBlock(MobEffects.WEAKNESS, 9.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.RED_TULIP).setId(blockKey("red_tulip_slab")));
+	public static final Block ORANGE_TULIP_SLAB = new SlabFlowerBlock(MobEffects.WEAKNESS, 9.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.ORANGE_TULIP).setId(blockKey("orange_tulip_slab")));
+	public static final Block WHITE_TULIP_SLAB = new SlabFlowerBlock(MobEffects.WEAKNESS, 9.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_TULIP).setId(blockKey("white_tulip_slab")));
+	public static final Block PINK_TULIP_SLAB = new SlabFlowerBlock(MobEffects.WEAKNESS, 9.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.PINK_TULIP).setId(blockKey("pink_tulip_slab")));
+	public static final Block OXEYE_DAISY_SLAB = new SlabFlowerBlock(MobEffects.REGENERATION, 8.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.OXEYE_DAISY).setId(blockKey("oxeye_daisy_slab")));
+	public static final Block CORNFLOWER_SLAB = new SlabFlowerBlock(MobEffects.JUMP_BOOST, 6.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.CORNFLOWER).setId(blockKey("cornflower_slab")));
+	public static final Block LILY_OF_THE_VALLEY_SLAB = new SlabFlowerBlock(MobEffects.POISON, 12.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.LILY_OF_THE_VALLEY).setId(blockKey("lily_of_the_valley_slab")));
+	public static final Block WITHER_ROSE_SLAB = new SlabFlowerBlock(MobEffects.WITHER, 8.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.WITHER_ROSE).setId(blockKey("wither_rose_slab")));
+	public static final Block TORCHFLOWER_SLAB = new SlabFlowerBlock(MobEffects.NIGHT_VISION, 5.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.TORCHFLOWER).setId(blockKey("torchflower_slab")));
+	public static final Block OPEN_EYEBLOSSOM_SLAB = new SlabFlowerBlock(MobEffects.NAUSEA, 9.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.OPEN_EYEBLOSSOM).setId(blockKey("open_eyeblossom_slab")));
+	public static final Block CLOSED_EYEBLOSSOM_SLAB = new SlabFlowerBlock(MobEffects.BLINDNESS, 11.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.CLOSED_EYEBLOSSOM).setId(blockKey("closed_eyeblossom_slab")));
 
 	// Tall flowers
-	public static final Block SUNFLOWER_SLAB = new SlabTallFlowerBlock(AbstractBlock.Settings.copy(Blocks.SUNFLOWER).registryKey(blockKey("sunflower_slab")));
-	public static final Block LILAC_SLAB = new SlabTallFlowerBlock(AbstractBlock.Settings.copy(Blocks.LILAC).registryKey(blockKey("lilac_slab")));
-	public static final Block ROSE_BUSH_SLAB = new SlabTallFlowerBlock(AbstractBlock.Settings.copy(Blocks.ROSE_BUSH).registryKey(blockKey("rose_bush_slab")));
-	public static final Block PEONY_SLAB = new SlabTallFlowerBlock(AbstractBlock.Settings.copy(Blocks.PEONY).registryKey(blockKey("peony_slab")));
+	public static final Block SUNFLOWER_SLAB = new SlabTallFlowerBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SUNFLOWER).setId(blockKey("sunflower_slab")));
+	public static final Block LILAC_SLAB = new SlabTallFlowerBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.LILAC).setId(blockKey("lilac_slab")));
+	public static final Block ROSE_BUSH_SLAB = new SlabTallFlowerBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.ROSE_BUSH).setId(blockKey("rose_bush_slab")));
+	public static final Block PEONY_SLAB = new SlabTallFlowerBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.PEONY).setId(blockKey("peony_slab")));
 
 	// Mushrooms
-	public static final Block RED_MUSHROOM_SLAB = new SlabMushroomBlock(AbstractBlock.Settings.copy(Blocks.RED_MUSHROOM).registryKey(blockKey("red_mushroom_slab")));
-	public static final Block BROWN_MUSHROOM_SLAB = new SlabMushroomBlock(AbstractBlock.Settings.copy(Blocks.BROWN_MUSHROOM).registryKey(blockKey("brown_mushroom_slab")));
+	public static final Block RED_MUSHROOM_SLAB = new SlabMushroomBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.RED_MUSHROOM).setId(blockKey("red_mushroom_slab")));
+	public static final Block BROWN_MUSHROOM_SLAB = new SlabMushroomBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).setId(blockKey("brown_mushroom_slab")));
 
 	// Pink petals
-	public static final Block PINK_PETALS_SLAB = new SlabPinkPetalsBlock(AbstractBlock.Settings.copy(Blocks.PINK_PETALS).registryKey(blockKey("pink_petals_slab")));
+	public static final Block PINK_PETALS_SLAB = new SlabPinkPetalsBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.PINK_PETALS).setId(blockKey("pink_petals_slab")));
 
 	// Wildflowers
-	public static final Block WILDFLOWERS_SLAB = new SlabWildflowersBlock(AbstractBlock.Settings.copy(Blocks.WILDFLOWERS).registryKey(blockKey("wildflowers_slab")));
+	public static final Block WILDFLOWERS_SLAB = new SlabWildflowersBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WILDFLOWERS).setId(blockKey("wildflowers_slab")));
 
 	// Short plants
-	public static final Block SHORT_GRASS_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.SHORT_GRASS).registryKey(blockKey("short_grass_slab")));
-	public static final Block FERN_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.FERN).registryKey(blockKey("fern_slab")));
-	public static final Block DEAD_BUSH_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.DEAD_BUSH).registryKey(blockKey("dead_bush_slab")));
-	public static final Block SHORT_DRY_GRASS_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.SHORT_DRY_GRASS).registryKey(blockKey("short_dry_grass_slab")));
-	public static final Block BUSH_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.BUSH).registryKey(blockKey("bush_slab")));
+	public static final Block SHORT_GRASS_SLAB = new SlabShortPlantBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SHORT_GRASS).setId(blockKey("short_grass_slab")));
+	public static final Block FERN_SLAB = new SlabShortPlantBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.FERN).setId(blockKey("fern_slab")));
+	public static final Block DEAD_BUSH_SLAB = new SlabShortPlantBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DEAD_BUSH).setId(blockKey("dead_bush_slab")));
+	public static final Block SHORT_DRY_GRASS_SLAB = new SlabShortPlantBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SHORT_DRY_GRASS).setId(blockKey("short_dry_grass_slab")));
+	public static final Block BUSH_SLAB = new SlabShortPlantBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BUSH).setId(blockKey("bush_slab")));
 
 	// Tall plants
-	public static final Block TALL_GRASS_SLAB = new SlabTallPlantBlock(AbstractBlock.Settings.copy(Blocks.TALL_GRASS).registryKey(blockKey("tall_grass_slab")));
-	public static final Block LARGE_FERN_SLAB = new SlabTallPlantBlock(AbstractBlock.Settings.copy(Blocks.LARGE_FERN).registryKey(blockKey("large_fern_slab")));
+	public static final Block TALL_GRASS_SLAB = new SlabTallPlantBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.TALL_GRASS).setId(blockKey("tall_grass_slab")));
+	public static final Block LARGE_FERN_SLAB = new SlabTallPlantBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.LARGE_FERN).setId(blockKey("large_fern_slab")));
 	// Tall dry grass is a single-block plant (not a double plant like tall grass)
-	public static final Block TALL_DRY_GRASS_SLAB = new SlabShortPlantBlock(AbstractBlock.Settings.copy(Blocks.TALL_DRY_GRASS).registryKey(blockKey("tall_dry_grass_slab")));
+	public static final Block TALL_DRY_GRASS_SLAB = new SlabShortPlantBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.TALL_DRY_GRASS).setId(blockKey("tall_dry_grass_slab")));
 
 	// Leaf litter
-	public static final Block LEAF_LITTER_SLAB = new SlabLeafLitterBlock(AbstractBlock.Settings.copy(Blocks.LEAF_LITTER).registryKey(blockKey("leaf_litter_slab")));
+	public static final Block LEAF_LITTER_SLAB = new SlabLeafLitterBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.LEAF_LITTER).setId(blockKey("leaf_litter_slab")));
 
 	// Hanging roots
-	public static final Block HANGING_ROOTS_SLAB = new SlabHangingRootsBlock(AbstractBlock.Settings.copy(Blocks.HANGING_ROOTS).registryKey(blockKey("hanging_roots_slab")));
+	public static final Block HANGING_ROOTS_SLAB = new SlabHangingRootsBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HANGING_ROOTS).setId(blockKey("hanging_roots_slab")));
 
 	// Sugar cane
-	public static final Block SUGAR_CANE_SLAB = new SlabSugarCaneBlock(AbstractBlock.Settings.copy(Blocks.SUGAR_CANE).ticksRandomly().registryKey(blockKey("sugar_cane_slab")));
+	public static final Block SUGAR_CANE_SLAB = new SlabSugarCaneBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SUGAR_CANE).randomTicks().setId(blockKey("sugar_cane_slab")));
 
 	// Bamboo
-	public static final Block BAMBOO_SHOOT_SLAB = new SlabBambooShootBlock(AbstractBlock.Settings.copy(Blocks.BAMBOO_SAPLING).ticksRandomly().registryKey(blockKey("bamboo_shoot_slab")));
-	public static final Block BAMBOO_SLAB = new SlabBambooBlock(AbstractBlock.Settings.copy(Blocks.BAMBOO).ticksRandomly().registryKey(blockKey("bamboo_slab")));
+	public static final Block BAMBOO_SHOOT_SLAB = new SlabBambooShootBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BAMBOO_SAPLING).randomTicks().setId(blockKey("bamboo_shoot_slab")));
+	public static final Block BAMBOO_SLAB = new SlabBambooBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BAMBOO).randomTicks().setId(blockKey("bamboo_slab")));
 
 	// Spore blossom
-	public static final Block SPORE_BLOSSOM_SLAB = new SlabSporeBlossomBlock(AbstractBlock.Settings.copy(Blocks.SPORE_BLOSSOM).registryKey(blockKey("spore_blossom_slab")));
+	public static final Block SPORE_BLOSSOM_SLAB = new SlabSporeBlossomBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SPORE_BLOSSOM).setId(blockKey("spore_blossom_slab")));
 
 	// Cactus flower
-	public static final Block CACTUS_FLOWER_SLAB = new SlabCactusFlowerBlock(AbstractBlock.Settings.copy(Blocks.CACTUS_FLOWER).registryKey(blockKey("cactus_flower_slab")));
+	public static final Block CACTUS_FLOWER_SLAB = new SlabCactusFlowerBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CACTUS_FLOWER).setId(blockKey("cactus_flower_slab")));
 
 	// Firefly bush
-	public static final Block FIREFLY_BUSH_SLAB = new SlabFireflyBushBlock(AbstractBlock.Settings.copy(Blocks.FIREFLY_BUSH).registryKey(blockKey("firefly_bush_slab")));
+	public static final Block FIREFLY_BUSH_SLAB = new SlabFireflyBushBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.FIREFLY_BUSH).setId(blockKey("firefly_bush_slab")));
 
 	// Moss carpet
-	public static final Block MOSS_CARPET_SLAB = new SlabMossCarpetBlock(AbstractBlock.Settings.copy(Blocks.MOSS_CARPET).registryKey(blockKey("moss_carpet_slab")));
-	public static final Block PALE_MOSS_CARPET_SLAB = new SlabMossCarpetBlock(AbstractBlock.Settings.copy(Blocks.PALE_MOSS_CARPET).registryKey(blockKey("pale_moss_carpet_slab")));
+	public static final Block MOSS_CARPET_SLAB = new SlabMossCarpetBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.MOSS_CARPET).setId(blockKey("moss_carpet_slab")));
+	public static final Block PALE_MOSS_CARPET_SLAB = new SlabMossCarpetBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.PALE_MOSS_CARPET).setId(blockKey("pale_moss_carpet_slab")));
 
 	// Sweet berry bush
-	public static final Block SWEET_BERRY_BUSH_SLAB = new SlabSweetBerryBushBlock(AbstractBlock.Settings.copy(Blocks.SWEET_BERRY_BUSH).ticksRandomly().registryKey(blockKey("sweet_berry_bush_slab")));
+	public static final Block SWEET_BERRY_BUSH_SLAB = new SlabSweetBerryBushBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SWEET_BERRY_BUSH).randomTicks().setId(blockKey("sweet_berry_bush_slab")));
 
 	// Azalea
-	public static final Block AZALEA_SLAB = new SlabAzaleaBlock(AbstractBlock.Settings.copy(Blocks.AZALEA).registryKey(blockKey("azalea_slab")));
+	public static final Block AZALEA_SLAB = new SlabAzaleaBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.AZALEA).setId(blockKey("azalea_slab")));
 
 	// Dripleaf
-	public static final Block SMALL_DRIPLEAF_SLAB = new SlabSmallDripleafBlock(AbstractBlock.Settings.copy(Blocks.SMALL_DRIPLEAF).registryKey(blockKey("small_dripleaf_slab")));
-	public static final Block BIG_DRIPLEAF_SLAB = new SlabBigDripleafBlock(AbstractBlock.Settings.copy(Blocks.BIG_DRIPLEAF).registryKey(blockKey("big_dripleaf_slab")));
-	public static final Block BIG_DRIPLEAF_STEM_SLAB = new SlabBigDripleafStemBlock(AbstractBlock.Settings.copy(Blocks.BIG_DRIPLEAF_STEM).registryKey(blockKey("big_dripleaf_stem_slab")));
+	public static final Block SMALL_DRIPLEAF_SLAB = new SlabSmallDripleafBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SMALL_DRIPLEAF).setId(blockKey("small_dripleaf_slab")));
+	public static final Block BIG_DRIPLEAF_SLAB = new SlabBigDripleafBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BIG_DRIPLEAF).setId(blockKey("big_dripleaf_slab")));
+	public static final Block BIG_DRIPLEAF_STEM_SLAB = new SlabBigDripleafStemBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BIG_DRIPLEAF_STEM).setId(blockKey("big_dripleaf_stem_slab")));
 
 	// Cave vines
-	public static final Block CAVE_VINES_SLAB = new SlabCaveVinesBlock(AbstractBlock.Settings.copy(Blocks.CAVE_VINES).ticksRandomly().registryKey(blockKey("cave_vines_slab")));
-	public static final Block CAVE_VINES_PLANT_SLAB = new SlabCaveVinesPlantBlock(AbstractBlock.Settings.copy(Blocks.CAVE_VINES_PLANT).registryKey(blockKey("cave_vines_plant_slab")));
+	public static final Block CAVE_VINES_SLAB = new SlabCaveVinesBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CAVE_VINES).randomTicks().setId(blockKey("cave_vines_slab")));
+	public static final Block CAVE_VINES_PLANT_SLAB = new SlabCaveVinesPlantBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CAVE_VINES_PLANT).setId(blockKey("cave_vines_plant_slab")));
 
 	// Pale hanging moss
-	public static final Block PALE_HANGING_MOSS_SLAB = new SlabPaleHangingMossBlock(AbstractBlock.Settings.copy(Blocks.PALE_HANGING_MOSS).registryKey(blockKey("pale_hanging_moss_slab")));
+	public static final Block PALE_HANGING_MOSS_SLAB = new SlabPaleHangingMossBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.PALE_HANGING_MOSS).setId(blockKey("pale_hanging_moss_slab")));
 
 	// Snow layer
-	public static final Block SNOW_LAYER_SLAB = new SlabSnowLayerBlock(AbstractBlock.Settings.copy(Blocks.SNOW).ticksRandomly().registryKey(blockKey("snow_layer_slab")));
+	public static final Block SNOW_LAYER_SLAB = new SlabSnowLayerBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SNOW).randomTicks().setId(blockKey("snow_layer_slab")));
 
 	// Saplings
 	public static final Block OAK_SAPLING_SLAB = new SlabSaplingBlock(
-		AbstractBlock.Settings.copy(Blocks.OAK_SAPLING).ticksRandomly().registryKey(blockKey("oak_sapling_slab")),
-		TreeConfiguredFeatures.OAK, TreeConfiguredFeatures.OAK_BEES_005, Items.OAK_SAPLING);
+		BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING).randomTicks().setId(blockKey("oak_sapling_slab")),
+		TreeFeatures.OAK, TreeFeatures.OAK_BEES_005, Items.OAK_SAPLING);
 	public static final Block SPRUCE_SAPLING_SLAB = new SlabSaplingBlock(
-		AbstractBlock.Settings.copy(Blocks.SPRUCE_SAPLING).ticksRandomly().registryKey(blockKey("spruce_sapling_slab")),
-		TreeConfiguredFeatures.SPRUCE, TreeConfiguredFeatures.MEGA_SPRUCE, Items.SPRUCE_SAPLING);
+		BlockBehaviour.Properties.ofFullCopy(Blocks.SPRUCE_SAPLING).randomTicks().setId(blockKey("spruce_sapling_slab")),
+		TreeFeatures.SPRUCE, TreeFeatures.MEGA_SPRUCE, Items.SPRUCE_SAPLING);
 	public static final Block BIRCH_SAPLING_SLAB = new SlabSaplingBlock(
-		AbstractBlock.Settings.copy(Blocks.BIRCH_SAPLING).ticksRandomly().registryKey(blockKey("birch_sapling_slab")),
-		TreeConfiguredFeatures.BIRCH, Items.BIRCH_SAPLING);
+		BlockBehaviour.Properties.ofFullCopy(Blocks.BIRCH_SAPLING).randomTicks().setId(blockKey("birch_sapling_slab")),
+		TreeFeatures.BIRCH, Items.BIRCH_SAPLING);
 	public static final Block JUNGLE_SAPLING_SLAB = new SlabSaplingBlock(
-		AbstractBlock.Settings.copy(Blocks.JUNGLE_SAPLING).ticksRandomly().registryKey(blockKey("jungle_sapling_slab")),
-		TreeConfiguredFeatures.JUNGLE_TREE_NO_VINE, TreeConfiguredFeatures.MEGA_JUNGLE_TREE, Items.JUNGLE_SAPLING);
+		BlockBehaviour.Properties.ofFullCopy(Blocks.JUNGLE_SAPLING).randomTicks().setId(blockKey("jungle_sapling_slab")),
+		TreeFeatures.JUNGLE_TREE_NO_VINE, TreeFeatures.MEGA_JUNGLE_TREE, Items.JUNGLE_SAPLING);
 	public static final Block ACACIA_SAPLING_SLAB = new SlabSaplingBlock(
-		AbstractBlock.Settings.copy(Blocks.ACACIA_SAPLING).ticksRandomly().registryKey(blockKey("acacia_sapling_slab")),
-		TreeConfiguredFeatures.ACACIA, Items.ACACIA_SAPLING);
+		BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_SAPLING).randomTicks().setId(blockKey("acacia_sapling_slab")),
+		TreeFeatures.ACACIA, Items.ACACIA_SAPLING);
 	public static final Block DARK_OAK_SAPLING_SLAB = new SlabSaplingBlock(
-		AbstractBlock.Settings.copy(Blocks.DARK_OAK_SAPLING).ticksRandomly().registryKey(blockKey("dark_oak_sapling_slab")),
-		TreeConfiguredFeatures.DARK_OAK, TreeConfiguredFeatures.DARK_OAK, Items.DARK_OAK_SAPLING);
+		BlockBehaviour.Properties.ofFullCopy(Blocks.DARK_OAK_SAPLING).randomTicks().setId(blockKey("dark_oak_sapling_slab")),
+		TreeFeatures.DARK_OAK, TreeFeatures.DARK_OAK, Items.DARK_OAK_SAPLING);
 	public static final Block CHERRY_SAPLING_SLAB = new SlabSaplingBlock(
-		AbstractBlock.Settings.copy(Blocks.CHERRY_SAPLING).ticksRandomly().registryKey(blockKey("cherry_sapling_slab")),
-		TreeConfiguredFeatures.CHERRY, Items.CHERRY_SAPLING);
+		BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_SAPLING).randomTicks().setId(blockKey("cherry_sapling_slab")),
+		TreeFeatures.CHERRY, Items.CHERRY_SAPLING);
 	public static final Block MANGROVE_PROPAGULE_SLAB = new SlabSaplingBlock(
-		AbstractBlock.Settings.copy(Blocks.MANGROVE_PROPAGULE).ticksRandomly().registryKey(blockKey("mangrove_propagule_slab")),
-		TreeConfiguredFeatures.MANGROVE, Items.MANGROVE_PROPAGULE);
+		BlockBehaviour.Properties.ofFullCopy(Blocks.MANGROVE_PROPAGULE).randomTicks().setId(blockKey("mangrove_propagule_slab")),
+		TreeFeatures.MANGROVE, Items.MANGROVE_PROPAGULE);
 	public static final Block PALE_OAK_SAPLING_SLAB = new SlabSaplingBlock(
-		AbstractBlock.Settings.copy(Blocks.PALE_OAK_SAPLING).ticksRandomly().registryKey(blockKey("pale_oak_sapling_slab")),
-		TreeConfiguredFeatures.PALE_OAK, TreeConfiguredFeatures.PALE_OAK, Items.PALE_OAK_SAPLING);
+		BlockBehaviour.Properties.ofFullCopy(Blocks.PALE_OAK_SAPLING).randomTicks().setId(blockKey("pale_oak_sapling_slab")),
+		TreeFeatures.PALE_OAK, TreeFeatures.PALE_OAK, Items.PALE_OAK_SAPLING);
 
-	private static RegistryKey<Block> blockKey(String name) {
-		return RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, name));
+	private static ResourceKey<Block> blockKey(String name) {
+		return ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, name));
 	}
 
-	private static RegistryKey<Item> itemKey(String name) {
-		return RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, name));
+	private static ResourceKey<Item> itemKey(String name) {
+		return ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, name));
 	}
 
 	private static void registerSlab(String name, Block block){
-		Registry.register(Registries.BLOCK, Identifier.of(MOD_ID, name), block);
-		Registry.register(Registries.ITEM, Identifier.of(MOD_ID, name), new BlockItem(block, new Item.Settings().registryKey(itemKey(name)).useBlockPrefixedTranslationKey()));
+		Registry.register(BuiltInRegistries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, name), block);
+		Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, name), new BlockItem(block, new Item.Properties().setId(itemKey(name)).useBlockDescriptionPrefix()));
 	}
 
 	private static void registerBlock(String name, Block block){
-		Registry.register(Registries.BLOCK, Identifier.of(MOD_ID, name), block);
+		Registry.register(BuiltInRegistries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, name), block);
 	}
 
 	public static void register(){
@@ -272,16 +272,16 @@ public class DirtSlabBlocks {
 		registerBlock("pale_oak_sapling_slab", PALE_OAK_SAPLING_SLAB);
 
 		// Add items to the building blocks creative tab
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(content -> {
-			content.add(COARSE_DIRT_SLAB);
-			content.add(DIRT_SLAB);
-			content.add(FARMLAND_SLAB);
-			content.add(GRASS_PATH_SLAB);
-			content.add(GRASS_SLAB);
-			content.add(MUD_SLAB);
-			content.add(MYCELIUM_SLAB);
-			content.add(PODZOL_SLAB);
-			content.add(ROOTED_DIRT_SLAB);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(content -> {
+			content.accept(COARSE_DIRT_SLAB);
+			content.accept(DIRT_SLAB);
+			content.accept(FARMLAND_SLAB);
+			content.accept(GRASS_PATH_SLAB);
+			content.accept(GRASS_SLAB);
+			content.accept(MUD_SLAB);
+			content.accept(MYCELIUM_SLAB);
+			content.accept(PODZOL_SLAB);
+			content.accept(ROOTED_DIRT_SLAB);
 		});
 	}
 }
