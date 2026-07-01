@@ -10,17 +10,17 @@
 	},
 	"license": "MIT",
 	"icon": "assets/dirt-slab-justfatlard/icon.png",
-	"environment": "*",
+	"environment": "server",
 	"entrypoints": {
-		"main": ["justfatlard.dirt_slab.DirtSlab"],
-		"client": ["justfatlard.dirt_slab.DirtSlabClient"]
+		"main": ["justfatlard.dirt_slab.DirtSlab"]
 	},
 	"mixins": ["dirt-slab-justfatlard.mixins.json"],
 	"depends": {
-		"fabricloader": ">=0.18.1",
-		"fabric-api": ">=0.140.0",
-		"minecraft": ">=26.1",
-		"java": ">=25"
+		"fabricloader": ">=0.19.3",
+		"fabric-api": ">=0.153.1",
+		"minecraft": ">=26.3",
+		"java": ">=25",
+		"pandorical": "*"
 	},
 	"suggests": {
 		"flamingo": "*"
