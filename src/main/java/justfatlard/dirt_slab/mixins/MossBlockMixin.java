@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.BonemealableFeaturePlacerBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,7 +24,7 @@ public class MossBlockMixin {
 	 * After moss block grows (bone meal), also spread moss carpet to nearby grass slabs.
 	 */
 	@Inject(at = @At("TAIL"), method = "performBonemeal")
-	private void spreadToGrassSlabs(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, CallbackInfo ci) {
+	private void spreadToGrassSlabs(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source, CallbackInfo ci) {
 		// Spread moss carpet to nearby grass-type slabs (similar radius to vanilla moss spreading)
 		int radius = 3;
 		int verticalRadius = 2;

@@ -1,28 +1,24 @@
 {
-	"type": "minecraft:block",
-	"pools": [
-		{
-			"rolls": 1,
-			"entries": [
-				{
-					"type": "minecraft:item",
-					"name": "minecraft:peony",
-					"conditions": [
-						{
-							"condition": "minecraft:block_state_property",
-							"block": "dirt-slab-justfatlard:peony_slab",
-							"properties": {
-								"half": "lower"
-							}
-						}
-					]
-				}
-			],
-			"conditions": [
-				{
-					"condition": "minecraft:survives_explosion"
-				}
-			]
-		}
-	]
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:peony",
+          "condition": {
+            "type": "minecraft:match_block",
+            "blocks": "dirt-slab-justfatlard:peony_slab",
+            "state": {
+              "half": "lower"
+            }
+          }
+        }
+      ],
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      }
+    }
+  ]
 }

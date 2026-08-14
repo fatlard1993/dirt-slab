@@ -16,17 +16,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 /**
  * Structure processor that randomly converts some full blocks to slab variants
  * in village generation for a more natural, weathered look.
+ *
+ * There is no StructureProcessorType<T> wrapper in this snapshot:
+ * BuiltInRegistries.STRUCTURE_PROCESSOR holds MapCodec<? extends StructureProcessor>
+ * entries directly, so CODEC is registered there as-is.
  */
-public class SlabStructureProcessor extends StructureProcessor {
+public class SlabStructureProcessor implements StructureProcessor {
 	public static final MapCodec<SlabStructureProcessor> CODEC = MapCodec.unit(SlabStructureProcessor::new);
-
-	public static StructureProcessorType<SlabStructureProcessor> TYPE;
 
 	private static final float CONVERSION_CHANCE = 0.15f; // 15% chance to convert
 
@@ -38,7 +39,7 @@ public class SlabStructureProcessor extends StructureProcessor {
 			LevelReader world,
 			BlockPos pos,
 			BlockPos pivot,
-			StructureTemplate.StructureBlockInfo originalBlockInfo,
+			BlockPos originalPos,
 			StructureTemplate.StructureBlockInfo currentBlockInfo,
 			StructurePlaceSettings data) {
 
@@ -66,15 +67,15 @@ public class SlabStructureProcessor extends StructureProcessor {
 	}
 
 	@Override
-	protected StructureProcessorType<?> getType() {
-		return TYPE;
+	public MapCodec<SlabStructureProcessor> codec() {
+		return CODEC;
 	}
 
 	public static void register() {
-		TYPE = Registry.register(
+		Registry.register(
 			BuiltInRegistries.STRUCTURE_PROCESSOR,
 			Identifier.fromNamespaceAndPath(DirtSlab.MOD_ID, "slab_processor"),
-			() -> CODEC
+			CODEC
 		);
 	}
 }

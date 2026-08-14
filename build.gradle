@@ -1,5 +1,5 @@
 plugins {
-	id 'net.fabricmc.fabric-loom' version '1.17.12'
+	id 'net.fabricmc.fabric-loom' version '1.17.17'
 }
 
 version = project.mod_version
@@ -16,7 +16,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	modImplementation(project(':pandorical'))
+	implementation(project(':pandorical'))
 }
 
 processResources {
@@ -46,7 +46,9 @@ jar {
 
 tasks.register('syncServer', Copy) {
 	dependsOn build
+	def deployDir = findProperty('devServerModsDir')
+	onlyIf { deployDir != null }
 	from("build/libs/${project.archives_base_name}-${project.mod_version}.jar")
-	into('/Users/chase.whitfield/Projects/village-server/mods')
-	description = 'Deploy dirt-slab JAR to the local dev server mods folder.'
+	into(deployDir ?: layout.buildDirectory.dir('deploy').get())
+	description = 'Deploy dirt-slab JAR to the dev server mods folder (set -PdevServerModsDir=... or it no-ops).'
 }

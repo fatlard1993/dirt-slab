@@ -1,28 +1,24 @@
 {
-	"type": "minecraft:block",
-	"pools": [
-		{
-			"rolls": 1,
-			"entries": [
-				{
-					"type": "minecraft:item",
-					"name": "minecraft:rose_bush",
-					"conditions": [
-						{
-							"condition": "minecraft:block_state_property",
-							"block": "dirt-slab-justfatlard:rose_bush_slab",
-							"properties": {
-								"half": "lower"
-							}
-						}
-					]
-				}
-			],
-			"conditions": [
-				{
-					"condition": "minecraft:survives_explosion"
-				}
-			]
-		}
-	]
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:rose_bush",
+          "condition": {
+            "type": "minecraft:match_block",
+            "blocks": "dirt-slab-justfatlard:rose_bush_slab",
+            "state": {
+              "half": "lower"
+            }
+          }
+        }
+      ],
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      }
+    }
+  ]
 }

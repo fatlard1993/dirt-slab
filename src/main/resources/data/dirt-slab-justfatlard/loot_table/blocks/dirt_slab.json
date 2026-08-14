@@ -6,19 +6,21 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_count",
-              "conditions": [
-                {
-                  "condition": "minecraft:block_state_property",
-                  "block": "dirt-slab-justfatlard:dirt_slab",
-                  "properties": { "type": "double" }
+              "type": "minecraft:set_count",
+              "condition": {
+                "type": "minecraft:match_block",
+                "blocks": "dirt-slab-justfatlard:dirt_slab",
+                "state": {
+                  "type": "double"
                 }
-              ],
+              },
               "count": 2
             },
-            { "function": "minecraft:explosion_decay" }
+            {
+              "type": "minecraft:explosion_decay"
+            }
           ],
           "name": "dirt-slab-justfatlard:dirt_slab"
         }

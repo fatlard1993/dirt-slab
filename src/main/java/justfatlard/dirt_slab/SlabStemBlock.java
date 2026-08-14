@@ -1,6 +1,6 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -23,7 +23,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabStemBlock extends VegetationBlock implements BonemealableBlock, OffsetableSlab {
-	public static final MapCodec<SlabStemBlock> CODEC = simpleCodec(SlabStemBlock::new);
 	public static final int MAX_AGE = 7;
 	public static final IntegerProperty AGE = BlockStateProperties.AGE_7;
 
@@ -39,7 +38,6 @@ public class SlabStemBlock extends VegetationBlock implements BonemealableBlock,
 		Block.box(7.0, 0.0, 7.0, 9.0, 16.0, 9.0)   // age 7
 	};
 
-	// Offset shapes for bottom slab placement (8 pixels lower)
 	private static final VoxelShape[] OFFSET_AGE_TO_SHAPE = new VoxelShape[]{
 		Block.box(7.0, -8.0, 7.0, 9.0, -6.0, 9.0),   // age 0
 		Block.box(7.0, -8.0, 7.0, 9.0, -4.0, 9.0),   // age 1
@@ -65,10 +63,6 @@ public class SlabStemBlock extends VegetationBlock implements BonemealableBlock,
 		this(true, null, settings);
 	}
 
-	@Override
-	protected MapCodec<? extends VegetationBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -182,17 +176,17 @@ public class SlabStemBlock extends VegetationBlock implements BonemealableBlock,
 
 	// Fertilizable interface methods
 	@Override
-	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, BonemealSource source) {
 		return state.getValue(AGE) < MAX_AGE;
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		int newAge = Math.min(state.getValue(AGE) + random.nextIntBetweenInclusive(2, 5), MAX_AGE);
 		// Preserve BOTTOM_OFFSET when growing via bonemeal
 		boolean offset = state.getValue(BOTTOM_OFFSET);

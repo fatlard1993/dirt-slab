@@ -13,7 +13,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabFlowerBlock extends FlowerBlock implements OffsetableSlab {
 
-	// Offset shape for bottom slab placement (8 pixels lower)
 	private static final VoxelShape OFFSET_SHAPE = Block.box(5.0, -8.0, 5.0, 11.0, 2.0, 11.0);
 
 	public SlabFlowerBlock(Holder<MobEffect> suspiciousStewEffect, float effectLengthInSeconds, Properties settings) {

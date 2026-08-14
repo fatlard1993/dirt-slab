@@ -1,6 +1,6 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.block.BonemealSource;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,12 +21,11 @@ import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabAzaleaBlock extends Block implements BonemealableBlock, OffsetableSlab {
-	public static final MapCodec<SlabAzaleaBlock> CODEC = simpleCodec(SlabAzaleaBlock::new);
 	public static final BooleanProperty FLOWERING = BooleanProperty.create("flowering");
 
 	private static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
@@ -37,10 +36,6 @@ public class SlabAzaleaBlock extends Block implements BonemealableBlock, Offseta
 		this.registerDefaultState(this.stateDefinition.any().setValue(BOTTOM_OFFSET, false).setValue(FLOWERING, false));
 	}
 
-	@Override
-	protected MapCodec<SlabAzaleaBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -78,20 +73,20 @@ public class SlabAzaleaBlock extends Block implements BonemealableBlock, Offseta
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, BonemealSource source) {
 		return world.getFluidState(pos.above()).isEmpty();
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return (double)random.nextFloat() < 0.45;
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		// Try to grow into an azalea tree
-		Optional<Holder.Reference<ConfiguredFeature<?, ?>>> feature = world.registryAccess()
-			.lookupOrThrow(Registries.CONFIGURED_FEATURE)
+		Optional<Holder.Reference<Feature>> feature = world.registryAccess()
+			.lookupOrThrow(Registries.FEATURE)
 			.get(TreeFeatures.AZALEA_TREE);
 
 		if (feature.isPresent()) {

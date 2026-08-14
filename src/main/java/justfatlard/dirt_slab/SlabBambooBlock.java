@@ -1,6 +1,5 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -25,7 +24,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class SlabBambooBlock extends Block implements OffsetableSlab {
-	public static final MapCodec<SlabBambooBlock> CODEC = simpleCodec(SlabBambooBlock::new);
 	public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 1);
 	public static final EnumProperty<BambooLeaves> LEAVES = EnumProperty.create("leaves", BambooLeaves.class);
 	public static final IntegerProperty STAGE = IntegerProperty.create("stage", 0, 1);
@@ -33,7 +31,6 @@ public class SlabBambooBlock extends Block implements OffsetableSlab {
 	// Shapes for different stages (thin vs thick)
 	private static final VoxelShape SMALL_SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
 	private static final VoxelShape LARGE_SHAPE = Block.box(3.0, 0.0, 3.0, 13.0, 16.0, 13.0);
-	// Offset shapes (8 pixels lower)
 	private static final VoxelShape SMALL_OFFSET_SHAPE = Block.box(5.0, -8.0, 5.0, 11.0, 8.0, 11.0);
 	private static final VoxelShape LARGE_OFFSET_SHAPE = Block.box(3.0, -8.0, 3.0, 13.0, 8.0, 13.0);
 
@@ -46,10 +43,6 @@ public class SlabBambooBlock extends Block implements OffsetableSlab {
 			.setValue(STAGE, 0));
 	}
 
-	@Override
-	public MapCodec<SlabBambooBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

@@ -198,7 +198,7 @@ public class DirtSlabBlocks {
 		registerSlab("podzol_slab", PODZOL_SLAB);
 		registerSlab("rooted_dirt_slab", ROOTED_DIRT_SLAB);
 
-		// Plant/decoration blocks have no items — they drop their vanilla equivalents
+		// Plant/decoration blocks have no items; they drop their vanilla equivalents
 		registerBlock("wheat_slab_crop", WHEAT_SLAB_CROP);
 		registerBlock("carrot_slab_crop", CARROT_SLAB_CROP);
 		registerBlock("potato_slab_crop", POTATO_SLAB_CROP);

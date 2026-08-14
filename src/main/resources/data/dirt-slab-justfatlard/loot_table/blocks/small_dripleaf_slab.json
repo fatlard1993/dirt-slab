@@ -1,22 +1,15 @@
 {
-	"type": "minecraft:block",
-	"pools": [
-		{
-			"rolls": 1,
-			"entries": [
-				{
-					"type": "minecraft:item",
-					"name": "minecraft:small_dripleaf",
-					"conditions": [
-						{
-							"condition": "minecraft:match_tool",
-							"predicate": {
-								"items": "minecraft:shears"
-							}
-						}
-					]
-				}
-			]
-		}
-	]
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:small_dripleaf",
+          "condition": "minecraft:tool/can_shear"
+        }
+      ]
+    }
+  ]
 }

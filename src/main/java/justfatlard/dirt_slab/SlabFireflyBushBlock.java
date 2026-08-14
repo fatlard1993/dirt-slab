@@ -1,6 +1,5 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -15,11 +14,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabFireflyBushBlock extends Block implements OffsetableSlab {
-	public static final MapCodec<SlabFireflyBushBlock> CODEC = simpleCodec(SlabFireflyBushBlock::new);
 
 	// Cross shape for firefly bush
 	private static final VoxelShape SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 13.0, 14.0);
-	// Offset shape for bottom slab placement (8 pixels lower)
 	private static final VoxelShape OFFSET_SHAPE = Block.box(2.0, -8.0, 2.0, 14.0, 5.0, 14.0);
 
 	public SlabFireflyBushBlock(Properties settings) {
@@ -27,10 +24,6 @@ public class SlabFireflyBushBlock extends Block implements OffsetableSlab {
 		this.registerDefaultState(this.stateDefinition.any().setValue(BOTTOM_OFFSET, false));
 	}
 
-	@Override
-	protected MapCodec<SlabFireflyBushBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

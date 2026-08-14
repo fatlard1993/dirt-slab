@@ -24,7 +24,7 @@ public class FarmlandBlockMixin {
 		SlabEffects.dirtParticles(world, pos, 1);
 	}
 
-	@Inject(method = "randomTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/FarmlandBlock;turnToDirt(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"))
+	@Inject(method = "randomTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/FarmlandBlock;turnToBaseBlock(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"))
 	private void onSetToDirt(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo callbackInfo){
 		SlabEffects.dirtParticles(world, pos, 3);
 	}

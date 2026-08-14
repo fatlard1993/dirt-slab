@@ -1,6 +1,6 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -10,6 +10,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +33,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabSweetBerryBushBlock extends Block implements BonemealableBlock, OffsetableSlab {
-	public static final MapCodec<SlabSweetBerryBushBlock> CODEC = simpleCodec(SlabSweetBerryBushBlock::new);
 	public static final IntegerProperty AGE = BlockStateProperties.AGE_3;
 
 	private static final VoxelShape SMALL_SHAPE = Block.box(3.0, 0.0, 3.0, 13.0, 8.0, 13.0);
@@ -45,10 +45,6 @@ public class SlabSweetBerryBushBlock extends Block implements BonemealableBlock,
 		this.registerDefaultState(this.stateDefinition.any().setValue(BOTTOM_OFFSET, false).setValue(AGE, 0));
 	}
 
-	@Override
-	protected MapCodec<SlabSweetBerryBushBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -84,7 +80,7 @@ public class SlabSweetBerryBushBlock extends Block implements BonemealableBlock,
 
 	@Override
 	protected void entityInside(BlockState state, Level world, BlockPos pos, Entity entity, InsideBlockEffectApplier handler, boolean moving) {
-		if (entity instanceof LivingEntity && entity.getType() != EntityType.FOX && entity.getType() != EntityType.BEE) {
+		if (entity instanceof LivingEntity && entity.getType() != EntityTypes.FOX && entity.getType() != EntityTypes.BEE) {
 			entity.makeStuckInBlock(state, new Vec3(0.8, 0.75, 0.8));
 			if (!world.isClientSide() && state.getValue(AGE) > 0 && world instanceof ServerLevel serverWorld) {
 				double dx = Math.abs(entity.getX() - entity.xo);
@@ -127,17 +123,17 @@ public class SlabSweetBerryBushBlock extends Block implements BonemealableBlock,
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, BonemealSource source) {
 		return state.getValue(AGE) < 3;
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		int newAge = Math.min(3, state.getValue(AGE) + 1);
 		world.setBlock(pos, state.setValue(AGE, newAge), Block.UPDATE_CLIENTS);
 	}

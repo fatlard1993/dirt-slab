@@ -1,6 +1,5 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -23,7 +22,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
-	public static final MapCodec<SlabSnowLayerBlock> CODEC = simpleCodec(SlabSnowLayerBlock::new);
 	public static final IntegerProperty LAYERS = BlockStateProperties.LAYERS;
 
 	// Normal shapes (on full blocks or top slabs)
@@ -39,7 +37,6 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 		Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0)
 	};
 
-	// Offset shapes (on bottom slabs - shifted down by 8)
 	protected static final VoxelShape[] LAYERS_TO_SHAPE_OFFSET = new VoxelShape[]{
 		Shapes.empty(),
 		Block.box(0.0, -8.0, 0.0, 16.0, -6.0, 16.0),
@@ -57,10 +54,6 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 		this.registerDefaultState(this.stateDefinition.any().setValue(LAYERS, 1).setValue(BOTTOM_OFFSET, false));
 	}
 
-	@Override
-	protected MapCodec<SlabSnowLayerBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

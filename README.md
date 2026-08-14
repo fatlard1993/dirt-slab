@@ -36,7 +36,7 @@ Plants on bottom slabs automatically convert to offset-rendered slab variants.
 
 ## Plant Support
 
-Plants render correctly on bottom slabs with proper vertical offset. Supported plants:
+Plants render on bottom slabs at the right vertical offset. Supported plants:
 
 **Crops:** Wheat, Carrots, Potatoes, Beetroots, Torchflower, Pitcher Plant
 
@@ -54,7 +54,7 @@ Plants render correctly on bottom slabs with proper vertical offset. Supported p
 
 ## Snow Support
 
-Snow layers work properly on bottom slabs:
+Snow layers work on bottom slabs:
 - Accumulates from weather in snowy biomes
 - Snow golems leave trails on slabs
 - Manual placement with snow items
@@ -84,7 +84,12 @@ Snow layers work properly on bottom slabs:
 
 ## Requirements
 
-- Minecraft 1.21.11
-- Fabric Loader 0.18.1+
-- Fabric API 0.140.0+
-- **Must be installed on both client and server** — custom block states require the client mod for rendering
+Targets the Minecraft, Fabric Loader, and Fabric API versions declared in this mod's `gradle.properties`; check there for the exact currently-supported version.
+
+## Pandorical
+
+Dirt Slab runs on both sides (`"environment": "*"`) and uses Pandorical to register and render its custom slab blocks and to apply the correct grass/stem/leaf/sugar-cane tints to them. Pandorical is a hard dependency (`fabric.mod.json`) with no fallback path, so it must be installed on both the server (to run Dirt Slab itself) and every client (to see the custom slab blocks and their tinting); without it, the mod will not load at all.
+
+## Installation
+
+Install alongside its declared dependencies (see `fabric.mod.json`), including Pandorical client-side.

@@ -1,6 +1,6 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -27,7 +27,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabCaveVinesBlock extends VegetationBlock implements BonemealableBlock, CaveVines {
-	public static final MapCodec<SlabCaveVinesBlock> CODEC = simpleCodec(SlabCaveVinesBlock::new);
 	public static final BooleanProperty TOP_OFFSET = BooleanProperty.create("top_offset");
 	public static final BooleanProperty BERRIES = CaveVines.BERRIES;
 
@@ -41,10 +40,6 @@ public class SlabCaveVinesBlock extends VegetationBlock implements BonemealableB
 			.setValue(BERRIES, false));
 	}
 
-	@Override
-	protected MapCodec<? extends VegetationBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -94,17 +89,17 @@ public class SlabCaveVinesBlock extends VegetationBlock implements BonemealableB
 
 	// Fertilizable implementation
 	@Override
-	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, BonemealSource source) {
 		return !state.getValue(BERRIES);
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		world.setBlock(pos, state.setValue(BERRIES, true), Block.UPDATE_CLIENTS);
 	}
 

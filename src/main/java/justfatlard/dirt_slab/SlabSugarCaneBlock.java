@@ -1,6 +1,5 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -21,12 +20,10 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabSugarCaneBlock extends Block implements OffsetableSlab {
-	public static final MapCodec<SlabSugarCaneBlock> CODEC = simpleCodec(SlabSugarCaneBlock::new);
 	public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 15);
 
 	// Same shape as vanilla sugar cane
 	private static final VoxelShape SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
-	// Offset shape for bottom slab placement (8 pixels lower)
 	private static final VoxelShape OFFSET_SHAPE = Block.box(2.0, -8.0, 2.0, 14.0, 8.0, 14.0);
 
 	public SlabSugarCaneBlock(Properties settings) {
@@ -36,10 +33,6 @@ public class SlabSugarCaneBlock extends Block implements OffsetableSlab {
 			.setValue(AGE, 0));
 	}
 
-	@Override
-	public MapCodec<SlabSugarCaneBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

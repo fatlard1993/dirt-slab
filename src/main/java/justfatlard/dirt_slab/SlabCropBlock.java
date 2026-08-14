@@ -1,6 +1,7 @@
 package justfatlard.dirt_slab;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
@@ -18,7 +19,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabCropBlock extends CropBlock implements OffsetableSlab {
 
-	// Offset shapes for bottom slab placement (8 pixels lower)
 	private static final VoxelShape[] OFFSET_AGE_TO_SHAPE = new VoxelShape[]{
 		Block.box(0.0, -8.0, 0.0, 16.0, -6.0, 16.0),   // age 0
 		Block.box(0.0, -8.0, 0.0, 16.0, -4.0, 16.0),   // age 1
@@ -75,7 +75,7 @@ public class SlabCropBlock extends CropBlock implements OffsetableSlab {
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		int newAge = this.getAge(state) + this.getBonemealAgeIncrease(world);
 		int maxAge = this.getMaxAge();
 		if (newAge > maxAge) {
@@ -87,12 +87,12 @@ public class SlabCropBlock extends CropBlock implements OffsetableSlab {
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, BonemealSource source) {
 		return this.getAge(state) < this.getMaxAge();
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 

@@ -1,6 +1,6 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.block.BonemealSource;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,30 +21,29 @@ import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabSaplingBlock extends Block implements BonemealableBlock, OffsetableSlab {
-	public static final MapCodec<SlabSaplingBlock> CODEC = simpleCodec(SlabSaplingBlock::new);
 	public static final IntegerProperty STAGE = IntegerProperty.create("stage", 0, 1);
 
 	private static final VoxelShape SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 12.0, 14.0);
 	private static final VoxelShape OFFSET_SHAPE = Block.box(2.0, -8.0, 2.0, 14.0, 4.0, 14.0);
 
-	private final ResourceKey<ConfiguredFeature<?, ?>> treeFeature;
-	private final ResourceKey<ConfiguredFeature<?, ?>> megaTreeFeature;
+	private final ResourceKey<Feature> treeFeature;
+	private final ResourceKey<Feature> megaTreeFeature;
 	private final Item saplingItem;
 
 	public SlabSaplingBlock(Properties settings) {
 		this(settings, null, null, null);
 	}
 
-	public SlabSaplingBlock(Properties settings, ResourceKey<ConfiguredFeature<?, ?>> treeFeature, Item saplingItem) {
+	public SlabSaplingBlock(Properties settings, ResourceKey<Feature> treeFeature, Item saplingItem) {
 		this(settings, treeFeature, null, saplingItem);
 	}
 
-	public SlabSaplingBlock(Properties settings, ResourceKey<ConfiguredFeature<?, ?>> treeFeature, ResourceKey<ConfiguredFeature<?, ?>> megaTreeFeature, Item saplingItem) {
+	public SlabSaplingBlock(Properties settings, ResourceKey<Feature> treeFeature, ResourceKey<Feature> megaTreeFeature, Item saplingItem) {
 		super(settings);
 		this.treeFeature = treeFeature;
 		this.megaTreeFeature = megaTreeFeature;
@@ -52,10 +51,6 @@ public class SlabSaplingBlock extends Block implements BonemealableBlock, Offset
 		this.registerDefaultState(this.stateDefinition.any().setValue(BOTTOM_OFFSET, false).setValue(STAGE, 0));
 	}
 
-	@Override
-	protected MapCodec<SlabSaplingBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -92,22 +87,22 @@ public class SlabSaplingBlock extends Block implements BonemealableBlock, Offset
 	@Override
 	protected void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
 		if (world.getMaxLocalRawBrightness(pos.above()) >= 9 && random.nextInt(7) == 0) {
-			this.performBonemeal(world, random, pos, state);
+			this.performBonemeal(world, random, pos, state, BonemealSource.INTERACTION);
 		}
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return (double)random.nextFloat() < 0.45;
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		if (state.getValue(STAGE) == 0) {
 			world.setBlock(pos, state.setValue(STAGE, 1), Block.UPDATE_INVISIBLE);
 		} else {
@@ -131,8 +126,8 @@ public class SlabSaplingBlock extends Block implements BonemealableBlock, Offset
 		}
 
 		// Generate regular tree
-		Optional<Holder.Reference<ConfiguredFeature<?, ?>>> feature = world.registryAccess()
-			.lookupOrThrow(Registries.CONFIGURED_FEATURE)
+		Optional<Holder.Reference<Feature>> feature = world.registryAccess()
+			.lookupOrThrow(Registries.FEATURE)
 			.get(treeFeature);
 
 		if (feature.isPresent()) {
@@ -166,8 +161,8 @@ public class SlabSaplingBlock extends Block implements BonemealableBlock, Offset
 	}
 
 	private void generateMegaTree(ServerLevel world, RandomSource random, BlockPos pos, int dx, int dz) {
-		Optional<Holder.Reference<ConfiguredFeature<?, ?>>> feature = world.registryAccess()
-			.lookupOrThrow(Registries.CONFIGURED_FEATURE)
+		Optional<Holder.Reference<Feature>> feature = world.registryAccess()
+			.lookupOrThrow(Registries.FEATURE)
 			.get(megaTreeFeature);
 
 		if (feature.isPresent()) {

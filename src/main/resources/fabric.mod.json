@@ -10,7 +10,7 @@
 	},
 	"license": "MIT",
 	"icon": "assets/dirt-slab-justfatlard/icon.png",
-	"environment": "server",
+	"environment": "*",
 	"entrypoints": {
 		"main": ["justfatlard.dirt_slab.DirtSlab"]
 	},
@@ -18,11 +18,8 @@
 	"depends": {
 		"fabricloader": ">=0.19.3",
 		"fabric-api": ">=0.153.1",
-		"minecraft": ">=26.3",
+		"minecraft": ">=26.2",
 		"java": ">=25",
 		"pandorical": "*"
-	},
-	"suggests": {
-		"flamingo": "*"
 	}
 }

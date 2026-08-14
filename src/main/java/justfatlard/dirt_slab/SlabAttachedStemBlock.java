@@ -1,6 +1,5 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -18,13 +17,11 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabAttachedStemBlock extends VegetationBlock implements OffsetableSlab {
-	public static final MapCodec<SlabAttachedStemBlock> CODEC = simpleCodec(SlabAttachedStemBlock::new);
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
 	// Normal shape (same as vanilla attached stem)
 	private static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
 
-	// Offset shape for bottom slab placement (8 pixels lower)
 	private static final VoxelShape OFFSET_SHAPE = Block.box(0.0, -8.0, 0.0, 16.0, 8.0, 16.0);
 
 	private final ItemLike pickBlockItem;
@@ -43,10 +40,6 @@ public class SlabAttachedStemBlock extends VegetationBlock implements Offsetable
 		this(true, null, settings);
 	}
 
-	@Override
-	protected MapCodec<? extends VegetationBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

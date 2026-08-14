@@ -1,6 +1,7 @@
 package justfatlard.dirt_slab;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
@@ -16,7 +17,7 @@ public class RootedDirtSlab extends SlabBlock implements BonemealableBlock {
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, BonemealSource source) {
 		// Can only grow hanging roots from TOP or DOUBLE slabs (roots hang from underside)
 		// BOTTOM slabs have nothing to hang from
 		SlabType type = state.getValue(TYPE);
@@ -27,12 +28,12 @@ public class RootedDirtSlab extends SlabBlock implements BonemealableBlock {
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		SlabType type = state.getValue(TYPE);
 		// TOP slabs need offset rendering, DOUBLE slabs don't
 		boolean needsOffset = type == SlabType.TOP;

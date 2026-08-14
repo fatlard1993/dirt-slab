@@ -80,7 +80,7 @@ public class ChunkRegionMixin {
 
 		BlockState result = slabBlock.defaultBlockState();
 
-		// Set BOTTOM_OFFSET via the shared interface — one check instead of 12
+		// Set BOTTOM_OFFSET via the shared interface: one check instead of 12
 		if (slabBlock instanceof OffsetableSlab) {
 			result = result.setValue(OffsetableSlab.BOTTOM_OFFSET, isBottomSlab);
 		}

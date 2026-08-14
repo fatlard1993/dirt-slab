@@ -1,6 +1,7 @@
 package justfatlard.dirt_slab;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Items;
@@ -88,7 +89,7 @@ public class SlabTorchflowerCropBlock extends CropBlock implements OffsetableSla
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		int newAge = Math.min(this.getAge(state) + this.getBonemealAgeIncrease(world), this.getMaxAge());
 		boolean offset = state.getValue(BOTTOM_OFFSET);
 
@@ -102,12 +103,12 @@ public class SlabTorchflowerCropBlock extends CropBlock implements OffsetableSla
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, BonemealSource source) {
 		return this.getAge(state) < this.getMaxAge();
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 

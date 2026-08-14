@@ -10,55 +10,41 @@
           "children": [
             {
               "type": "minecraft:item",
-              "conditions": [
+              "condition": "minecraft:tool/can_silk_touch",
+              "modifier": [
                 {
-                  "condition": "minecraft:match_tool",
-                  "predicate": {
-                    "predicates": {
-                      "minecraft:enchantments": [
-                        {
-                          "enchantments": "minecraft:silk_touch",
-                          "levels": { "min": 1 }
-                        }
-                      ]
+                  "type": "minecraft:set_count",
+                  "condition": {
+                    "type": "minecraft:match_block",
+                    "blocks": "dirt-slab-justfatlard:podzol_slab",
+                    "state": {
+                      "type": "double"
                     }
-                  }
-                }
-              ],
-              "functions": [
-                {
-                  "function": "minecraft:set_count",
-                  "conditions": [
-                    {
-                      "condition": "minecraft:block_state_property",
-                      "block": "dirt-slab-justfatlard:podzol_slab",
-                      "properties": { "type": "double" }
-                    }
-                  ],
+                  },
                   "count": 2
                 },
-                { "function": "minecraft:explosion_decay" }
+                {
+                  "type": "minecraft:explosion_decay"
+                }
               ],
               "name": "dirt-slab-justfatlard:podzol_slab"
             },
             {
               "type": "minecraft:item",
-              "conditions": [
-                { "condition": "minecraft:survives_explosion" }
-              ],
-              "functions": [
-                {
-                  "function": "minecraft:set_count",
-                  "conditions": [
-                    {
-                      "condition": "minecraft:block_state_property",
-                      "block": "dirt-slab-justfatlard:podzol_slab",
-                      "properties": { "type": "double" }
-                    }
-                  ],
-                  "count": 2
-                }
-              ],
+              "condition": {
+                "type": "minecraft:survives_explosion"
+              },
+              "modifier": {
+                "type": "minecraft:set_count",
+                "condition": {
+                  "type": "minecraft:match_block",
+                  "blocks": "dirt-slab-justfatlard:podzol_slab",
+                  "state": {
+                    "type": "double"
+                  }
+                },
+                "count": 2
+              },
               "name": "dirt-slab-justfatlard:dirt_slab"
             }
           ]

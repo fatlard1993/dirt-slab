@@ -1,6 +1,6 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -23,7 +23,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabSmallDripleafBlock extends DoublePlantBlock implements BonemealableBlock, OffsetableSlab {
 	@SuppressWarnings("unchecked")
-	public static final MapCodec<DoublePlantBlock> CODEC = (MapCodec<DoublePlantBlock>)(MapCodec<?>)simpleCodec(SlabSmallDripleafBlock::new);
 
 	private static final VoxelShape NORMAL_SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
 	private static final VoxelShape OFFSET_SHAPE = Block.box(2.0, -8.0, 2.0, 14.0, 8.0, 14.0);
@@ -35,10 +34,6 @@ public class SlabSmallDripleafBlock extends DoublePlantBlock implements Bonemeal
 			.setValue(BOTTOM_OFFSET, false));
 	}
 
-	@Override
-	public MapCodec<DoublePlantBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -81,17 +76,17 @@ public class SlabSmallDripleafBlock extends DoublePlantBlock implements Bonemeal
 
 	// Fertilizable - grows into big dripleaf
 	@Override
-	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
 			pos = pos.below();
 			state = world.getBlockState(pos);

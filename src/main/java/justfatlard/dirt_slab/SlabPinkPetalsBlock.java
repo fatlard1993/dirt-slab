@@ -1,6 +1,5 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -24,7 +23,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabPinkPetalsBlock extends VegetationBlock implements OffsetableSlab {
-	public static final MapCodec<SlabPinkPetalsBlock> CODEC = simpleCodec(SlabPinkPetalsBlock::new);
 	public static final int MIN_AMOUNT = 1;
 	public static final int MAX_AMOUNT = 4;
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -32,7 +30,6 @@ public class SlabPinkPetalsBlock extends VegetationBlock implements OffsetableSl
 
 	// Normal shape
 	private static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 3.0, 16.0);
-	// Offset shape for bottom slab placement (8 pixels lower)
 	private static final VoxelShape OFFSET_SHAPE = Block.box(0.0, -8.0, 0.0, 16.0, -5.0, 16.0);
 
 	public SlabPinkPetalsBlock(Properties settings) {
@@ -43,10 +40,6 @@ public class SlabPinkPetalsBlock extends VegetationBlock implements OffsetableSl
 			.setValue(BOTTOM_OFFSET, false));
 	}
 
-	@Override
-	protected MapCodec<? extends VegetationBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

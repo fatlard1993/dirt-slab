@@ -1,6 +1,5 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -15,11 +14,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabMossCarpetBlock extends CarpetBlock implements OffsetableSlab {
-	public static final MapCodec<SlabMossCarpetBlock> CODEC = simpleCodec(SlabMossCarpetBlock::new);
 
 	// Normal shape (carpet is 1 pixel tall)
 	private static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 1.0, 16.0);
-	// Offset shape for bottom slab placement (8 pixels lower)
 	private static final VoxelShape OFFSET_SHAPE = Block.box(0.0, -8.0, 0.0, 16.0, -7.0, 16.0);
 
 	public SlabMossCarpetBlock(Properties settings) {
@@ -27,10 +24,6 @@ public class SlabMossCarpetBlock extends CarpetBlock implements OffsetableSlab {
 		this.registerDefaultState(this.stateDefinition.any().setValue(BOTTOM_OFFSET, false));
 	}
 
-	@Override
-	public MapCodec<? extends CarpetBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

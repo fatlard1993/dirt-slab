@@ -17,6 +17,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.StemBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -36,7 +37,7 @@ public class StemBlockMixin {
 	}
 
 	@Inject(method = "performBonemeal", at = @At("HEAD"))
-	private void grow(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, CallbackInfo callbackInfo){
+	private void grow(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source, CallbackInfo callbackInfo){
 		if(!world.isClientSide()) SlabEffects.happyParticles(world, pos, 5);
 	}
 }

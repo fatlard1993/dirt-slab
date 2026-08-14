@@ -1,28 +1,24 @@
 {
-	"type": "minecraft:block",
-	"pools": [
-		{
-			"rolls": 1,
-			"entries": [
-				{
-					"type": "minecraft:item",
-					"name": "minecraft:lilac",
-					"conditions": [
-						{
-							"condition": "minecraft:block_state_property",
-							"block": "dirt-slab-justfatlard:lilac_slab",
-							"properties": {
-								"half": "lower"
-							}
-						}
-					]
-				}
-			],
-			"conditions": [
-				{
-					"condition": "minecraft:survives_explosion"
-				}
-			]
-		}
-	]
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:lilac",
+          "condition": {
+            "type": "minecraft:match_block",
+            "blocks": "dirt-slab-justfatlard:lilac_slab",
+            "state": {
+              "half": "lower"
+            }
+          }
+        }
+      ],
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      }
+    }
+  ]
 }

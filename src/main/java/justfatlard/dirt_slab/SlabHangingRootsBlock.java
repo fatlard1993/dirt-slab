@@ -1,6 +1,5 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -20,12 +19,10 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabHangingRootsBlock extends VegetationBlock {
-	public static final MapCodec<SlabHangingRootsBlock> CODEC = simpleCodec(SlabHangingRootsBlock::new);
 	public static final BooleanProperty TOP_OFFSET = BooleanProperty.create("top_offset");
 
 	// Normal shape (hanging from full block ceiling)
 	private static final VoxelShape SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
-	// Offset shape for top slab placement (8 pixels higher, hanging from bottom of top slab)
 	private static final VoxelShape OFFSET_SHAPE = Block.box(2.0, 8.0, 2.0, 14.0, 24.0, 14.0);
 
 	public SlabHangingRootsBlock(Properties settings) {
@@ -33,10 +30,6 @@ public class SlabHangingRootsBlock extends VegetationBlock {
 		this.registerDefaultState(this.stateDefinition.any().setValue(TOP_OFFSET, false));
 	}
 
-	@Override
-	protected MapCodec<? extends VegetationBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

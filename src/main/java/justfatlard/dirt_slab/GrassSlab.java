@@ -1,6 +1,7 @@
 package justfatlard.dirt_slab;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
@@ -36,17 +37,17 @@ public class GrassSlab extends SpreadableSlab implements BonemealableBlock {
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state){
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, BonemealSource source){
 		return world.getBlockState(pos.above()).isAir();
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state){
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source){
 		return true;
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state){
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source){
 		growAll(world, random, pos, state);
 	}
 
@@ -72,7 +73,7 @@ public class GrassSlab extends SpreadableSlab implements BonemealableBlock {
 
 			// 10% chance to promote short grass to tall grass
 			if(candidateState.getBlock() == Blocks.SHORT_GRASS && random.nextInt(10) == 0){
-				((BonemealableBlock)Blocks.SHORT_GRASS).performBonemeal(world, random, candidatePos, candidateState);
+				((BonemealableBlock)Blocks.SHORT_GRASS).performBonemeal(world, random, candidatePos, candidateState, BonemealSource.INTERACTION);
 				continue;
 			}
 			if(candidateState.getBlock() == DirtSlabBlocks.SHORT_GRASS_SLAB && random.nextInt(10) == 0){

@@ -16,7 +16,9 @@ public class DirtSlab implements ModInitializer {
 	@Override
 	public void onInitialize(){
 		DirtSlabBlocks.register();
+		PandoricalApi.content().registerModAssets(MOD_ID);
 		registerBlockTints();
+		HoeShovelInteraction.register();
 
 		DirtSlabConfig config = DirtSlabConfig.load();
 		SlabRegistry.initTerrainSlabs(config.resolveTerrainSlabs());

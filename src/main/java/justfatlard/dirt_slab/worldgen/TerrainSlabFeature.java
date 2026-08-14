@@ -1,5 +1,6 @@
 package justfatlard.dirt_slab.worldgen;
 
+import com.mojang.serialization.MapCodec;
 import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.OffsetableSlab;
 import justfatlard.dirt_slab.SlabRegistry;
@@ -15,10 +16,9 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import java.util.ArrayList;
 
 /**
@@ -27,18 +27,24 @@ import java.util.ArrayList;
  *
  * Two passes: first converts terrain and immediate plants, then revisits
  * bottom slab positions to catch plants placed by later worldgen features.
+ *
+ * Takes no configuration, so its codec is a singleton unit codec; it is registered
+ * directly as a code-side Feature instance (see DirtSlabWorldGen.register()), not
+ * deserialized from a data pack.
  */
-public class TerrainSlabFeature extends Feature<NoneFeatureConfiguration> {
+public class TerrainSlabFeature implements Feature {
+	public static final MapCodec<TerrainSlabFeature> CODEC = MapCodec.unit(TerrainSlabFeature::new);
+
 	public TerrainSlabFeature() {
-		super(NoneFeatureConfiguration.CODEC);
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-		WorldGenLevel world = context.level();
-		BlockPos origin = context.origin();
-		RandomSource random = context.random();
+	public MapCodec<? extends Feature> codec() {
+		return CODEC;
+	}
 
+	@Override
+	public boolean place(WorldGenLevel world, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
 		int placed = 0;
 		int radius = 12;
 

@@ -1,6 +1,7 @@
 package justfatlard.dirt_slab;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Items;
@@ -104,13 +105,13 @@ public class SlabPitcherCropBlock extends CropBlock implements OffsetableSlab {
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		// If this is the upper half, find the lower half
 		if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
 			BlockPos lowerPos = pos.below();
 			BlockState lowerState = world.getBlockState(lowerPos);
 			if (lowerState.getBlock() == this) {
-				performBonemeal(world, random, lowerPos, lowerState);
+				performBonemeal(world, random, lowerPos, lowerState, source);
 			}
 			return;
 		}
@@ -159,7 +160,7 @@ public class SlabPitcherCropBlock extends CropBlock implements OffsetableSlab {
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, BonemealSource source) {
 		// Only fertilizable if not at max age
 		if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
 			BlockPos lowerPos = pos.below();
@@ -173,7 +174,7 @@ public class SlabPitcherCropBlock extends CropBlock implements OffsetableSlab {
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 

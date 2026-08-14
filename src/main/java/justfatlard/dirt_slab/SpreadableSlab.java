@@ -81,7 +81,7 @@ public class SpreadableSlab extends SlabBlock {
 		if(!canCoverSurvive(state, world, pos)) SlabEffects.setToDirt(world, pos);
 	}
 
-	/** Check if the spreadable covering (grass/mycelium) can survive — not the slab itself, but the surface layer. */
+	/** Check if the spreadable covering (grass/mycelium) can survive: not the slab itself, but the surface layer. */
 	public static boolean canCoverSurvive(BlockState state, LevelReader world, BlockPos pos){
 		BlockPos posUp = pos.above();
 		BlockState topBlock = world.getBlockState(posUp);
@@ -94,7 +94,7 @@ public class SpreadableSlab extends SlabBlock {
 		if(state.getBlock() instanceof SpreadableSlab && !topBlock.isSolid() && state.getValue(TYPE) == SlabType.TOP) return true;
 
 		// Otherwise check light opacity
-		int i = LightEngine.getLightBlockInto(state, topBlock, Direction.UP, topBlock.getLightDampening());
+		int i = LightEngine.getLightDampeningInto(state, topBlock, Direction.UP, topBlock.getLightDampening());
 		return i < 15;
 	}
 

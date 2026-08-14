@@ -1,6 +1,5 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
@@ -12,11 +11,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabMushroomBlock extends VegetationBlock implements OffsetableSlab {
-	public static final MapCodec<SlabMushroomBlock> CODEC = simpleCodec(SlabMushroomBlock::new);
 
 	// Normal shape (same as vanilla mushroom)
 	private static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 6.0, 11.0);
-	// Offset shape for bottom slab placement (8 pixels lower)
 	private static final VoxelShape OFFSET_SHAPE = Block.box(5.0, -8.0, 5.0, 11.0, -2.0, 11.0);
 
 	public SlabMushroomBlock(Properties settings) {
@@ -24,10 +21,6 @@ public class SlabMushroomBlock extends VegetationBlock implements OffsetableSlab
 		this.registerDefaultState(this.stateDefinition.any().setValue(BOTTOM_OFFSET, false));
 	}
 
-	@Override
-	protected MapCodec<? extends VegetationBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

@@ -1,6 +1,5 @@
 package justfatlard.dirt_slab;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -16,12 +15,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabTallFlowerBlock extends TallFlowerBlock implements OffsetableSlab {
 	@SuppressWarnings("unchecked")
-	public static final MapCodec<TallFlowerBlock> CODEC = (MapCodec<TallFlowerBlock>)(MapCodec<?>)simpleCodec(SlabTallFlowerBlock::new);
 
 	// Normal shape for tall flowers
 	private static final VoxelShape NORMAL_SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
 
-	// Offset shape for bottom slab placement (8 pixels lower) - only applies to LOWER half
 	private static final VoxelShape OFFSET_SHAPE = Block.box(0.0, -8.0, 0.0, 16.0, 8.0, 16.0);
 
 	public SlabTallFlowerBlock(Properties settings) {
@@ -31,10 +28,6 @@ public class SlabTallFlowerBlock extends TallFlowerBlock implements OffsetableSl
 			.setValue(BOTTOM_OFFSET, false));
 	}
 
-	@Override
-	public MapCodec<TallFlowerBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

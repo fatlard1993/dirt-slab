@@ -33,7 +33,6 @@ public class PinkPetalsMixin {
 		BlockPos groundPos = clickedPos.below();
 		BlockState groundState = ctx.getLevel().getBlockState(groundPos);
 
-		// Check if placing on a dirt-type slab
 		if (!SlabRegistry.isTerrainSlab(groundState.getBlock())) {
 			return;
 		}

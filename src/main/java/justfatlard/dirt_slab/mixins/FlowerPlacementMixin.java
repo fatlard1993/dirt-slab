@@ -83,7 +83,6 @@ public class FlowerPlacementMixin {
 		BlockPos groundPos = clickedPos.below();
 		BlockState groundState = ctx.getLevel().getBlockState(groundPos);
 
-		// Check if placing on a dirt-type slab
 		if (!SlabRegistry.isTerrainSlab(groundState.getBlock())) {
 			return;
 		}
@@ -110,7 +109,6 @@ public class FlowerPlacementMixin {
 		Level world = ctx.getLevel();
 		BlockState groundState = world.getBlockState(groundPos);
 
-		// Check if placing on a dirt-type slab
 		if (!SlabRegistry.isTerrainSlab(groundState.getBlock())) {
 			return;
 		}
@@ -151,7 +149,6 @@ public class FlowerPlacementMixin {
 		BlockPos groundPos = clickedPos.below();
 		BlockState groundState = ctx.getLevel().getBlockState(groundPos);
 
-		// Check if placing on a dirt-type slab
 		if (!SlabRegistry.isTerrainSlab(groundState.getBlock())) {
 			return;
 		}
@@ -249,7 +246,6 @@ public class FlowerPlacementMixin {
 		BlockPos groundPos = clickedPos.below();
 		BlockState groundState = ctx.getLevel().getBlockState(groundPos);
 
-		// Check if placing on a dirt-type slab
 		if (!SlabRegistry.isTerrainSlab(groundState.getBlock())) {
 			return;
 		}

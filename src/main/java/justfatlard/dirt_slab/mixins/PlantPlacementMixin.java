@@ -28,7 +28,7 @@ import justfatlard.dirt_slab.SlabBambooShootBlock;
 @Mixin(value = Block.class, priority = 900)
 /**
  * Intercepts Block.getPlacementState to redirect plant placement onto slab terrain.
- * Targets Block.class because getPlacementState is defined there — subclass-targeted
+ * Targets Block.class because getPlacementState is defined there; subclass-targeted
  * mixins would modify the superclass method and affect all blocks anyway.
  * The instanceof dispatch handles: CropBlock, StemBlock, SugarCaneBlock, BambooBlock, BambooShootBlock.
  */

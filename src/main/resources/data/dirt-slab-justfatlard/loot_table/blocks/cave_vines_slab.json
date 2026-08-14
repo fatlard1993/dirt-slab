@@ -1,23 +1,21 @@
 {
-	"type": "minecraft:block",
-	"pools": [
-		{
-			"rolls": 1,
-			"entries": [
-				{
-					"type": "minecraft:item",
-					"name": "minecraft:glow_berries",
-					"conditions": [
-						{
-							"condition": "minecraft:block_state_property",
-							"block": "dirt-slab-justfatlard:cave_vines_slab",
-							"properties": {
-								"berries": "true"
-							}
-						}
-					]
-				}
-			]
-		}
-	]
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:glow_berries",
+          "condition": {
+            "type": "minecraft:match_block",
+            "blocks": "dirt-slab-justfatlard:cave_vines_slab",
+            "state": {
+              "berries": "true"
+            }
+          }
+        }
+      ]
+    }
+  ]
 }
