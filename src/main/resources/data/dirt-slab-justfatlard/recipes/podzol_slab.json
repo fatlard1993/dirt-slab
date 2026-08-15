@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:crafting_shaped",
-  "pattern": ["###"],
-  "key": { "#": { "item": "minecraft:podzol" } },
-  "result": {
-    "item": "dirt-slab-justfatlard:podzol_slab",
-    "count": 6
-  }
-}

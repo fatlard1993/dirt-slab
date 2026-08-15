@@ -71,6 +71,9 @@ Snow layers work on bottom slabs:
 - Right-click coarse dirt slab → Dirt slab
 - Right-click dirt/grass/path slab → Farmland slab
 
+**Crafting:**
+- Two of the same terrain slab stacked vertically → the full block (dirt, coarse dirt, grass, mud, mycelium, podzol, rooted dirt)
+
 ## Vanilla Parity
 
 - Grass, podzol, and mycelium spread across blocks and slabs
@@ -81,6 +84,7 @@ Snow layers work on bottom slabs:
 - Melons/pumpkins grow onto appropriate slab types
 - Villager farmers interact with farmland slabs
 - All appropriate particles and sounds
+- Explosion rubble: blocks destroyed by explosions have a chance to split into their slab variants (any block with a direct slab variant, vanilla or modded), so craters read as rubble and half-broken structures
 
 ## Requirements
 

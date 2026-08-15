@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:crafting_shaped",
-  "pattern": ["###"],
-  "key": { "#": { "item": "minecraft:farmland" } },
-  "result": {
-    "item": "dirt-slab-justfatlard:farmland_slab",
-    "count": 6
-  }
-}

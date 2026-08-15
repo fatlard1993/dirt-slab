@@ -23,6 +23,7 @@
 		"PlantMixin",
 		"SecondaryPointsOfInterestSensorMixin",
 		"PlantPlacementMixin",
+		"ServerExplosionMixin",
 		"ServerWorldMixin",
 		"ShortPlantMixin",
 		"SnowBlockMixin",

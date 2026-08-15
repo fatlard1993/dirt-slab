@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:crafting_shaped",
-  "pattern": ["###"],
-  "key": { "#": { "item": "minecraft:dirt" } },
-  "result": {
-    "item": "dirt-slab-justfatlard:dirt_slab",
-    "count": 6
-  }
-}

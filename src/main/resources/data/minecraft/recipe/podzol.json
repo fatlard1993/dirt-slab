@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "#minecraft:leaves",
+    "minecraft:grass_block",
+    "minecraft:sand",
+    "minecraft:coarse_dirt"
+  ],
+  "result": {
+    "count": 3,
+    "id": "minecraft:podzol"
+  }
+}
