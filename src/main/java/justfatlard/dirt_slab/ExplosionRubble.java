@@ -2,12 +2,14 @@ package justfatlard.dirt_slab;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -29,8 +31,10 @@ import net.minecraft.world.level.block.state.properties.SlabType;
 public class ExplosionRubble {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DirtSlab.MOD_ID);
 
-	// Tuning knob: chance a destroyed block survives as its slab variant instead of dropping
-	public static final float SPLIT_CHANCE = 0.35F;
+	// Tuning knob: chance a qualifying destroyed block survives as its slab variant instead of dropping.
+	// Only floor/rim positions qualify (below-neighbor must survive), so this is higher than the
+	// old whole-volume chance to keep crater floors reading clearly as rubble.
+	public static final float SPLIT_CHANCE = 0.5F;
 
 	private static final Map<Block, SlabBlock> FULL_TO_SLAB = new HashMap<>();
 
@@ -85,10 +89,18 @@ public class ExplosionRubble {
 	 * Called from ServerExplosionMixin for each position the explosion destroys.
 	 * Returns true if the block was replaced with its slab remainder, in which case
 	 * vanilla destruction (and its drops) must be skipped; the slab is the remainder.
+	 * destroyed is the explosion's full destroyed-position set: world-state checks alone
+	 * would race with iteration order, since later entries are not yet destroyed.
 	 */
-	public static boolean trySplit(BlockState state, ServerLevel level, BlockPos pos, Explosion explosion) {
+	public static boolean trySplit(BlockState state, ServerLevel level, BlockPos pos, Explosion explosion, Set<BlockPos> destroyed) {
 		// Mirror the guards of BlockBehaviour.onExplosionHit so we never touch a block vanilla would not destroy
 		if (state.isAir() || explosion.getBlockInteraction() == Explosion.BlockInteraction.TRIGGER_BLOCK) return false;
+
+		// Rubble only forms on the crater floor/rim: the block below must survive the
+		// explosion and be sturdy support, mid-blast air columns vaporize fully
+		BlockPos below = pos.below();
+		if (destroyed.contains(below)) return false;
+		if (!level.getBlockState(below).isFaceSturdy(level, below, Direction.UP)) return false;
 
 		BlockState remainder = slabRemainder(state);
 		if (remainder == null) return false;

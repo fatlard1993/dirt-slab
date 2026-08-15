@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -23,6 +24,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 	public static final IntegerProperty LAYERS = BlockStateProperties.LAYERS;
+	// Sliced slabs (grass path, farmland) are 7px per half, not 8: their offset snow sits 1px lower
+	public static final BooleanProperty SLICED = BooleanProperty.create("sliced");
 
 	// Normal shapes (on full blocks or top slabs)
 	protected static final VoxelShape[] LAYERS_TO_SHAPE = new VoxelShape[]{
@@ -49,15 +52,32 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 		Block.box(0.0, -8.0, 0.0, 16.0, 8.0, 16.0)
 	};
 
+	// One pixel lower than LAYERS_TO_SHAPE_OFFSET: rests on the 7px surface of a SlicedTopSlab bottom
+	protected static final VoxelShape[] LAYERS_TO_SHAPE_OFFSET_SLICED = new VoxelShape[]{
+		Shapes.empty(),
+		Block.box(0.0, -9.0, 0.0, 16.0, -7.0, 16.0),
+		Block.box(0.0, -9.0, 0.0, 16.0, -5.0, 16.0),
+		Block.box(0.0, -9.0, 0.0, 16.0, -3.0, 16.0),
+		Block.box(0.0, -9.0, 0.0, 16.0, -1.0, 16.0),
+		Block.box(0.0, -9.0, 0.0, 16.0, 1.0, 16.0),
+		Block.box(0.0, -9.0, 0.0, 16.0, 3.0, 16.0),
+		Block.box(0.0, -9.0, 0.0, 16.0, 5.0, 16.0),
+		Block.box(0.0, -9.0, 0.0, 16.0, 7.0, 16.0)
+	};
+
 	public SlabSnowLayerBlock(Properties settings) {
 		super(settings);
-		this.registerDefaultState(this.stateDefinition.any().setValue(LAYERS, 1).setValue(BOTTOM_OFFSET, false));
+		this.registerDefaultState(this.stateDefinition.any().setValue(LAYERS, 1).setValue(BOTTOM_OFFSET, false).setValue(SLICED, false));
 	}
 
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(LAYERS, BOTTOM_OFFSET);
+		builder.add(LAYERS, BOTTOM_OFFSET, SLICED);
+	}
+
+	private static VoxelShape offsetShape(BlockState state, int index) {
+		return (state.getValue(SLICED) ? LAYERS_TO_SHAPE_OFFSET_SLICED : LAYERS_TO_SHAPE_OFFSET)[index];
 	}
 
 	@Override
@@ -78,7 +98,7 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 	protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		int layers = state.getValue(LAYERS);
 		if (state.getValue(BOTTOM_OFFSET)) {
-			return LAYERS_TO_SHAPE_OFFSET[layers];
+			return offsetShape(state, layers);
 		}
 		return LAYERS_TO_SHAPE[layers];
 	}
@@ -92,7 +112,7 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 			if (layers <= 4) {
 				return Shapes.empty();
 			}
-			return LAYERS_TO_SHAPE_OFFSET[layers - 4];
+			return offsetShape(state, layers - 4);
 		}
 		return LAYERS_TO_SHAPE[layers - 1];
 	}
@@ -101,7 +121,7 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 	protected VoxelShape getBlockSupportShape(BlockState state, BlockGetter world, BlockPos pos) {
 		int layers = state.getValue(LAYERS);
 		if (state.getValue(BOTTOM_OFFSET)) {
-			return LAYERS_TO_SHAPE_OFFSET[layers];
+			return offsetShape(state, layers);
 		}
 		return LAYERS_TO_SHAPE[layers];
 	}
@@ -110,7 +130,7 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 	protected VoxelShape getVisualShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		int layers = state.getValue(LAYERS);
 		if (state.getValue(BOTTOM_OFFSET)) {
-			return LAYERS_TO_SHAPE_OFFSET[layers];
+			return offsetShape(state, layers);
 		}
 		return LAYERS_TO_SHAPE[layers];
 	}
@@ -168,7 +188,9 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 
 		BlockState below = ctx.getLevel().getBlockState(ctx.getClickedPos().below());
 		boolean shouldOffset = shouldOffset(below);
-		return super.getStateForPlacement(ctx).setValue(BOTTOM_OFFSET, shouldOffset);
+		return super.getStateForPlacement(ctx)
+			.setValue(BOTTOM_OFFSET, shouldOffset)
+			.setValue(SLICED, shouldOffset && isSliced(below));
 	}
 
 	@Override
@@ -190,11 +212,17 @@ public class SlabSnowLayerBlock extends Block implements OffsetableSlab {
 		return false;
 	}
 
+	public static boolean isSliced(BlockState below) {
+		return below.getBlock() instanceof SlicedTopSlab;
+	}
+
 	/**
 	 * Creates a snow layer state appropriate for placement above the given block
 	 */
 	public static BlockState createForSlab(BlockState below) {
 		boolean offset = shouldOffset(below);
-		return DirtSlabBlocks.SNOW_LAYER_SLAB.defaultBlockState().setValue(BOTTOM_OFFSET, offset);
+		return DirtSlabBlocks.SNOW_LAYER_SLAB.defaultBlockState()
+			.setValue(BOTTOM_OFFSET, offset)
+			.setValue(SLICED, offset && isSliced(below));
 	}
 }
