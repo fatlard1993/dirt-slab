@@ -28,6 +28,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -189,8 +190,16 @@ public class TerrainSlabFeature implements Feature {
 				if (startChunk == null) continue;
 
 				StructureStart start = startChunk.getStartForStructure(reference.getKey());
-				if (start != null && start.isValid()) {
-					bounds.add(start.getBoundingBox().inflatedBy(STRUCTURE_MARGIN));
+				if (start == null || !start.isValid()) continue;
+
+				// Piece boxes, not the structure's overall box. A village's overall box
+				// spans the whole settlement including every street and yard between the
+				// buildings, so protecting it keeps slabs out of the entire village
+				// rather than off the buildings. Per-piece leaves the ground a house
+				// actually stands on alone and lets terrain between houses terrace like
+				// anywhere else.
+				for (StructurePiece piece : start.getPieces()) {
+					bounds.add(piece.getBoundingBox().inflatedBy(STRUCTURE_MARGIN));
 				}
 			}
 		}
