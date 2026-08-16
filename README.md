@@ -86,18 +86,14 @@ Snow layers work on bottom slabs:
 - All appropriate particles and sounds
 - Explosion rubble: blocks destroyed by explosions have a chance to split into their slab variants (any block with a direct slab variant, vanilla or modded), so craters read as rubble and half-broken structures
 
-## Requirements
-
-Targets the Minecraft, Fabric Loader, and Fabric API versions declared in this mod's `gradle.properties`; check there for the exact currently-supported version.
-
 ## Pandorical
 
 Dirt Slab runs on both sides (`"environment": "*"`) and uses Pandorical to register and render its custom slab blocks and to apply the correct grass/stem/leaf/sugar-cane tints to them. Pandorical is a hard dependency (`fabric.mod.json`) with no fallback path, so it must be installed on both the server (to run Dirt Slab itself) and every client (to see the custom slab blocks and their tinting); without it, the mod will not load at all.
 
 ## Installation
 
-Install alongside its declared dependencies (see `fabric.mod.json`), including Pandorical client-side.
+Install server-side alongside its declared dependencies (see `fabric.mod.json`); connecting clients need only Pandorical. Version targets live in `gradle.properties` (Minecraft, loader, Fabric API) and `fabric.mod.json` (Java).
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT, see [LICENSE](LICENSE).
