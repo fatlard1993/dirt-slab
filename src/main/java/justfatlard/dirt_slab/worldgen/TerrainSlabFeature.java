@@ -1,6 +1,7 @@
 package justfatlard.dirt_slab.worldgen;
 
 import com.mojang.serialization.MapCodec;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import justfatlard.dirt_slab.DirtSlabBlocks;
 import justfatlard.dirt_slab.OffsetableSlab;
 import justfatlard.dirt_slab.SlabRegistry;
@@ -20,14 +21,18 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -132,10 +137,19 @@ public class TerrainSlabFeature implements Feature {
 	private static final int STRUCTURE_MARGIN = 2;
 
 	// TOP_LAYER_MODIFICATION runs after structures are placed, so without this guard the feature
-	// terraces ground a village/castle/latrine was just built on. Structure starts are only
-	// reachable through the chunk's structure references: the FEATURES chunk step requires
-	// STRUCTURE_STARTS at radius 8, so resolving starts referenced by the chunks we touch stays
-	// inside the WorldGenRegion. Boxes are gathered once per placement, not per block.
+	// terraces ground a village/castle/latrine was just built on. Boxes are gathered once per
+	// placement, not per block.
+	//
+	// References are resolved by hand rather than through StructureManager.startsForStructure,
+	// which loads the chunk each reference points at. That chunk is where the structure STARTS,
+	// and it can sit far outside this WorldGenRegion: a village plus an attached castle spans
+	// about nine chunks, so a chunk at its edge references a start well beyond the radius-8
+	// STRUCTURE_STARTS guarantee the FEATURES step gives us. WorldGenRegion.getChunk throws on
+	// that, worldgen dies mid-chunk, and the server thread waits on a future that never
+	// completes until the watchdog kills it.
+	//
+	// A start whose own chunk is out of region is skipped, so terrain at the far edge of a
+	// distant structure can still get terraced. That is a cosmetic miss traded for a crash.
 	private List<BoundingBox> collectStructureBounds(WorldGenLevel world, BlockPos origin, int radius) {
 		StructureManager structureManager = world.getLevel().structureManager();
 		if (world instanceof WorldGenRegion region) {
@@ -154,15 +168,38 @@ public class TerrainSlabFeature implements Feature {
 
 		for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
 			for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-				if (!world.hasChunk(chunkX, chunkZ)) continue;
-
-				for (StructureStart start : structureManager.startsForStructure(new ChunkPos(chunkX, chunkZ), structure -> true)) {
-					bounds.add(start.getBoundingBox().inflatedBy(STRUCTURE_MARGIN));
-				}
+				collectFromChunk(world, chunkX, chunkZ, bounds);
 			}
 		}
 
 		return List.copyOf(bounds);
+	}
+
+	private void collectFromChunk(WorldGenLevel world, int chunkX, int chunkZ, Set<BoundingBox> bounds) {
+		ChunkAccess chunk = availableChunk(world, chunkX, chunkZ);
+		if (chunk == null) return;
+
+		// Every chunk a structure covers references it, including the chunk it starts in, so
+		// walking references alone finds structures that merely overlap this one as well as
+		// structures rooted in it.
+		for (Map.Entry<Structure, LongSet> reference : chunk.getAllReferences().entrySet()) {
+			for (long packedStart : reference.getValue()) {
+				ChunkAccess startChunk = availableChunk(world,
+					ChunkPos.getX(packedStart), ChunkPos.getZ(packedStart));
+				if (startChunk == null) continue;
+
+				StructureStart start = startChunk.getStartForStructure(reference.getKey());
+				if (start != null && start.isValid()) {
+					bounds.add(start.getBoundingBox().inflatedBy(STRUCTURE_MARGIN));
+				}
+			}
+		}
+	}
+
+	/** The chunk at STRUCTURE_STARTS, or null when it is outside this region or not that far along. */
+	private static ChunkAccess availableChunk(WorldGenLevel world, int chunkX, int chunkZ) {
+		if (!world.hasChunk(chunkX, chunkZ)) return null;
+		return world.getChunk(chunkX, chunkZ, ChunkStatus.STRUCTURE_STARTS, false);
 	}
 
 	private boolean isStructureProtected(List<BoundingBox> structureBounds, BlockPos pos) {
