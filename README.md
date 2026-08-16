@@ -97,3 +97,7 @@ Dirt Slab runs on both sides (`"environment": "*"`) and uses Pandorical to regis
 ## Installation
 
 Install alongside its declared dependencies (see `fabric.mod.json`), including Pandorical client-side.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
