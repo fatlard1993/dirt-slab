@@ -50,7 +50,9 @@ public class DirtSlab implements ModInitializer {
 			MOD_ID + ":attached_melon_stem_slab",
 			MOD_ID + ":attached_pumpkin_stem_slab"
 		);
-		tints.constant(0x8B7355, MOD_ID + ":leaf_litter_slab");
+		// ARGB, not RGB: the tint is fed to ARGB.multiply against the quad color,
+		// so a zero alpha byte multiplies the quad's alpha to zero
+		tints.constant(0xFF8B7355, MOD_ID + ":leaf_litter_slab");
 		tints.sugarCane(MOD_ID + ":sugar_cane_slab");
 	}
 }
