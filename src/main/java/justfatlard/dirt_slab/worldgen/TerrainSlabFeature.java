@@ -7,7 +7,11 @@ import justfatlard.dirt_slab.SlabRegistry;
 import justfatlard.dirt_slab.SlabSnowLayerBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
@@ -19,7 +23,12 @@ import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Worldgen feature that converts terrain blocks at cliff edges into slabs,
@@ -27,6 +36,9 @@ import java.util.ArrayList;
  *
  * Two passes: first converts terrain and immediate plants, then revisits
  * bottom slab positions to catch plants placed by later worldgen features.
+ *
+ * Positions inside (or within STRUCTURE_MARGIN of) a generated structure's bounding box are
+ * left alone, so villages and other structures keep the ground they were built on.
  *
  * Takes no configuration, so its codec is a singleton unit codec; it is registered
  * directly as a code-side Feature instance (see DirtSlabWorldGen.register()), not
@@ -48,6 +60,8 @@ public class TerrainSlabFeature implements Feature {
 		int placed = 0;
 		int radius = 12;
 
+		List<BoundingBox> structureBounds = collectStructureBounds(world, origin, radius);
+
 		ArrayList<BlockPos> bottomSlabPositions = new ArrayList<>();
 
 		for (int x = -radius; x <= radius; x++) {
@@ -58,7 +72,7 @@ public class TerrainSlabFeature implements Feature {
 
 				// Surface slabs (bottom type at cliff edges)
 				BlockPos surfacePos = findSurface(world, columnPos);
-				if (surfacePos != null) {
+				if (surfacePos != null && !isStructureProtected(structureBounds, surfacePos)) {
 					BlockState state = world.getBlockState(surfacePos);
 					Block block = state.getBlock();
 
@@ -83,7 +97,7 @@ public class TerrainSlabFeature implements Feature {
 
 				// Overhang slabs (top type under cliff lips)
 				BlockPos overhangPos = findOverhang(world, columnPos);
-				if (overhangPos != null) {
+				if (overhangPos != null && !isStructureProtected(structureBounds, overhangPos)) {
 					BlockState state = world.getBlockState(overhangPos);
 					Block block = state.getBlock();
 
@@ -113,6 +127,49 @@ public class TerrainSlabFeature implements Feature {
 		}
 
 		return placed > 0;
+	}
+
+	private static final int STRUCTURE_MARGIN = 2;
+
+	// TOP_LAYER_MODIFICATION runs after structures are placed, so without this guard the feature
+	// terraces ground a village/castle/latrine was just built on. Structure starts are only
+	// reachable through the chunk's structure references: the FEATURES chunk step requires
+	// STRUCTURE_STARTS at radius 8, so resolving starts referenced by the chunks we touch stays
+	// inside the WorldGenRegion. Boxes are gathered once per placement, not per block.
+	private List<BoundingBox> collectStructureBounds(WorldGenLevel world, BlockPos origin, int radius) {
+		StructureManager structureManager = world.getLevel().structureManager();
+		if (world instanceof WorldGenRegion region) {
+			structureManager = structureManager.forWorldGenRegion(region);
+		}
+
+		if (!structureManager.shouldGenerateStructures()) return List.of();
+
+		int reach = radius + STRUCTURE_MARGIN;
+		int minChunkX = SectionPos.blockToSectionCoord(origin.getX() - reach);
+		int maxChunkX = SectionPos.blockToSectionCoord(origin.getX() + reach);
+		int minChunkZ = SectionPos.blockToSectionCoord(origin.getZ() - reach);
+		int maxChunkZ = SectionPos.blockToSectionCoord(origin.getZ() + reach);
+
+		Set<BoundingBox> bounds = new LinkedHashSet<>();
+
+		for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+			for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+				if (!world.hasChunk(chunkX, chunkZ)) continue;
+
+				for (StructureStart start : structureManager.startsForStructure(new ChunkPos(chunkX, chunkZ), structure -> true)) {
+					bounds.add(start.getBoundingBox().inflatedBy(STRUCTURE_MARGIN));
+				}
+			}
+		}
+
+		return List.copyOf(bounds);
+	}
+
+	private boolean isStructureProtected(List<BoundingBox> structureBounds, BlockPos pos) {
+		for (BoundingBox bounds : structureBounds) {
+			if (bounds.isInside(pos)) return true;
+		}
+		return false;
 	}
 
 	private int convertPlantAbove(WorldGenLevel world, BlockPos surfacePos, BlockState slabState) {
