@@ -133,13 +133,17 @@ public class SlabSaplingBlock extends Block implements BonemealableBlock, Offset
 		if (feature.isPresent()) {
 			BlockPos belowPos = pos.below();
 			BlockState below = world.getBlockState(belowPos);
-			if (SlabRegistry.isTerrainSlab(below.getBlock())) {
-				world.setBlockAndUpdate(belowPos, Blocks.DIRT.defaultBlockState());
+			// The tree needs whole ground under it. Hand the feature the full block this
+			// slab was cut from rather than plain dirt, so what the tree leaves behind is
+			// whatever it would have left on that block anywhere else.
+			BlockState fullGround = SlabRegistry.getFullBlockState(below.getBlock());
+			if (fullGround != null) {
+				world.setBlockAndUpdate(belowPos, fullGround);
 			}
 			world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
 			if (!feature.get().value().place(world, world.getChunkSource().getGenerator(), random, pos)) {
 				world.setBlockAndUpdate(pos, state);
-				if (SlabRegistry.isTerrainSlab(below.getBlock())) {
+				if (fullGround != null) {
 					world.setBlockAndUpdate(belowPos, below);
 				}
 			}
@@ -179,8 +183,9 @@ public class SlabSaplingBlock extends Block implements BonemealableBlock, Offset
 					savedSaplings[x][z] = world.getBlockState(saplingPos);
 					savedBelows[x][z] = world.getBlockState(belowPos);
 
-					if (SlabRegistry.isTerrainSlab(savedBelows[x][z].getBlock())) {
-						world.setBlockAndUpdate(belowPos, Blocks.DIRT.defaultBlockState());
+					BlockState fullGround = SlabRegistry.getFullBlockState(savedBelows[x][z].getBlock());
+					if (fullGround != null) {
+						world.setBlockAndUpdate(belowPos, fullGround);
 					}
 					world.setBlockAndUpdate(saplingPos, Blocks.AIR.defaultBlockState());
 				}

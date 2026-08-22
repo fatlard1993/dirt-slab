@@ -90,18 +90,21 @@ public class SlabAzaleaBlock extends Block implements BonemealableBlock, Offseta
 			.get(TreeFeatures.AZALEA_TREE);
 
 		if (feature.isPresent()) {
-			// Replace the block below with dirt if it's a slab (tree needs solid ground)
+			// The tree needs whole ground under it. Hand the feature the full block this
+			// slab was cut from rather than plain dirt, so what the tree leaves behind is
+			// whatever it would have left on that block anywhere else.
 			BlockPos belowPos = pos.below();
 			BlockState below = world.getBlockState(belowPos);
-			if (SlabRegistry.isTerrainSlab(below.getBlock())) {
-				world.setBlockAndUpdate(belowPos, Blocks.DIRT.defaultBlockState());
+			BlockState fullGround = SlabRegistry.getFullBlockState(below.getBlock());
+			if (fullGround != null) {
+				world.setBlockAndUpdate(belowPos, fullGround);
 			}
 			// Remove this block so tree can generate
 			world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
 			if (!feature.get().value().place(world, world.getChunkSource().getGenerator(), random, pos)) {
 				// If tree generation failed, put the azalea back
 				world.setBlockAndUpdate(pos, state);
-				if (SlabRegistry.isTerrainSlab(below.getBlock())) {
+				if (fullGround != null) {
 					world.setBlockAndUpdate(belowPos, below);
 				}
 			}

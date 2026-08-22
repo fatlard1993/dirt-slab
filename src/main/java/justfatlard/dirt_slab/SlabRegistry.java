@@ -3,7 +3,6 @@ package justfatlard.dirt_slab;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.minecraft.world.level.block.Block;
@@ -23,6 +22,12 @@ public class SlabRegistry {
 
 	// Shovel: vanilla full block → slab for halving
 	private static final Map<Block, Block> SHOVEL_HALVE;
+
+	// Our terrain slab → the vanilla full block it was cut from. Fixed rather than
+	// inverted from TERRAIN_SLABS: that map is config-owned, carries entries well
+	// outside the dirt family, and nothing stops an edit pointing two vanilla blocks
+	// at one slab, which an inversion would silently resolve either way.
+	private static final Map<Block, Block> SLAB_TO_FULL;
 
 	// Identity sets for our terrain slabs
 	private static final Set<Block> ALL_TERRAIN_SLABS;
@@ -106,14 +111,20 @@ public class SlabRegistry {
 		plantSlabs.put(Blocks.MANGROVE_PROPAGULE, DirtSlabBlocks.MANGROVE_PROPAGULE_SLAB);
 		plantSlabs.put(Blocks.PALE_OAK_SAPLING, DirtSlabBlocks.PALE_OAK_SAPLING_SLAB);
 
-		// Terrain slab identity sets
-		Set<Block> allTerrainSlabs = new HashSet<>(List.of(
-			DirtSlabBlocks.COARSE_DIRT_SLAB, DirtSlabBlocks.DIRT_SLAB,
-			DirtSlabBlocks.FARMLAND_SLAB, DirtSlabBlocks.GRASS_PATH_SLAB,
-			DirtSlabBlocks.GRASS_SLAB, DirtSlabBlocks.MUD_SLAB,
-			DirtSlabBlocks.MYCELIUM_SLAB, DirtSlabBlocks.PODZOL_SLAB,
-			DirtSlabBlocks.ROOTED_DIRT_SLAB
-		));
+		// Terrain slab identity sets. Which slabs are ours is the key set of the map
+		// below, so the two cannot fall out of step.
+		Map<Block, Block> slabToFull = new HashMap<>();
+		slabToFull.put(DirtSlabBlocks.COARSE_DIRT_SLAB, Blocks.COARSE_DIRT);
+		slabToFull.put(DirtSlabBlocks.DIRT_SLAB, Blocks.DIRT);
+		slabToFull.put(DirtSlabBlocks.FARMLAND_SLAB, Blocks.FARMLAND);
+		slabToFull.put(DirtSlabBlocks.GRASS_PATH_SLAB, Blocks.DIRT_PATH);
+		slabToFull.put(DirtSlabBlocks.GRASS_SLAB, Blocks.GRASS_BLOCK);
+		slabToFull.put(DirtSlabBlocks.MUD_SLAB, Blocks.MUD);
+		slabToFull.put(DirtSlabBlocks.MYCELIUM_SLAB, Blocks.MYCELIUM);
+		slabToFull.put(DirtSlabBlocks.PODZOL_SLAB, Blocks.PODZOL);
+		slabToFull.put(DirtSlabBlocks.ROOTED_DIRT_SLAB, Blocks.ROOTED_DIRT);
+
+		Set<Block> allTerrainSlabs = new HashSet<>(slabToFull.keySet());
 
 		Set<Block> dirtTypeSlabs = Set.of(
 			DirtSlabBlocks.COARSE_DIRT_SLAB, DirtSlabBlocks.DIRT_SLAB,
@@ -160,6 +171,7 @@ public class SlabRegistry {
 		PLANT_SLABS = Collections.unmodifiableMap(plantSlabs);
 		CROP_SLABS = Collections.unmodifiableMap(cropSlabs);
 		SHOVEL_HALVE = Collections.unmodifiableMap(shovelHalve);
+		SLAB_TO_FULL = Collections.unmodifiableMap(slabToFull);
 		ALL_TERRAIN_SLABS = Collections.unmodifiableSet(allTerrainSlabs);
 		DIRT_TYPE_SLABS = dirtTypeSlabs;
 		GRASS_TYPE_SLABS = Collections.unmodifiableSet(grassTypeSlabs);
@@ -176,6 +188,12 @@ public class SlabRegistry {
 	public static BlockState getTerrainSlabState(Block vanillaBlock) {
 		Block slab = TERRAIN_SLABS.get(vanillaBlock);
 		return slab != null ? slab.defaultBlockState() : null;
+	}
+
+	/** Get the default state of the vanilla full block one of our terrain slabs was cut from, or null. */
+	public static BlockState getFullBlockState(Block slab) {
+		Block full = SLAB_TO_FULL.get(slab);
+		return full != null ? full.defaultBlockState() : null;
 	}
 
 	/** Get the slab block for a vanilla plant block, or null. */
