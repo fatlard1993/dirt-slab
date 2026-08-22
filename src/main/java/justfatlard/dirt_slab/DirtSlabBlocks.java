@@ -187,13 +187,26 @@ public class DirtSlabBlocks {
 	 * type alone, which is a guess: naming the real source keeps the client's copy of
 	 * the block in step with the server's.
 	 */
-	private static void registerPandoricalBlock(String name, Block vanillaSource){
-		PandoricalApi.content().registerBlock(MOD_ID + ":" + name, new BlockRegistration()
-			.baseBlock(BuiltInRegistries.BLOCK.getKey(vanillaSource).toString()));
+	private static void registerPandoricalBlock(String name, Block vanillaSource, Block block){
+		BlockRegistration registration = new BlockRegistration()
+			.baseBlock(BuiltInRegistries.BLOCK.getKey(vanillaSource).toString());
+
+		// These answer a right-click: berries come off the vines and the bush, another
+		// flower joins the clump. The client's stand-in carries none of that behaviour, so
+		// unless it is told, it predicts what an unhandled right-click means and places the
+		// held block instead. Tested with instanceof rather than by name so the list cannot
+		// drift away from the classes it is about. See BlockRegistration#interactive.
+		if (block instanceof SlabCaveVinesBlock || block instanceof SlabCaveVinesPlantBlock
+			|| block instanceof SlabSweetBerryBushBlock || block instanceof SlabPinkPetalsBlock
+			|| block instanceof SlabWildflowersBlock || block instanceof SlabLeafLitterBlock){
+			registration.interactive();
+		}
+
+		PandoricalApi.content().registerBlock(MOD_ID + ":" + name, registration);
 	}
 
 	private static void registerSlab(String name, Block block, Block vanillaSource){
-		registerPandoricalBlock(name, vanillaSource);
+		registerPandoricalBlock(name, vanillaSource, block);
 		PandoricalApi.content().registerItem(MOD_ID + ":" + name, new ItemRegistration()
 			.model(MOD_ID + ":block/" + name));
 
@@ -203,7 +216,7 @@ public class DirtSlabBlocks {
 
 	/** Plant and crop slabs: real blocks in the world, but no item form to declare. */
 	private static void registerBlock(String name, Block block, Block vanillaSource){
-		registerPandoricalBlock(name, vanillaSource);
+		registerPandoricalBlock(name, vanillaSource, block);
 
 		Registry.register(BuiltInRegistries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, name), block);
 	}
