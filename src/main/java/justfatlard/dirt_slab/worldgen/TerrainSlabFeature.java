@@ -82,7 +82,8 @@ public class TerrainSlabFeature implements Feature {
 					BlockState state = world.getBlockState(surfacePos);
 					Block block = state.getBlock();
 
-					if (SlabRegistry.isConvertibleTerrain(block) && isTerrainEdge(world, surfacePos)) {
+					if (SlabRegistry.isConvertibleTerrain(block) && isTerrainEdge(world, surfacePos)
+							&& nothingStandingOn(world, surfacePos)) {
 						BlockState slabState = SlabRegistry.getTerrainSlabState(block);
 						if (slabState != null) {
 							BlockState finalState = slabState.setValue(SlabBlock.TYPE, SlabType.BOTTOM);
@@ -216,6 +217,24 @@ public class TerrainSlabFeature implements Feature {
 			if (bounds.isInside(pos)) return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Whether this column can lose its top half without dropping something into the air.
+	 *
+	 * <p>This feature runs in TOP_LAYER_MODIFICATION, the last decoration step, so the trees are
+	 * already standing when it arrives: halving the ground under a trunk leaves the whole tree
+	 * hovering half a block, which is what worldgen forests looked like at every cliff edge.
+	 *
+	 * <p>Air and snow have nothing to drop, and a plant becomes a plant-slab that sits down with
+	 * the ground. Everything else - a log above all, but equally a mushroom block or anything a
+	 * later feature stood here - keeps its full block.
+	 */
+	private boolean nothingStandingOn(WorldGenLevel world, BlockPos surfacePos) {
+		BlockState above = world.getBlockState(surfacePos.above());
+
+		if (above.isAir() || above.is(Blocks.SNOW)) return true;
+		return SlabRegistry.getPlantSlabDefaultState(above.getBlock()) != null;
 	}
 
 	private int convertPlantAbove(WorldGenLevel world, BlockPos surfacePos, BlockState slabState) {
