@@ -2,27 +2,52 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "rolls": 1.0,
       "entries": [
         {
-          "type": "minecraft:item",
-          "modifier": [
+          "type": "minecraft:alternatives",
+          "children": [
             {
-              "type": "minecraft:set_count",
-              "condition": {
-                "type": "minecraft:match_block",
-                "blocks": "dirt-slab-justfatlard:farmland_slab",
-                "state": {
-                  "type": "double"
+              "type": "minecraft:item",
+              "condition": "minecraft:tool/can_silk_touch",
+              "modifier": [
+                {
+                  "type": "minecraft:set_count",
+                  "condition": {
+                    "type": "minecraft:match_block",
+                    "blocks": "dirt-slab-justfatlard:farmland_slab",
+                    "state": {
+                      "type": "double"
+                    }
+                  },
+                  "count": 2
+                },
+                {
+                  "type": "minecraft:explosion_decay"
                 }
-              },
-              "count": 2
+              ],
+              "name": "dirt-slab-justfatlard:farmland_slab"
             },
             {
-              "type": "minecraft:explosion_decay"
+              "type": "minecraft:item",
+              "condition": {
+                "type": "minecraft:survives_explosion"
+              },
+              "modifier": {
+                "type": "minecraft:set_count",
+                "condition": {
+                  "type": "minecraft:match_block",
+                  "blocks": "dirt-slab-justfatlard:farmland_slab",
+                  "state": {
+                    "type": "double"
+                  }
+                },
+                "count": 2
+              },
+              "name": "dirt-slab-justfatlard:dirt_slab"
             }
-          ],
-          "name": "dirt-slab-justfatlard:farmland_slab"
+          ]
         }
       ]
     }
