@@ -1,11 +1,21 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_ingredient": {
+    "has_ingredient_0": {
       "conditions": {
         "items": [
           {
-            "items": "#minecraft:mushrooms"
+            "items": "minecraft:short_grass"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_ingredient_1": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dirt"
           }
         ]
       },
@@ -13,7 +23,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipes": "minecraft:mycelium"
+        "recipes": "minecraft:grass_block"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +31,13 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_ingredient"
+      "has_ingredient_0",
+      "has_ingredient_1"
     ]
   ],
   "rewards": {
     "recipes": [
-      "minecraft:mycelium"
+      "minecraft:grass_block"
     ]
   }
 }
