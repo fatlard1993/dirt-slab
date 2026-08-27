@@ -52,7 +52,7 @@ public class CropBlockMixin {
 
 	@Inject(method = "randomTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
 	private void onCropGrow(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo callbackInfo){
-		int age = state.hasProperty(CropBlock.AGE) ? state.getValue(CropBlock.AGE) : 1;
+		int age = ((CropBlock) (Object) this).getAge(state);
 		SlabEffects.happyParticles(world, pos, age);
 	}
 }
