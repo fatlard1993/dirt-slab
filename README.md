@@ -88,11 +88,11 @@ Snow layers work on bottom slabs:
 
 ## Pandorical
 
-Dirt Slab runs on both sides (`"environment": "*"`) and uses Pandorical to register and render its custom slab blocks and to apply the correct grass/stem/leaf/sugar-cane tints to them. Pandorical is a hard dependency (`fabric.mod.json`) with no fallback path, so it must be installed on both the server (to run Dirt Slab itself) and every client (to see the custom slab blocks and their tinting); without it, the mod will not load at all.
+Dirt Slab runs on both sides and uses Pandorical to register and draw its slabs, and to tint them like the grass, stems, leaves and sugar cane they stand in for. Pandorical is required, with no fallback: on the server to run Dirt Slab, and on every client to see the slabs and their tints. Without it the mod does not load.
 
-## Installation
+## Development
 
-Install server-side alongside its declared dependencies (see `fabric.mod.json`); connecting clients need only Pandorical. Version targets live in `gradle.properties` (Minecraft, loader, Fabric API) and `fabric.mod.json` (Java).
+Installing is in [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## License
 

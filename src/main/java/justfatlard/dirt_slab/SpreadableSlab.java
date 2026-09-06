@@ -72,6 +72,17 @@ public class SpreadableSlab extends SlabBlock {
 			Block slabResult = SlabRegistry.getSpreadResult(spreader.getBlock());
 			if(slabResult != null && spreadee.getBlock() == DirtSlabBlocks.DIRT_SLAB){
 				world.setBlockAndUpdate(randBlockPos, SlabRegistry.copySlabProperties(spreadee, slabResult));
+				continue;
+			}
+
+			// Spread onto the surface of a mixed slab. Only the top half changes: the block is a
+			// full cube whose surface is that half, and what it is sitting on is none of grass's
+			// business. Returns null unless the surface really is a dirt slab, so a stone-topped
+			// mix is never quietly repainted.
+			if(slabResult != null){
+				BlockState grown = justfatlard.dirt_slab.integration.MixedSlabIntegration
+					.resurface(spreadee, DirtSlabBlocks.DIRT_SLAB, slabResult);
+				if(grown != null) world.setBlockAndUpdate(randBlockPos, grown);
 			}
 		}
 	}

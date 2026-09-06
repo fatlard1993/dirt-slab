@@ -1,0 +1,17 @@
+{
+	"replace": false,
+	"values": [
+		"dirt-slab-justfatlard:wheat_slab_crop",
+		"dirt-slab-justfatlard:carrot_slab_crop",
+		"dirt-slab-justfatlard:potato_slab_crop",
+		"dirt-slab-justfatlard:beetroot_slab_crop",
+		"dirt-slab-justfatlard:torchflower_crop_slab",
+		"dirt-slab-justfatlard:pitcher_crop_slab",
+		"dirt-slab-justfatlard:melon_stem_slab",
+		"dirt-slab-justfatlard:pumpkin_stem_slab",
+		"dirt-slab-justfatlard:sugar_cane_slab",
+		"dirt-slab-justfatlard:bamboo_slab",
+		"dirt-slab-justfatlard:bamboo_shoot_slab",
+		"dirt-slab-justfatlard:sweet_berry_bush_slab"
+	]
+}

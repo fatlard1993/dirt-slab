@@ -7,6 +7,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,6 +27,11 @@ public class GrassSlab extends SpreadableSlab implements BonemealableBlock {
 		if(state.getValue(TYPE) == SlabType.BOTTOM){
 			BlockPos abovePos = pos.above();
 			BlockState aboveState = world.getBlockState(abovePos);
+			// A stalk is settled as a column: lowering its bottom piece alone left a gap.
+			if(PlantColumns.isStalk(aboveState)){
+				PlantColumns.settle(world, abovePos);
+				return;
+			}
 			BlockState plantSlabState = SlabRegistry.getPlantSlabDefaultState(aboveState.getBlock());
 			if(plantSlabState != null){
 				if(plantSlabState.hasProperty(OffsetableSlab.BOTTOM_OFFSET)){
@@ -68,8 +74,12 @@ public class GrassSlab extends SpreadableSlab implements BonemealableBlock {
 			}
 
 			BlockState candidateState = world.getBlockState(candidatePos);
-			Block ground = world.getBlockState(candidatePos.below()).getBlock();
+			BlockState groundState = world.getBlockState(candidatePos.below());
+			Block ground = groundState.getBlock();
 			boolean onSlab = ground == DirtSlabBlocks.GRASS_SLAB;
+			// What sprouts on a bottom slab stands at the slab's height, as anything placed there
+			// would; it used to come up at full height, floating half a block over the grass.
+			boolean lowered = onSlab && groundState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
 
 			// 10% chance to promote short grass to tall grass
 			if(candidateState.getBlock() == Blocks.SHORT_GRASS && random.nextInt(10) == 0){
@@ -77,7 +87,7 @@ public class GrassSlab extends SpreadableSlab implements BonemealableBlock {
 				continue;
 			}
 			if(candidateState.getBlock() == DirtSlabBlocks.SHORT_GRASS_SLAB && random.nextInt(10) == 0){
-				world.setBlock(candidatePos, DirtSlabBlocks.TALL_GRASS_SLAB.defaultBlockState(), 3);
+				world.setBlock(candidatePos, lowered(DirtSlabBlocks.TALL_GRASS_SLAB.defaultBlockState(), lowered), 3);
 				continue;
 			}
 
@@ -89,8 +99,13 @@ public class GrassSlab extends SpreadableSlab implements BonemealableBlock {
 					toPlace = onSlab ? DirtSlabBlocks.SHORT_GRASS_SLAB.defaultBlockState() : Blocks.SHORT_GRASS.defaultBlockState();
 				}
 
+				toPlace = lowered(toPlace, lowered);
 				if(toPlace.canSurvive(world, candidatePos)) world.setBlock(candidatePos, toPlace, 3);
 			}
 		}
+	}
+
+	private static BlockState lowered(BlockState state, boolean lowered){
+		return state.hasProperty(OffsetableSlab.BOTTOM_OFFSET) ? state.setValue(OffsetableSlab.BOTTOM_OFFSET, lowered) : state;
 	}
 }

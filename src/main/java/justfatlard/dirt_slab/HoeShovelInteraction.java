@@ -46,24 +46,86 @@ public final class HoeShovelInteraction {
 
 	private static InteractionResult onUseBlock(Player player, Level world, InteractionHand hand, BlockHitResult hitResult) {
 		ItemStack stack = player.getItemInHand(hand);
+		InteractionResult result;
+
 		if (stack.getItem().builtInRegistryHolder().is(ItemTags.HOES)) {
-			return useHoe(player, world, hand, hitResult);
+			result = useHoe(player, world, hand, hitResult);
+		} else if (stack.getItem().builtInRegistryHolder().is(ItemTags.SHOVELS)) {
+			result = useShovel(player, world, hand, hitResult);
+		} else {
+			return InteractionResult.PASS;
 		}
-		if (stack.getItem().builtInRegistryHolder().is(ItemTags.SHOVELS)) {
-			return useShovel(player, world, hand, hitResult);
+
+		// Swing the arm, because nothing else will. Vanilla swings when the client itself decides
+		// an interaction happened, and here it never does: this mod lives on the server and the
+		// client has no idea a shovel means anything to the block it is pointed at. The block
+		// changed and the sound played, so the tool ended up doing its job with the player standing
+		// perfectly still - which reads as the game having ignored the click.
+		//
+		// Broadcast rather than sent to the one player: an arm that only moves for the person
+		// swinging it is a different bug wearing the same clothes.
+		if (result == InteractionResult.SUCCESS && !world.isClientSide()) {
+			player.swing(hand, stack.getInteractAnimation(), true);
 		}
-		return InteractionResult.PASS;
+
+		return result;
 	}
 
 	// ── Hoe: till dirt/grass-type slabs into farmland slabs ────────────────────
+
+	/**
+	 * Hoe and shovel on a mixed slab, which work on its surface and leave the half underneath be.
+	 *
+	 * <p>Handled ahead of the ordinary path because the checks there are about slab geometry - which
+	 * half is filled, whether a sliced top can exist - and a mixed slab is a full cube with no
+	 * geometry left to ask about. Only the material of the top half is in question.
+	 *
+	 * <p>A hoe will not till one. Farmland is deliberately not a mixable slab: its behaviour lives
+	 * in a moisture level a mixed slab has no room for, so one that looked like farmland could never
+	 * be farmed. Refusing is the honest answer; coarse dirt still loosens to dirt.
+	 *
+	 * @return the new state, or null if this is not a mixed slab or nothing applies to it
+	 */
+	private static BlockState mixedSlabResult(BlockState state, boolean shovel) {
+		if (shovel) {
+			for (Block surface : new Block[]{
+					DirtSlabBlocks.GRASS_SLAB, DirtSlabBlocks.DIRT_SLAB,
+					DirtSlabBlocks.COARSE_DIRT_SLAB, DirtSlabBlocks.PODZOL_SLAB,
+					DirtSlabBlocks.MYCELIUM_SLAB, DirtSlabBlocks.ROOTED_DIRT_SLAB}) {
+				BlockState pathed = justfatlard.dirt_slab.integration.MixedSlabIntegration
+					.resurface(state, surface, DirtSlabBlocks.GRASS_PATH_SLAB);
+				if (pathed != null) return pathed;
+			}
+			return null;
+		}
+
+		return justfatlard.dirt_slab.integration.MixedSlabIntegration
+			.resurface(state, DirtSlabBlocks.COARSE_DIRT_SLAB, DirtSlabBlocks.DIRT_SLAB);
+	}
+
+	private static InteractionResult applyMixed(Player player, Level world, InteractionHand hand,
+			BlockPos pos, BlockState result,
+			net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent> sound) {
+		if (!world.isClientSide()) {
+			world.setBlockAndUpdate(pos, result);
+			world.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+				sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+			player.getItemInHand(hand).hurtAndBreak(1, player, hand);
+		}
+		SlabEffects.dirtParticles(world, pos, 1);
+		return InteractionResult.SUCCESS;
+	}
 
 	private static InteractionResult useHoe(Player player, Level world, InteractionHand hand, BlockHitResult hitResult) {
 		BlockPos pos = hitResult.getBlockPos();
 		BlockState state = world.getBlockState(pos);
 
-		if (hitResult.getDirection() == Direction.DOWN || !SlicedTopSlab.canExistAt(state, world, pos)) {
-			return InteractionResult.PASS;
-		}
+		if (hitResult.getDirection() == Direction.DOWN) return InteractionResult.PASS;
+
+		BlockState mixed = mixedSlabResult(state, false);
+		if (mixed != null) return applyMixed(player, world, hand, pos, mixed, SoundEvents.HOE_TILL);
+
+		if (!SlicedTopSlab.canExistAt(state, world, pos)) return InteractionResult.PASS;
 
 		Block block = state.getBlock();
 		BlockState newState = null;
@@ -98,9 +160,12 @@ public final class HoeShovelInteraction {
 		BlockPos pos = hitResult.getBlockPos();
 		BlockState state = world.getBlockState(pos);
 
-		if (hitResult.getDirection() == Direction.DOWN || !SlicedTopSlab.canExistAt(state, world, pos)) {
-			return InteractionResult.PASS;
-		}
+		if (hitResult.getDirection() == Direction.DOWN) return InteractionResult.PASS;
+
+		BlockState mixed = mixedSlabResult(state, true);
+		if (mixed != null) return applyMixed(player, world, hand, pos, mixed, SoundEvents.SHOVEL_FLATTEN);
+
+		if (!SlicedTopSlab.canExistAt(state, world, pos)) return InteractionResult.PASS;
 
 		Block block = state.getBlock();
 		boolean isPlayerSneaking = player.isShiftKeyDown();
