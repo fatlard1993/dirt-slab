@@ -66,6 +66,12 @@ public class DirtSlabConfig {
 		return config;
 	}
 
+	/** Saved at once; the terrain only reads it at start, so it takes effect after a restart. */
+	public void setWorldgenEnabled(boolean enabled) {
+		worldgenEnabled = enabled;
+		save();
+	}
+
 	private void save() {
 		try {
 			Files.createDirectories(CONFIG_PATH.getParent());

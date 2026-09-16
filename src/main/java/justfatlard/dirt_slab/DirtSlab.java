@@ -23,6 +23,10 @@ public class DirtSlab implements ModInitializer {
 
 		DirtSlabConfig config = DirtSlabConfig.load();
 		SlabRegistry.initTerrainSlabs(config.resolveTerrainSlabs());
+		PandoricalApi.settings().serverGroup(MOD_ID, "Dirt Slab")
+			.toggle("worldgenEnabled", "Slabs in new terrain", true)
+			.describe("From the next restart, in land generated after it")
+			.backedBy(player -> config.worldgenEnabled, (player, on) -> config.setWorldgenEnabled(on));
 
 		SlabStructureProcessor.register();
 

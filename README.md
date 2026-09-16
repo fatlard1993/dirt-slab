@@ -23,7 +23,7 @@ A [Minecraft](https://minecraft.net) mod built on [Fabric](https://fabricmc.net)
 - Podzol
 - Rooted Dirt
 
-All slabs appear in the Building Blocks creative tab. Slabs are obtained via shovel (sneak + right-click to halve a full block).
+All slabs appear in the Building Blocks creative tab. Three of the full block in a row craft six slabs (dirt path makes the grass path slab), and a shovel halves a full block in place (sneak + right-click).
 
 ## World Generation
 
@@ -52,6 +52,8 @@ Plants render on bottom slabs at the right vertical offset. Supported plants:
 
 **Saplings:** All vanilla saplings (Oak, Spruce, Birch, Jungle, Acacia, Dark Oak, Cherry, Mangrove, Pale Oak)
 
+Sugar cane and bamboo standing on a slab grow as the slab kind all the way up, so the whole stalk sits at the slab's height.
+
 ## Snow Support
 
 Snow layers work on bottom slabs:
@@ -63,8 +65,8 @@ Snow layers work on bottom slabs:
 ## Tool Interactions
 
 **Shovel:**
-- Right-click dirt slab → Path slab
-- Sneak + right-click full block or double slab → Single slab
+- Right-click dirt or grass slab → Path slab
+- Sneak + right-click full block or double slab → Single slab (the removed half drops as a dirt slab; with Silk Touch, or from coarse dirt, it drops as the slab it came from)
 - Sneak + right-click single slab → Toggle top/bottom placement
 
 **Hoe:**
@@ -72,11 +74,15 @@ Snow layers work on bottom slabs:
 - Right-click dirt/grass/path slab → Farmland slab
 
 **Crafting:**
+- Three of a terrain block in a row → six slabs (dirt, coarse dirt, farmland, dirt path, grass, mud, mycelium, podzol, rooted dirt)
 - Two of the same terrain slab stacked vertically → the full block (dirt, coarse dirt, grass, mud, mycelium, podzol, rooted dirt)
+- Dirt surrounded by eight short grass → grass block
+- Podzol surrounded by eight mushrooms → mycelium
+- Any leaves, grass block, sand and coarse dirt (shapeless) → three podzol
 
 ## Vanilla Parity
 
-- Grass, podzol, and mycelium spread across blocks and slabs
+- Grass and mycelium spread across blocks and slabs
 - Sheep eat grass from grass slabs
 - Bonemeal fertilizes grass slabs
 - Giant pines convert adjacent dirt/grass slabs to podzol
@@ -85,6 +91,22 @@ Snow layers work on bottom slabs:
 - Villager farmers interact with farmland slabs
 - All appropriate particles and sounds
 - Explosion rubble: blocks destroyed by explosions have a chance to split into their slab variants (any block with a direct slab variant, vanilla or modded), so craters read as rubble and half-broken structures
+
+## Mixed Slabs
+
+With [Mixed Slabs](../mixed-slabs) installed, a terrain slab built into a mixed slab keeps its surface, and only the top half is ever changed:
+- Grass and mycelium spread onto a dirt slab top
+- A shovel turns a grass, dirt, coarse dirt, podzol, mycelium or rooted dirt top into path
+- A hoe loosens a coarse dirt top to dirt, but never tills a mixed slab into farmland
+
+## Config
+
+`config/dirt-slab.json`, written with defaults on first run:
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `worldgen_enabled` | `true` | Generate terrain slabs at terrain edges. Read at startup. Also on Dirt Slab's page of the Pandorical mods menu, for ops, as "Slabs in new terrain" |
+| `terrain_slabs` | the blocks under World Generation | Full block id → slab id pairs that worldgen converts: grass, dirt, coarse dirt, podzol, mycelium, mud, rooted dirt and dirt path to this mod's slabs; stone, deepslate (to `deepslate_tile_slab`), tuff, andesite, diorite, granite, sandstone, smooth sandstone, red sandstone and smooth red sandstone to vanilla slabs. A pair naming a block that doesn't exist is skipped |
 
 ## Pandorical
 
