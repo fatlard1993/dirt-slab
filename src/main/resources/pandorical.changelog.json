@@ -4,12 +4,18 @@
 	],
 	"versions": {
 		"2.0.1": [
-			"Sugar cane and bamboo standing on a slab grow as the slab kind the whole way up, so the stalk sits at the slab's height instead of stepping back to full blocks.",
-			"Natural terrain slabs are an op toggle in the mods menu now, and growth particles read the crop's own age, so beetroots stop finishing early."
+			"Sugar cane and bamboo on a slab grow as the slab kind the whole way up.",
+			"The stalk sits at the slab's height instead of stepping back to full blocks.",
+			"Natural terrain slabs are an op toggle in the mods menu.",
+			"Growth particles read the crop's own age, so beetroots stop finishing early."
 		],
 		"2.0.0": [
-			"The whole family - dirt, coarse dirt, farmland, grass path, grass, mud, mycelium, podzol and rooted dirt - crafted three in a row for six slabs, or halved in place with a shovel, each with the advancement that unlocks it.",
-			"Terrain slabs smooth elevation changes in worldgen without terracing villages, trampled farmland lifts you out and breaks to a dirt slab, a tree restores the ground it grew from, and anything standing on terrain keeps the full block under it."
+			"The whole family: dirt, coarse dirt, farmland, grass path, grass, mud, mycelium, podzol, rooted.",
+			"Crafted three in a row for six slabs, or halved in place with a shovel.",
+			"Each with the advancement that unlocks it.",
+			"Terrain slabs smooth elevation changes in worldgen without terracing villages.",
+			"Trampled farmland lifts you out and breaks to a dirt slab.",
+			"A tree restores the ground it grew from, and anything on terrain keeps the full block under it."
 		]
 	}
 }
