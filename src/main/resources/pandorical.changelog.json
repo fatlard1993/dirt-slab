@@ -1,21 +1,25 @@
 {
-	"overview": [
-		"Half-height dirt, grass, farmland, path and the rest, with the crops, plants, spreading, snow and worldgen that full blocks get."
-	],
-	"versions": {
-		"2.0.1": [
-			"Sugar cane and bamboo on a slab grow as the slab kind the whole way up.",
-			"The stalk sits at the slab's height instead of stepping back to full blocks.",
-			"Natural terrain slabs are an op toggle in the mods menu.",
-			"Growth particles read the crop's own age, so beetroots stop finishing early."
-		],
-		"2.0.0": [
-			"The whole family: dirt, coarse dirt, farmland, grass path, grass, mud, mycelium, podzol, rooted.",
-			"Crafted three in a row for six slabs, or halved in place with a shovel.",
-			"Each with the advancement that unlocks it.",
-			"Terrain slabs smooth elevation changes in worldgen without terracing villages.",
-			"Trampled farmland lifts you out and breaks to a dirt slab.",
-			"A tree restores the ground it grew from, and anything on terrain keeps the full block under it."
-		]
-	}
+  "overview": [
+    "Half-height dirt, grass, farmland, path and the rest, with the crops, plants, spreading, snow and worldgen that full blocks get."
+  ],
+  "versions": {
+    "2.0.2": [
+      "A grass path slab digs into a dirt slab, the way a path block digs into dirt.",
+      "Silk touch still takes the path slab itself."
+    ],
+    "2.0.1": [
+      "Sugar cane and bamboo on a slab grow as the slab kind the whole way up.",
+      "The stalk sits at the slab's height instead of stepping back to full blocks.",
+      "Natural terrain slabs are an op toggle in the mods menu.",
+      "Growth particles read the crop's own age, so beetroots stop finishing early."
+    ],
+    "2.0.0": [
+      "The whole family: dirt, coarse dirt, farmland, grass path, grass, mud, mycelium, podzol, rooted.",
+      "Crafted three in a row for six slabs, or halved in place with a shovel.",
+      "Each with the advancement that unlocks it.",
+      "Terrain slabs smooth elevation changes in worldgen without terracing villages.",
+      "Trampled farmland lifts you out and breaks to a dirt slab.",
+      "A tree restores the ground it grew from, and anything on terrain keeps the full block under it."
+    ]
+  }
 }

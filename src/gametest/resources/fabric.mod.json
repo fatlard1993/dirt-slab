@@ -8,7 +8,8 @@
 	"environment": "*",
 	"entrypoints": {
 		"fabric-client-gametest": [
-			"justfatlard.dirt_slab.gametest.SmokeTest"
+			"justfatlard.dirt_slab.gametest.SmokeTest",
+			"justfatlard.dirt_slab.gametest.TerrainDrops"
 		]
 	},
 	"depends": {
