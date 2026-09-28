@@ -3,6 +3,9 @@
     "Half-height dirt, grass, farmland, path and the rest, with the crops, plants, spreading, snow and worldgen that full blocks get."
   ],
   "versions": {
+    "2.0.3": [
+      "The mod menu icon matches the one on the download pages."
+    ],
     "2.0.2": [
       "A grass path slab digs into a dirt slab, the way a path block digs into dirt.",
       "Silk touch still takes the path slab itself."
