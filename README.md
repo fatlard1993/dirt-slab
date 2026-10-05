@@ -9,7 +9,6 @@ A [Minecraft](https://minecraft.net) mod built on [Fabric](https://fabricmc.net)
 
 ![Dirt Slab](img.png)
 ![Dirt Slab Grass](img2.png)
-![Dirt Slab Farmland](img3.png)
 
 ## Slab Blocks
 
