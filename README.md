@@ -94,7 +94,7 @@ Snow layers work on bottom slabs:
 
 ## Mixed Slabs
 
-With [Mixed Slabs](../mixed-slabs) installed, a terrain slab built into a mixed slab keeps its surface, and only the top half is ever changed:
+With [Mixed Slabs](https://github.com/fatlard1993/mixed-slabs) installed, a terrain slab built into a mixed slab keeps its surface, and only the top half is ever changed:
 - Grass and mycelium spread onto a dirt slab top
 - A shovel turns a grass, dirt, coarse dirt, podzol, mycelium or rooted dirt top into path
 - A hoe loosens a coarse dirt top to dirt, but never tills a mixed slab into farmland
