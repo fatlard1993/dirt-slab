@@ -3,6 +3,9 @@
     "Half-height dirt, grass, farmland, path and the rest, with the crops, plants, spreading, snow and worldgen that full blocks get."
   ],
   "versions": {
+    "2.0.4": [
+      "Release notes rewritten to read plainly; nothing in play changes."
+    ],
     "2.0.3": [
       "The mod menu icon matches the one on the download pages."
     ],
