@@ -3,6 +3,9 @@
     "Half-height dirt, grass, farmland, path and the rest, with the crops, plants, spreading, snow and worldgen that full blocks get."
   ],
   "versions": {
+    "2.0.5": [
+      "Pitcher crops, pitcher plants, a grown torchflower crop and flowering azaleas on a slab look as they do on dirt, not as missing textures."
+    ],
     "2.0.4": [
       "Release notes rewritten to read plainly; nothing in play changes."
     ],
