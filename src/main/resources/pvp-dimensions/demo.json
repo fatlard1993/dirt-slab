@@ -1,0 +1,47 @@
+{
+  "demo": {
+    "name": "Dirt Slab",
+    "icon": "dirt-slab-justfatlard:grass_slab",
+    "about": [
+      "Half-height dirt, grass, farmland, path, mud and more, that grass spreads over and crops and flowers grow on just like the full blocks.",
+      "Build some gentle slopes, then till a dirt slab with the hoe and plant it, flatten a grass slab to path with the shovel, and set flowers and a sapling on the slabs."
+    ]
+  },
+  "pvp_preset": 1,
+  "needs": ["dirt-slab-justfatlard"],
+  "preset": {
+    "name": "Dirt Slab",
+    "icon": "dirt-slab-justfatlard:grass_slab",
+    "pvp": false,
+    "game_mode": "survival",
+    "entry_kit": [
+      {"slot": 0, "item": {"id": "dirt-slab-justfatlard:grass_slab", "count": 64}},
+      {"slot": 1, "item": {"id": "dirt-slab-justfatlard:dirt_slab", "count": 64}},
+      {"slot": 2, "item": {"id": "minecraft:iron_shovel", "count": 1}},
+      {"slot": 3, "item": {"id": "minecraft:iron_hoe", "count": 1}},
+      {"slot": 4, "item": {"id": "minecraft:wheat_seeds", "count": 16}},
+      {"slot": 5, "item": {"id": "minecraft:bone_meal", "count": 32}},
+      {"slot": 6, "item": {"id": "minecraft:water_bucket", "count": 1}},
+      {"slot": 7, "item": {"id": "minecraft:oak_sapling", "count": 4}},
+      {"slot": 8, "item": {"id": "minecraft:poppy", "count": 8}},
+      {"slot": 9, "item": {"id": "dirt-slab-justfatlard:coarse_dirt_slab", "count": 32}},
+      {"slot": 10, "item": {"id": "dirt-slab-justfatlard:podzol_slab", "count": 32}},
+      {"slot": 11, "item": {"id": "dirt-slab-justfatlard:mycelium_slab", "count": 16}},
+      {"slot": 12, "item": {"id": "dirt-slab-justfatlard:mud_slab", "count": 16}},
+      {"slot": 13, "item": {"id": "dirt-slab-justfatlard:rooted_dirt_slab", "count": 16}},
+      {"slot": 14, "item": {"id": "dirt-slab-justfatlard:grass_path_slab", "count": 16}},
+      {"slot": 15, "item": {"id": "minecraft:dandelion", "count": 8}},
+      {"slot": 16, "item": {"id": "minecraft:sugar_cane", "count": 4}},
+      {"slot": 17, "item": {"id": "minecraft:cooked_beef", "count": 8}}
+    ],
+    "respawn_kit": "entry",
+    "goal": "time",
+    "mobs": "off",
+    "life": 15,
+    "size": 3,
+    "world": "overworld",
+    "shape": "natural",
+    "biome": "minecraft:plains",
+    "weather": "clear"
+  }
+}
