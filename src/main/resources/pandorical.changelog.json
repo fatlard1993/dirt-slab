@@ -3,6 +3,9 @@
     "Half-height dirt, grass, farmland, path and the rest, with the crops, plants, spreading, snow and worldgen that full blocks get."
   ],
   "versions": {
+    "2.0.9": [
+      "A farmer finds farmland slabs in the same look around it takes for farmland, instead of a second one."
+    ],
     "2.0.8": [
       "A demo to play in PvP Dimensions' onboarding."
     ],
